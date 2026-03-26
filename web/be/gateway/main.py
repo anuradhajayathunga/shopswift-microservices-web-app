@@ -50,3 +50,7 @@ async def get_all_users():
 @app.get("/gateway/products")
 async def get_all_products():
     return await forward_request("product", "/api/products", "GET")
+
+@app.get("/gateway/cart")
+async def get_user_cart(user_id: int):
+    return await forward_request("cart", f"/api/cart/{user_id}", "GET")
