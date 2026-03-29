@@ -1,5 +1,9 @@
+"use client"; // Required for interactivity in Next.js
+
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+// 1. Changed imports to Next.js native routing
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -12,7 +16,6 @@ import {
   Leaf,
   ChevronLeft,
   ChevronRight,
-  Bell,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,7 +38,8 @@ export default function Sidebar({
   isCollapsed = false,
   onToggleCollapse,
 }) {
-  const location = useLocation();
+  // 2. Changed useLocation to usePathname
+  const pathname = usePathname();
 
   const mainNavItems = [
     { name: "Dashboard", path: "/", icon: <LayoutDashboard size={18} /> },
@@ -70,13 +74,13 @@ export default function Sidebar({
     { name: "Settings", path: "/settings", icon: <Settings size={18} /> },
   ];
 
-  // Extracted NavLink component for cleaner rendering
   const NavLink = ({ item }) => {
-    const isActive = location.pathname === item.path;
+    // 3. Update active check
+    const isActive = pathname === item.path;
 
     const linkContent = (
       <Link
-        to={item.path}
+        href={item.path} // 4. Changed 'to' to 'href'
         onClick={() => toggleMobileMenu(false)}
         className={cn(
           "flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 group relative",
@@ -86,11 +90,9 @@ export default function Sidebar({
             : "text-[var(--sidebar-foreground-70)] hover:bg-[var(--sidebar-accent)] hover:text-[var(--sidebar-foreground)]",
         )}
       >
-        {/* Sleek active indicator for collapsed state */}
         {isActive && isCollapsed && (
           <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[var(--sidebar-primary-foreground)] rounded-r-full" />
         )}
-
         <span
           className={cn(
             "shrink-0 transition-colors duration-200",
@@ -101,7 +103,6 @@ export default function Sidebar({
         >
           {item.icon}
         </span>
-
         {!isCollapsed && (
           <div className="flex flex-1 items-center justify-between">
             <span className="font-medium text-sm">{item.name}</span>
@@ -144,13 +145,11 @@ export default function Sidebar({
         </Tooltip>
       );
     }
-
     return linkContent;
   };
 
   return (
     <TooltipProvider>
-      {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
@@ -158,20 +157,15 @@ export default function Sidebar({
           aria-hidden="true"
         />
       )}
-
-      {/* Main Sidebar Container */}
       <aside
         className={cn(
           "fixed lg:static inset-y-0 left-0 z-50 flex flex-col transition-all duration-300 ease-in-out border-r border-[var(--sidebar-border)] bg-[var(--sidebar)]",
-          isCollapsed ? "w-[80px]" : "w-[280px]", // Slightly wider for standard modern SaaS (280px)
+          isCollapsed ? "w-[80px]" : "w-[280px]",
           isMobileMenuOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0",
         )}
-        role="navigation"
-        aria-label="Main navigation"
       >
-        {/* Brand Header */}
         <div
           className={cn(
             "h-16 flex items-center justify-between px-6 border-b border-[var(--sidebar-border)] shrink-0",
@@ -179,7 +173,7 @@ export default function Sidebar({
           )}
         >
           <Link
-            to="/"
+            href="/"
             className={cn(
               "flex items-center gap-3 font-bold tracking-tight text-[var(--sidebar-foreground)] transition-all duration-200",
               isCollapsed ? "text-lg" : "text-xl",
@@ -194,20 +188,16 @@ export default function Sidebar({
               </span>
             )}
           </Link>
-
-          {/* Mobile Close Button */}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => toggleMobileMenu(false)}
             className="lg:hidden text-[var(--sidebar-foreground-70)] hover:text-[var(--sidebar-foreground)] hover:bg-[var(--sidebar-accent)] h-8 w-8"
-            aria-label="Close menu"
           >
             <X size={18} />
           </Button>
         </div>
 
-        {/* Navigation Links */}
         <ScrollArea className="flex-1 py-6">
           <nav className={cn("px-4 space-y-1", isCollapsed && "px-2")}>
             {!isCollapsed && (
@@ -219,9 +209,7 @@ export default function Sidebar({
               <NavLink key={item.name} item={item} />
             ))}
           </nav>
-
           <Separator className="my-6 mx-4 w-auto bg-[var(--sidebar-border)]" />
-
           <nav className={cn("px-4 space-y-1", isCollapsed && "px-2")}>
             {!isCollapsed && (
               <p className="text-xs font-semibold text-[var(--sidebar-foreground-40)] uppercase tracking-wider mb-4 px-2">
@@ -234,9 +222,7 @@ export default function Sidebar({
           </nav>
         </ScrollArea>
 
-        {/* User Profile & Footer Actions */}
         <div className="p-4 border-t border-[var(--sidebar-border)] shrink-0 flex flex-col gap-2 bg-[var(--sidebar)]">
-          {/* Collapse Toggle - Desktop Only */}
           {onToggleCollapse && (
             <div className="hidden lg:flex justify-end pb-2 mb-2 border-b border-[var(--sidebar-border)]">
               <Button
@@ -244,7 +230,6 @@ export default function Sidebar({
                 size="icon"
                 onClick={onToggleCollapse}
                 className="text-[var(--sidebar-foreground-50)] hover:text-[var(--sidebar-foreground)] hover:bg-[var(--sidebar-accent)] h-6 w-6 rounded-md"
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
               >
                 {isCollapsed ? (
                   <ChevronRight size={14} />
@@ -254,8 +239,6 @@ export default function Sidebar({
               </Button>
             </div>
           )}
-
-          {/* User Info & Logout */}
           <div
             className={cn(
               "flex items-center gap-3 rounded-md transition-colors",
@@ -268,7 +251,6 @@ export default function Sidebar({
                 JD
               </AvatarFallback>
             </Avatar>
-
             {!isCollapsed && (
               <>
                 <div className="flex-1 min-w-0">
@@ -294,7 +276,6 @@ export default function Sidebar({
                 </Tooltip>
               </>
             )}
-
             {isCollapsed && (
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>

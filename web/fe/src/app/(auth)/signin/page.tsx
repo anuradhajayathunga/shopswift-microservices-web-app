@@ -1,80 +1,87 @@
+"use client";
+
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+// Make sure this path matches your auth utility location
+import { authAPI } from "@/lib/auth";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Loader2,
-  LayoutDashboard,
-  Eye,
-  EyeOff,
-  User,
-  Mail,
-} from "lucide-react";
-import axios from "axios";
-import { getGatewayUrl } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Loader2, LayoutDashboard, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
-const GATEWAY_URL = getGatewayUrl();
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
-export default function SignUp() {
+export default function SignInPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setError("");
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long.");
+    if (!formData.email.trim()) {
+      setError("Email is required");
+      return;
+    }
+    if (!validateEmail(formData.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    if (!formData.password) {
+      setError("Password is required");
       return;
     }
 
     setLoading(true);
 
     try {
-      await axios.post(`${GATEWAY_URL}/users`, formData);
-      navigate("/signin", {
-        state: { message: "Account created successfully. Please sign in." },
-      });
-      toast.success("Account created successfully! Please sign in.");
-    } catch (error) {
-      if (!error.response) {
-        setError("Unable to reach the server. Please check your connection.");
-      } else {
-        setError(
-          error.response?.data?.detail ||
-            "Unable to create account. Try a different email.",
-        );
-      }
+      // Using your existing auth logic from the first code block
+      const { access_token } = await authAPI.signin(
+        formData.email,
+        formData.password,
+      );
+      authAPI.saveToken(access_token);
+      toast.success("Signed in successfully!");
+      // Redirect to the dashboard layout we just built!
+      router.push("/");
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : "Sign in failed";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
+    // Outer wrapper uses your Next.js globals background
     <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
       {/* The Main Container Card */}
-      <div className="w-full max-w-[1360px] bg-card rounded-[2rem] shadow-2xl border border-border overflow-hidden flex flex-col lg:flex-row min-h-[860px] animate-in fade-in zoom-in-95 duration-500">
+      <div className="w-full max-w-[1360px] bg-card rounded-[2rem] shadow-premium border border-border overflow-hidden flex flex-col lg:flex-row min-h-[860px] animate-in fade-in zoom-in-95 duration-500">
         {/* LEFT COLUMN: Form Section */}
         <div className="w-full lg:w-[45%] p-8 lg:p-12 xl:p-16 flex flex-col relative overflow-y-auto">
           {/* Brand Logo */}
           <Link
-            to="/"
-            className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground mb-10 w-fit"
+            href="/"
+            className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground mb-12 w-fit"
           >
-            <div className="h-8 w-8 rounded-md bg-foreground flex items-center justify-center text-background">
+            <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground">
               <LayoutDashboard size={18} />
             </div>
             ShopSwift<span className="text-primary">.</span>
@@ -83,16 +90,16 @@ export default function SignUp() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">
-              Create an Account
+              Welcome Back
             </h1>
             <p className="text-muted-foreground text-sm">
-              Enter your details to create your ShopSwift profile
+              Enter your credentials to access your account
             </p>
           </div>
 
-          {/* Social Logins (Matching Sign In) */}
+          {/* Social Logins */}
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
-            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
+            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors shadow-sm">
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -113,7 +120,7 @@ export default function SignUp() {
               </svg>
               Google
             </button>
-            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
+            <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-background border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors shadow-sm">
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.09 2.31-.91 3.56-.75 1.45.13 2.58.74 3.25 1.83-2.79 1.58-2.28 5.25.5 6.36-.63 1.84-1.45 3.65-2.39 4.73zm-3.8-15.5c-.32-1.91 1.3-3.66 3.12-3.78.36 2.03-1.5 3.82-3.12 3.78z" />
               </svg>
@@ -126,62 +133,53 @@ export default function SignUp() {
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-border" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">or</span>
+            <div className="relative flex justify-center text-xs uppercase font-medium">
+              <span className="bg-card px-3 text-muted-foreground">or</span>
             </div>
           </div>
 
-          {/* Alerts */}
+          {/* Error Alert */}
           {error && (
-            <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md border border-red-100">
+            <div className="mb-6 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-destructive shrink-0" />
               {error}
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 flex-1">
-            <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-foreground">
-                Full Name
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="h-11 pl-10 bg-transparent border-border focus-visible:ring-primary"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-foreground">
+          <form onSubmit={handleSignIn} className="space-y-5 flex-1">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-foreground font-medium">
                 Email address
               </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="name@company.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="h-11 pl-10 bg-transparent border-border focus-visible:ring-primary"
-                />
-              </div>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="name@company.com"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={loading}
+                required
+                className="h-11 bg-background border-border focus-visible:ring-primary shadow-sm"
+              />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-foreground">
-                Password
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label
+                  htmlFor="password"
+                  className="text-foreground font-medium"
+                >
+                  Password
+                </Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <Input
                   id="password"
@@ -190,90 +188,82 @@ export default function SignUp() {
                   placeholder="Min 6 chars"
                   value={formData.password}
                   onChange={handleChange}
+                  disabled={loading}
                   required
-                  className="h-11 pl-3 bg-transparent border-border focus-visible:ring-primary pr-10"
+                  className="h-11 bg-background border-border focus-visible:ring-primary pr-10 shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={loading}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-start space-x-2 pt-2">
+            <div className="flex items-center space-x-2 pt-2">
               <input
                 type="checkbox"
-                id="terms"
-                required
-                className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                id="remember"
+                className="h-4 w-4 rounded border-border text-primary focus:ring-primary/50 transition-colors"
               />
               <label
-                htmlFor="terms"
-                className="text-sm text-muted-foreground leading-tight"
+                htmlFor="remember"
+                className="text-sm text-foreground font-medium leading-none cursor-pointer"
               >
-                I agree to the{" "}
-                <a
-                  href="#"
-                  className="font-medium text-foreground hover:underline"
-                >
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a
-                  href="#"
-                  className="font-medium text-foreground hover:underline"
-                >
-                  Privacy Policy
-                </a>
-                .
+                Remember me for 30 days
               </label>
             </div>
 
-            <button
+            <Button
               type="submit"
-              className="w-full h-11 bg-primary text-primary-foreground font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-4 shadow-lg shadow-primary/25"
+              className="w-full h-11 bg-primary text-primary-foreground font-medium rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2 mt-4 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5"
               disabled={loading}
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loading ? "Creating Account..." : "Create Account"}
-            </button>
+              {loading ? "Logging in..." : "Login"}
+            </Button>
           </form>
 
           {/* Footer Link */}
           <div className="mt-8 text-sm text-muted-foreground">
-            Already have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link
-              to="/signin"
+              href="/signup"
               className="font-semibold text-primary hover:underline"
             >
-              Sign in
+              Sign up
             </Link>
           </div>
-          <div className="mt-12 text-xs text-muted-foreground/60">
+
+          <div className="mt-8 text-xs text-muted-foreground/60">
             © {new Date().getFullYear()} ShopSwift. All rights reserved.
           </div>
         </div>
 
-        {/* RIGHT COLUMN: The Blue Presentation Area (Matches Sign In) */}
+        {/* RIGHT COLUMN: The Presentation Area */}
         <div className="hidden lg:block w-[55%] p-4">
-          <div className="w-full h-full bg-primary rounded-[1.5rem] p-12 flex flex-col relative overflow-hidden">
+          <div className="w-full h-full bg-primary rounded-[1.5rem] p-12 flex flex-col relative overflow-hidden shadow-inner">
+            {/* Soft background glow to add depth to the solid color */}
+            <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-white/10 to-transparent pointer-events-none" />
+
             {/* Header Text */}
-            <div className="relative z-10 max-w-md">
-              <h2 className="text-4xl font-semibold text-white mb-4 leading-tight">
-                Join the platform powering modern commerce
+            <div className="relative z-10 max-w-md mt-8">
+              <h2 className="text-4xl font-semibold text-primary-foreground mb-6 leading-tight">
+                The simplest way to manage your e-commerce
               </h2>
-              <p className="text-primary-foreground/80 text-sm">
-                Get started today to access secure checkout, customized order
-                management, and powerful platform analytics.
+              <p className="text-primary-foreground/80 text-base leading-relaxed">
+                Enter your credentials to access your secure ShopSwift dashboard
+                and monitor your global sales in real-time.
               </p>
             </div>
 
             {/* CSS Abstract Dashboard Mockup */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-[120%] h-[500px] pointer-events-none">
+            <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-[40%] w-[120%] h-[500px] pointer-events-none">
               <div className="absolute top-0 left-12 w-[80%] h-full bg-white rounded-xl shadow-2xl p-6 transform rotate-[-2deg] opacity-95">
+                {/* Mock Header */}
                 <div className="flex items-center justify-between mb-8 border-b pb-4 border-slate-100">
                   <div className="flex items-center gap-4">
                     <div className="h-6 w-24 bg-slate-100 rounded-md"></div>
@@ -281,6 +271,7 @@ export default function SignUp() {
                   </div>
                   <div className="h-8 w-24 bg-primary/10 rounded-full"></div>
                 </div>
+                {/* Mock Content */}
                 <div className="flex gap-6 mb-8">
                   <div className="flex-1 h-32 bg-slate-50 border border-slate-100 rounded-lg p-4 flex flex-col justify-between">
                     <div className="h-4 w-20 bg-slate-200 rounded"></div>
@@ -291,6 +282,7 @@ export default function SignUp() {
                     <div className="h-8 w-24 bg-slate-800 rounded"></div>
                   </div>
                 </div>
+                {/* Mock List */}
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center justify-between">
@@ -306,7 +298,8 @@ export default function SignUp() {
                 </div>
               </div>
 
-              <div className="absolute top-[20%] right-[10%] w-64 bg-white rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.2)] p-4 transform rotate-[3deg]">
+              {/* Small Floating Action Card */}
+              <div className="absolute top-[20%] right-[10%] w-64 bg-white rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] p-4 transform rotate-[3deg]">
                 <div className="h-4 w-32 bg-slate-800 rounded mb-4"></div>
                 <div className="space-y-3">
                   <div className="h-10 w-full border border-slate-200 rounded-md"></div>
@@ -316,7 +309,7 @@ export default function SignUp() {
             </div>
 
             {/* Bottom Partners/Logos */}
-            <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between text-white/50 border-t border-white/20 pt-6">
+            <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between text-primary-foreground/50 border-t border-primary-foreground/20 pt-6">
               <span className="font-semibold tracking-wider text-sm flex items-center gap-1">
                 <LayoutDashboard size={14} /> STRIPE
               </span>
