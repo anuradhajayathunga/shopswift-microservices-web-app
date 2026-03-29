@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useRouter } from "next/navigation";
+import { authAPI } from "@/lib/auth";
 
 export default function DashboardShell({ children }) {
   const router = useRouter();
@@ -28,8 +29,10 @@ export default function DashboardShell({ children }) {
   };
 
   const handleLogout = () => {
-    // Add your auth cleanup here (e.g., removing tokens)
-    router.push("/signin");
+    authAPI.clearToken();
+    setIsMobileMenuOpen(false);
+    router.replace("/signin");
+    router.refresh();
   };
 
   return (

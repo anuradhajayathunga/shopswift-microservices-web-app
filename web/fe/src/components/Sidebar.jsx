@@ -1,7 +1,6 @@
-"use client"; // Required for interactivity in Next.js
+"use client"; 
 
 import React from "react";
-// 1. Changed imports to Next.js native routing
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
