@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import httpx
 from typing import Any, Optional
 import os
@@ -8,6 +9,21 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 from dotenv import load_dotenv
 
 app = FastAPI(title="ShopSwift API Gateway", version="1.0")
+
+DEV_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:4173"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=DEV_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 load_dotenv()
 
