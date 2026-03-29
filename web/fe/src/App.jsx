@@ -14,9 +14,11 @@ import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Utilities
 import { TOKEN_STORAGE_KEY } from "./lib/auth";
+import Order from "./pages/Order";
 
 /**
  * 🛡️ Protected Route Wrapper
@@ -60,10 +62,11 @@ export default function App() {
 
   return (
     // The root div establishes the off-white/navy theme across the entire app
-    <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary">
-      <Toaster richColors position="top-right" />
-      <Router>
-        <Routes>
+    <TooltipProvider>
+      <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary">
+        <Toaster richColors position="top-right" />
+        <Router>
+          <Routes>
           {/* ==========================================
               PUBLIC ROUTES (Full Screen, Glassmorphic)
               ========================================== */}
@@ -99,6 +102,18 @@ export default function App() {
             }
           />
 
+            <Route
+            path="/orders"
+            element={
+              <ProtectedRoute token={token}>
+                <DashboardLayout handleLogout={handleLogout}>
+                  {/* The Orders page is rendered inside the layout's 'children' prop */}
+                  <Order />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />  
+
           {/* You can easily add more protected routes here later:
             <Route path="/inventory" element={<ProtectedRoute token={token}><DashboardLayout handleLogout={handleLogout}><InventoryPage /></DashboardLayout></ProtectedRoute>} />
           */}
@@ -110,8 +125,9 @@ export default function App() {
             path="*"
             element={<Navigate to={token ? "/" : "/signin"} replace />}
           />
-        </Routes>
-      </Router>
-    </div>
+          </Routes>
+        </Router>
+      </div>
+    </TooltipProvider>
   );
 }
