@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 import httpx
-from typing import Any
+from typing import Any, Optional
 
 app = FastAPI(title="ShopSwift API Gateway", version="1.0")
 
@@ -118,3 +118,39 @@ async def add_item_to_cart(request: Request):
 @app.delete("/gateway/cart/{item_id}")
 async def remove_item_from_cart(item_id: int):
     return await forward_request("cart", f"/api/cart/{item_id}", "DELETE")
+
+# Notification Service Routes
+@app.get("/gateway/notifications")
+async def get_all_notifications(user_id: Optional[int] = None):
+    path = "/api/notifications"
+    if user_id is not None:
+        path = f"/api/notifications?user_id={user_id}"
+    return await forward_request("notification", path, "GET")
+
+@app.get("/gateway/notifications/{notification_id}")
+async def get_notification_by_id(notification_id: int):
+    return await forward_request("notification", f"/api/notifications/{notification_id}", "GET")
+
+@app.get("/gateway/notifications/user/{user_id}")
+async def get_user_notifications(user_id: int):
+    return await forward_request("notification", f"/api/notifications/user/{user_id}", "GET")
+
+@app.post("/gateway/notifications")
+async def create_notification(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    return await forward_request("notification", "/api/notifications", "POST", json=payload)
+
+@app.put("/gateway/notifications/{notification_id}")
+async def update_notification(notification_id: int, request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    return await forward_request("notification", f"/api/notifications/{notification_id}", "PUT", json=payload)
+
+@app.delete("/gateway/notifications/{notification_id}")
+async def delete_notification(notification_id: int):
+    return await forward_request("notification", f"/api/notifications/{notification_id}", "DELETE")
