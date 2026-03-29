@@ -7,47 +7,72 @@
 
 :root {
   /* Brand Core (From Naxn Identity Image) */
-  --dark-blue: oklch(0.18 0.04 265);      /* #070F22 - Deep, rich anchor */
-  --soft-blue: oklch(0.48 0.22 265);      /* #144AE0 - High-energy CTA */
-  --off-white: oklch(0.98 0.01 265);      /* A true off-white with a micro-tint of blue */
-  
+  --dark-blue: oklch(0.18 0.04 265); /* #070F22 - Deep, rich anchor */
+  --soft-blue: oklch(0.48 0.22 265); /* #144AE0 - High-energy CTA */
+  --off-white: oklch(
+    0.98 0.01 265
+  ); /* A true off-white with a micro-tint of blue */
+
   /* System Mapping */
   --background: var(--off-white);
   --foreground: var(--dark-blue);
-  
+
   /* Pure white (#FFFFFF) for floating elements to create contrast against the off-white background */
-  --card: oklch(1 0 0); 
+  --card: oklch(1 0 0);
   --card-foreground: var(--dark-blue);
-  
+
   --primary: var(--soft-blue);
-  --primary-foreground: oklch(1 0 0);     /* Pure white text on vibrant blue */
-  
+  --primary-foreground: oklch(1 0 0); /* Pure white text on vibrant blue */
+
   --secondary: oklch(0.95 0.02 265);
   --secondary-foreground: var(--dark-blue);
-  
+
   --muted: oklch(0.94 0.02 265);
   --muted-foreground: oklch(0.55 0.05 265);
-  
-  --accent: oklch(0.92 0.04 265);         /* Light blue for hover states */
+
+  --accent: oklch(0.92 0.04 265); /* Light blue for hover states */
   --accent-foreground: var(--soft-blue);
-  
+
   --destructive: oklch(0.6 0.18 25);
-  --border: oklch(0.90 0.02 265);         /* Clean, subtle borders */
-  --input: oklch(0.90 0.02 265);
+  --border: oklch(0.9 0.02 265); /* Clean, subtle borders */
+  --input: oklch(0.9 0.02 265);
   --ring: var(--soft-blue);
-  
-  --radius: 0.5rem;                       /* 8px radius - very standard for Enterprise SaaS */
+
+  --radius: 0.5rem; /* 8px radius - very standard for Enterprise SaaS */
 
   /* Sidebar Specifics */
-  --sidebar: var(--dark-blue);            /* Using the Dark Blue for a striking, premium sidebar */
+  --sidebar: var(
+    --dark-blue
+  ); /* Using the Dark Blue for a striking, premium sidebar */
   --sidebar-foreground: oklch(0.95 0.02 265);
+  --sidebar-foreground-70: color-mix(
+    in oklab,
+    var(--sidebar-foreground) 70%,
+    transparent
+  );
+  --sidebar-foreground-50: color-mix(
+    in oklab,
+    var(--sidebar-foreground) 50%,
+    transparent
+  );
+  --sidebar-foreground-40: color-mix(
+    in oklab,
+    var(--sidebar-foreground) 40%,
+    transparent
+  );
   --sidebar-primary: var(--soft-blue);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.25 0.05 265); /* Slightly lighter navy for hover states */
+  --sidebar-accent: oklch(
+    0.25 0.05 265
+  ); /* Slightly lighter navy for hover states */
   --sidebar-border: oklch(0.22 0.04 265);
 
   /* Typography */
-  font-family: "Geist Variable", "Inter", -apple-system, sans-serif;
+  font-family:
+    "Geist Variable",
+    "Inter",
+    -apple-system,
+    sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -75,13 +100,13 @@
     background-image:
       radial-gradient(
         circle at 15% 50%,
-        rgba(20, 74, 224, 0.04), /* Soft Blue glow */
-        transparent 25%
+        rgba(20, 74, 224, 0.04),
+        /* Soft Blue glow */ transparent 25%
       ),
       radial-gradient(
         circle at 85% 30%,
-        rgba(7, 15, 34, 0.03),   /* Dark Blue shadow/depth */
-        transparent 25%
+        rgba(7, 15, 34, 0.03),
+        /* Dark Blue shadow/depth */ transparent 25%
       );
     background-attachment: fixed;
   }
@@ -94,7 +119,7 @@
 @layer utilities {
   /* High-End SaaS Component Utilities */
   .shadow-premium {
-    box-shadow: 
+    box-shadow:
       0 1px 3px 0 rgba(7, 15, 34, 0.05),
       0 4px 6px -2px rgba(7, 15, 34, 0.03);
   }

@@ -4,6 +4,11 @@ export default {
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      maxWidth: {
+        "8xl": "88rem", // 1408px
+        "9xl": "96rem", // 1536px
+        "10xl": "104rem", // 1664px
+      },
       colors: {
         border: "var(--border)",
         input: "var(--input)",
@@ -38,7 +43,6 @@ export default {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
-        
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -67,64 +67,64 @@ export default function App() {
         <Toaster richColors position="top-right" />
         <Router>
           <Routes>
-          {/* ==========================================
+            {/* ==========================================
               PUBLIC ROUTES (Full Screen, Glassmorphic)
               ========================================== */}
-          <Route
-            path="/signin"
-            element={
-              <PublicRoute token={token}>
-                <SignIn setToken={handleLogin} />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              <PublicRoute token={token}>
-                <SignUp />
-              </PublicRoute>
-            }
-          />
+            <Route
+              path="/signin"
+              element={
+                <PublicRoute token={token}>
+                  <SignIn setToken={handleLogin} />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <PublicRoute token={token}>
+                  <SignUp />
+                </PublicRoute>
+              }
+            />
 
-          {/* ==========================================
+            {/* ==========================================
               PROTECTED ROUTES (Wrapped in Sidebar Layout)
               ========================================== */}
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute token={token}>
-                <DashboardLayout handleLogout={handleLogout}>
-                  {/* The Dashboard page is rendered inside the layout's 'children' prop */}
-                  <Dashboard />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute token={token}>
+                  <DashboardLayout handleLogout={handleLogout}>
+                    {/* The Dashboard page is rendered inside the layout's 'children' prop */}
+                    <Dashboard />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
 
             <Route
-            path="/orders"
-            element={
-              <ProtectedRoute token={token}>
-                <DashboardLayout handleLogout={handleLogout}>
-                  {/* The Orders page is rendered inside the layout's 'children' prop */}
-                  <Order />
-                </DashboardLayout>
-              </ProtectedRoute>
-            }
-          />  
+              path="/orders"
+              element={
+                <ProtectedRoute token={token}>
+                  <DashboardLayout handleLogout={handleLogout}>
+                    {/* The Orders page is rendered inside the layout's 'children' prop */}
+                    <Order />
+                  </DashboardLayout>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* You can easily add more protected routes here later:
+            {/* You can easily add more protected routes here later:
             <Route path="/inventory" element={<ProtectedRoute token={token}><DashboardLayout handleLogout={handleLogout}><InventoryPage /></DashboardLayout></ProtectedRoute>} />
           */}
 
-          {/* ==========================================
+            {/* ==========================================
               FALLBACK ROUTE (404 / Redirect)
               ========================================== */}
-          <Route
-            path="*"
-            element={<Navigate to={token ? "/" : "/signin"} replace />}
-          />
+            <Route
+              path="*"
+              element={<Navigate to={token ? "/" : "/signin"} replace />}
+            />
           </Routes>
         </Router>
       </div>
