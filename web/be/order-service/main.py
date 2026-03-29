@@ -48,16 +48,37 @@ def get_orders_by_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/orders", response_model=Order, status_code=status.HTTP_201_CREATED)
 def create_order_endpoint(order: OrderCreate, db: Session = Depends(get_db)):
+    user_data = None
     with httpx.Client() as client:
         user_resp = client.get(f"http://localhost:8001/api/users/{order.user_id}")
         if user_resp.status_code != 200:
             raise HTTPException(status_code=404, detail="User not found")
+        user_data = user_resp.json()
 
         product_resp = client.get(f"http://localhost:8002/api/products/{order.product_id}")
         if product_resp.status_code != 200:
             raise HTTPException(status_code=404, detail="Product not found")
 
-    return create_order(db, order)
+    created_order = create_order(db, order)
+
+    # Fire-and-forget style notification: order creation stays successful even if notification service is unavailable.
+    user_email = user_data.get("email", "unknown-email") if isinstance(user_data, dict) else "unknown-email"
+    notification_payload = {
+        "user_id": created_order.user_id,
+        "message": (
+            f"Order #{created_order.id} placed successfully for {user_email}. "
+            f"Product ID: {created_order.product_id}, Quantity: {created_order.quantity}, "
+            f"Total: {created_order.total_price}."
+        ),
+        "type": "email"
+    }
+    try:
+        with httpx.Client() as client:
+            client.post("http://localhost:8005/api/notifications", json=notification_payload)
+    except httpx.RequestError:
+        pass
+
+    return created_order
 
 
 @app.put("/api/orders/{order_id}", response_model=Order)
