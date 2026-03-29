@@ -119,6 +119,42 @@ async def add_item_to_cart(request: Request):
 async def remove_item_from_cart(item_id: int):
     return await forward_request("cart", f"/api/cart/{item_id}", "DELETE")
 
+# Order Service Routes
+@app.get("/gateway/orders")
+async def get_all_orders(user_id: Optional[int] = None):
+    path = "/api/orders"
+    if user_id is not None:
+        path = f"/api/orders?user_id={user_id}"
+    return await forward_request("order", path, "GET")
+
+@app.get("/gateway/orders/{order_id}")
+async def get_order_by_id(order_id: int):
+    return await forward_request("order", f"/api/orders/{order_id}", "GET")
+
+@app.get("/gateway/orders/user/{user_id}")
+async def get_orders_by_user(user_id: int):
+    return await forward_request("order", f"/api/orders/user/{user_id}", "GET")
+
+@app.post("/gateway/orders")
+async def create_order(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    return await forward_request("order", "/api/orders", "POST", json=payload)
+
+@app.put("/gateway/orders/{order_id}")
+async def update_order(order_id: int, request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    return await forward_request("order", f"/api/orders/{order_id}", "PUT", json=payload)
+
+@app.delete("/gateway/orders/{order_id}")
+async def delete_order(order_id: int):
+    return await forward_request("order", f"/api/orders/{order_id}", "DELETE")
+
 # Notification Service Routes
 @app.get("/gateway/notifications")
 async def get_all_notifications(user_id: Optional[int] = None):
