@@ -15,7 +15,7 @@ import { getGatewayUrl } from "@/lib/auth";
 
 const GATEWAY_URL = getGatewayUrl();
 
-export default function SignUp({ setToken }) {
+export default function SignUp() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -43,18 +43,11 @@ export default function SignUp({ setToken }) {
     setLoading(true);
 
     try {
-      // Create user account
       await axios.post(`${GATEWAY_URL}/users`, formData);
-
-      // Auto-login the user after signup
-      const loginRes = await axios.post(`${GATEWAY_URL}/auth/login`, {
-        email: formData.email,
-        password: formData.password,
+      navigate("/signin", {
+        state: { message: "Account created successfully. Please sign in." },
       });
-
-      const token = loginRes.data.access_token;
-      setToken(token);
-      navigate("/");
+      toast.success("Account created successfully! Please sign in.");
     } catch (error) {
       if (!error.response) {
         setError("Unable to reach the server. Please check your connection.");
@@ -72,7 +65,7 @@ export default function SignUp({ setToken }) {
   return (
     <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
       {/* The Main Container Card */}
-      <div className="w-full max-w-[1200px] bg-card rounded-[2rem] shadow-2xl border border-border overflow-hidden flex flex-col lg:flex-row min-h-[760px] animate-in fade-in zoom-in-95 duration-500">
+      <div className="w-full max-w-[1360px] bg-card rounded-[2rem] shadow-2xl border border-border overflow-hidden flex flex-col lg:flex-row min-h-[860px] animate-in fade-in zoom-in-95 duration-500">
         {/* LEFT COLUMN: Form Section */}
         <div className="w-full lg:w-[45%] p-8 lg:p-12 xl:p-16 flex flex-col relative overflow-y-auto">
           {/* Brand Logo */}
@@ -257,6 +250,9 @@ export default function SignUp({ setToken }) {
             >
               Sign in
             </Link>
+          </div>
+          <div className="mt-12 text-xs text-muted-foreground/60">
+            © {new Date().getFullYear()} ShopSwift. All rights reserved.
           </div>
         </div>
 

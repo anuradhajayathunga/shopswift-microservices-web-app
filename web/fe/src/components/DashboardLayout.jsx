@@ -194,7 +194,9 @@ export default function DashboardLayout({ children, handleLogout }) {
           {/* Decorative subtle background elements to enhance the SaaS look */}
           <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-primary/[0.02] to-transparent pointer-events-none -z-10"></div>
 
-          <div className="max-w-7xl mx-auto w-full">{children}</div>
+          <div className="max-w-[1360px] min-h-[860px] mx-auto w-full">
+            {children}
+          </div>
         </main>
       </div>
     </div>

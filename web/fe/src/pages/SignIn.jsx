@@ -1,37 +1,37 @@
-import { useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2, LayoutDashboard, Eye, EyeOff } from 'lucide-react';
-import axios from 'axios';
-import { getGatewayUrl } from '@/lib/auth';
+import { useState } from "react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2, LayoutDashboard, Eye, EyeOff } from "lucide-react";
+import axios from "axios";
+import { getGatewayUrl } from "@/lib/auth";
 
 const GATEWAY_URL = getGatewayUrl();
 
 export default function SignIn({ setToken }) {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
   const location = useLocation();
-  const successMessage = location.state?.message || '';
+  const successMessage = location.state?.message || "";
 
   const handleChange = (e) => {
-    setError('');
+    setError("");
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!formData.email || !formData.password) {
-      setError('Email and password are required.');
+      setError("Email and password are required.");
       return;
     }
 
@@ -40,17 +40,21 @@ export default function SignIn({ setToken }) {
     try {
       const res = await axios.post(`${GATEWAY_URL}/auth/login`, {
         email: formData.email,
-        password: formData.password
+        password: formData.password,
       });
 
       const token = res.data.access_token;
       setToken(token);
-      navigate('/');
+      navigate("/");
+      toast.success("Logged in successfully!");
     } catch (error) {
       if (!error.response) {
-        setError('Unable to reach the server. Please check your connection.');
+        setError("Unable to reach the server. Please check your connection.");
       } else {
-        setError(error.response?.data?.detail || 'Invalid credentials. Please try again.');
+        setError(
+          error.response?.data?.detail ||
+            "Invalid credentials. Please try again.",
+        );
       }
     } finally {
       setLoading(false);
@@ -60,15 +64,15 @@ export default function SignIn({ setToken }) {
   return (
     // Outer wrapper uses the mesh background and centers the main card
     <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      
       {/* The Main Container Card (Replicating the mockup's rounded white container) */}
-      <div className="w-full max-w-[1200px] bg-card rounded-[2rem] shadow-2xl border border-border overflow-hidden flex flex-col lg:flex-row min-h-[760px] animate-in fade-in zoom-in-95 duration-500">
-        
+      <div className="w-full max-w-[1360px] bg-card rounded-[2rem] shadow-2xl border border-border overflow-hidden flex flex-col lg:flex-row min-h-[860px] animate-in fade-in zoom-in-95 duration-500">
         {/* LEFT COLUMN: Form Section */}
         <div className="w-full lg:w-[45%] p-8 lg:p-12 xl:p-16 flex flex-col relative">
-          
           {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground mb-12 w-fit">
+          <Link
+            to="/"
+            className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground mb-12 w-fit"
+          >
             <div className="h-8 w-8 rounded-md bg-foreground flex items-center justify-center text-background">
               <LayoutDashboard size={18} />
             </div>
@@ -89,10 +93,22 @@ export default function SignIn({ setToken }) {
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
               <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335"
+                />
               </svg>
               Google
             </button>
@@ -115,13 +131,23 @@ export default function SignIn({ setToken }) {
           </div>
 
           {/* Alerts */}
-          {successMessage && <div className="mb-4 p-3 text-sm text-green-600 bg-green-50 rounded-md">{successMessage}</div>}
-          {error && <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md">{error}</div>}
+          {successMessage && (
+            <div className="mb-4 p-3 text-sm text-green-600 bg-green-50 rounded-md">
+              {successMessage}
+            </div>
+          )}
+          {error && (
+            <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded-md">
+              {error}
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5 flex-1">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">Email address</Label>
+              <Label htmlFor="email" className="text-foreground">
+                Email address
+              </Label>
               <Input
                 id="email"
                 name="email"
@@ -136,8 +162,13 @@ export default function SignIn({ setToken }) {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-foreground">Password</Label>
-                <Link to="/forgot-password" className="text-sm font-medium text-primary hover:underline">
+                <Label htmlFor="password" className="text-foreground">
+                  Password
+                </Label>
+                <Link
+                  to="/forgot-password"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -168,29 +199,35 @@ export default function SignIn({ setToken }) {
                 id="remember"
                 className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
               />
-              <label htmlFor="remember" className="text-sm text-foreground font-medium leading-none">
+              <label
+                htmlFor="remember"
+                className="text-sm text-foreground font-medium leading-none"
+              >
                 Remember me for 30 days
               </label>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="w-full h-11 bg-primary text-primary-foreground font-medium rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-4 shadow-lg shadow-primary/25"
               disabled={loading}
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
           {/* Footer Link */}
           <div className="mt-8 text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link to="/signup" className="font-semibold text-primary hover:underline">
+            Don't have an account?{" "}
+            <Link
+              to="/signup"
+              className="font-semibold text-primary hover:underline"
+            >
               Sign up
             </Link>
           </div>
-          
+
           <div className="mt-12 text-xs text-muted-foreground/60">
             © {new Date().getFullYear()} ShopSwift. All rights reserved.
           </div>
@@ -199,14 +236,14 @@ export default function SignIn({ setToken }) {
         {/* RIGHT COLUMN: The Blue Presentation Area */}
         <div className="hidden lg:block w-[55%] p-4">
           <div className="w-full h-full bg-primary rounded-[1.5rem] p-12 flex flex-col relative overflow-hidden">
-            
             {/* Header Text */}
             <div className="relative z-10 max-w-md">
               <h2 className="text-4xl font-semibold text-white mb-4 leading-tight">
                 The simplest way to manage your e-commerce
               </h2>
               <p className="text-primary-foreground/80 text-sm">
-                Enter your credentials to access your secure ShopSwift dashboard and monitor your global sales.
+                Enter your credentials to access your secure ShopSwift dashboard
+                and monitor your global sales.
               </p>
             </div>
 
@@ -260,15 +297,21 @@ export default function SignIn({ setToken }) {
 
             {/* Bottom Partners/Logos */}
             <div className="absolute bottom-12 left-12 right-12 flex items-center justify-between text-white/50 border-t border-white/20 pt-6">
-              <span className="font-semibold tracking-wider text-sm flex items-center gap-1"><LayoutDashboard size={14}/> STRIPE</span>
-              <span className="font-semibold tracking-wider text-sm flex items-center gap-1"><LayoutDashboard size={14}/> GOOGLE</span>
-              <span className="font-semibold tracking-wider text-sm flex items-center gap-1"><LayoutDashboard size={14}/> PAYPAL</span>
-              <span className="font-semibold tracking-wider text-sm flex items-center gap-1"><LayoutDashboard size={14}/> AWS</span>
+              <span className="font-semibold tracking-wider text-sm flex items-center gap-1">
+                <LayoutDashboard size={14} /> STRIPE
+              </span>
+              <span className="font-semibold tracking-wider text-sm flex items-center gap-1">
+                <LayoutDashboard size={14} /> GOOGLE
+              </span>
+              <span className="font-semibold tracking-wider text-sm flex items-center gap-1">
+                <LayoutDashboard size={14} /> PAYPAL
+              </span>
+              <span className="font-semibold tracking-wider text-sm flex items-center gap-1">
+                <LayoutDashboard size={14} /> AWS
+              </span>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   );

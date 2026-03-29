@@ -1,19 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-// Import your pages
+// Core Components
+import DashboardLayout from "./components/DashboardLayout";
+
+// Application Pages
+import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import Dashboard from "./pages/Dashboard"; // This will be your main app view
-import DashboardLayout from "./components/DashboardLayout"; // The layout with the sidebar/header
 
-// Import auth utilities
+// Utilities
 import { TOKEN_STORAGE_KEY } from "./lib/auth";
 
 /**
  * 🛡️ Protected Route Wrapper
- * This component checks if a token exists. If not, it kicks the user to /signin.
- * If yes, it renders the protected component (like your Dashboard).
+ * Redirects unauthenticated users to the Sign In page.
  */
 const ProtectedRoute = ({ token, children }) => {
   if (!token) {
@@ -24,7 +25,7 @@ const ProtectedRoute = ({ token, children }) => {
 
 /**
  * 🚪 Public Route Wrapper
- * This prevents logged-in users from accidentally going back to the login page.
+ * Prevents authenticated users from accidentally accessing auth pages.
  */
 const PublicRoute = ({ token, children }) => {
   if (token) {
@@ -34,29 +35,29 @@ const PublicRoute = ({ token, children }) => {
 };
 
 export default function App() {
-  // Initialize state from local storage so the user stays logged in after a refresh
+  // Initialize state from local storage to persist sessions across refreshes
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY));
 
-  // A clean way to handle logins across the app
+  // Centralized login handler
   const handleLogin = (newToken) => {
     localStorage.setItem(TOKEN_STORAGE_KEY, newToken);
     setToken(newToken);
   };
 
-  // A clean way to handle logouts across the app
+  // Centralized logout handler
   const handleLogout = () => {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     setToken(null);
   };
 
   return (
-    // We apply your global background and foreground colors here at the very root.
-    // This ensures your entire app inherits that off-white and deep navy theme.
-    <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary-foreground">
+    // The root div establishes the off-white/navy theme across the entire app
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary">
       <Router>
         <Routes>
+          
           {/* ==========================================
-              PUBLIC ROUTES (No Sidebar, Full Screen)
+              PUBLIC ROUTES (Full Screen, Glassmorphic)
               ========================================== */}
           <Route 
             path="/signin" 
@@ -70,32 +71,38 @@ export default function App() {
             path="/signup" 
             element={
               <PublicRoute token={token}>
-                <SignUp setToken={handleLogin} />
+                <SignUp />
               </PublicRoute>
             } 
           />
 
           {/* ==========================================
-              PROTECTED ROUTES (Wrapped in DashboardLayout)
+              PROTECTED ROUTES (Wrapped in Sidebar Layout)
               ========================================== */}
           <Route 
             path="/" 
             element={
               <ProtectedRoute token={token}>
-                {/* The Layout provides the Sidebar and Header */}
                 <DashboardLayout handleLogout={handleLogout}>
-                  {/* The actual page content goes here */}
+                  {/* The Dashboard page is rendered inside the layout's 'children' prop */}
                   <Dashboard />
                 </DashboardLayout>
               </ProtectedRoute>
             } 
           />
 
-          {/* You can add more protected routes here later, like: */}
-          {/* <Route path="/orders" element={<ProtectedRoute token={token}><DashboardLayout><OrdersPage /></DashboardLayout></ProtectedRoute>} /> */}
+          {/* You can easily add more protected routes here later:
+            <Route path="/inventory" element={<ProtectedRoute token={token}><DashboardLayout handleLogout={handleLogout}><InventoryPage /></DashboardLayout></ProtectedRoute>} />
+          */}
 
-          {/* Catch-all route for 404s or redirects */}
-          <Route path="*" element={<Navigate to={token ? "/" : "/signin"} replace />} />
+          {/* ==========================================
+              FALLBACK ROUTE (404 / Redirect)
+              ========================================== */}
+          <Route 
+            path="*" 
+            element={<Navigate to={token ? "/" : "/signin"} replace />} 
+          />
+          
         </Routes>
       </Router>
     </div>
