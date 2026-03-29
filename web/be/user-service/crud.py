@@ -8,6 +8,14 @@ def get_user(db: Session, user_id: int):
 def get_user_by_email(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
+def verify_user_credentials(db: Session, email: str, password: str):
+    user = get_user_by_email(db, email)
+    if not user:
+        return None
+    if user.password != password:
+        return None
+    return user
+
 def get_all_users(db: Session):
     return db.query(User).all()
 
