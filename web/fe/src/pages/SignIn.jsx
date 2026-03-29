@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, LayoutDashboard, Eye, EyeOff } from "lucide-react";
 import axios from "axios";
+import { toast } from "sonner";
 import { getGatewayUrl } from "@/lib/auth";
 
 const GATEWAY_URL = getGatewayUrl();
@@ -45,8 +46,8 @@ export default function SignIn({ setToken }) {
 
       const token = res.data.access_token;
       setToken(token);
-      navigate("/");
       toast.success("Logged in successfully!");
+      navigate("/");
     } catch (error) {
       if (!error.response) {
         setError("Unable to reach the server. Please check your connection.");

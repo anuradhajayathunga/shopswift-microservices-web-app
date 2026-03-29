@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 // Core Components
 import DashboardLayout from "./components/DashboardLayout";
@@ -8,6 +13,7 @@ import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import { Toaster } from "sonner";
 
 // Utilities
 import { TOKEN_STORAGE_KEY } from "./lib/auth";
@@ -36,7 +42,9 @@ const PublicRoute = ({ token, children }) => {
 
 export default function App() {
   // Initialize state from local storage to persist sessions across refreshes
-  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY));
+  const [token, setToken] = useState(() =>
+    localStorage.getItem(TOKEN_STORAGE_KEY),
+  );
 
   // Centralized login handler
   const handleLogin = (newToken) => {
@@ -53,34 +61,34 @@ export default function App() {
   return (
     // The root div establishes the off-white/navy theme across the entire app
     <div className="min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary">
+      <Toaster richColors position="top-right" />
       <Router>
         <Routes>
-          
           {/* ==========================================
               PUBLIC ROUTES (Full Screen, Glassmorphic)
               ========================================== */}
-          <Route 
-            path="/signin" 
+          <Route
+            path="/signin"
             element={
               <PublicRoute token={token}>
                 <SignIn setToken={handleLogin} />
               </PublicRoute>
-            } 
+            }
           />
-          <Route 
-            path="/signup" 
+          <Route
+            path="/signup"
             element={
               <PublicRoute token={token}>
                 <SignUp />
               </PublicRoute>
-            } 
+            }
           />
 
           {/* ==========================================
               PROTECTED ROUTES (Wrapped in Sidebar Layout)
               ========================================== */}
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               <ProtectedRoute token={token}>
                 <DashboardLayout handleLogout={handleLogout}>
@@ -88,7 +96,7 @@ export default function App() {
                   <Dashboard />
                 </DashboardLayout>
               </ProtectedRoute>
-            } 
+            }
           />
 
           {/* You can easily add more protected routes here later:
@@ -98,11 +106,10 @@ export default function App() {
           {/* ==========================================
               FALLBACK ROUTE (404 / Redirect)
               ========================================== */}
-          <Route 
-            path="*" 
-            element={<Navigate to={token ? "/" : "/signin"} replace />} 
+          <Route
+            path="*"
+            element={<Navigate to={token ? "/" : "/signin"} replace />}
           />
-          
         </Routes>
       </Router>
     </div>
