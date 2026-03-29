@@ -8,7 +8,7 @@ import { getGatewayUrl } from "@/lib/auth";
 
 const GATEWAY_URL = getGatewayUrl();
 
-export default function SignUp() {
+export default function SignUp({ setToken }) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -36,10 +36,18 @@ export default function SignUp() {
     setLoading(true);
 
     try {
+      // Create user account
       await axios.post(`${GATEWAY_URL}/users`, formData);
-      navigate("/signin", {
-        state: { message: "Account created successfully. Please sign in." },
+      
+      // Auto-login the user after signup
+      const loginRes = await axios.post(`${GATEWAY_URL}/auth/login`, {
+        email: formData.email,
+        password: formData.password
       });
+      
+      const token = loginRes.data.access_token;
+      setToken(token);
+      navigate("/");
     } catch (error) {
       if (!error.response) {
         setError(

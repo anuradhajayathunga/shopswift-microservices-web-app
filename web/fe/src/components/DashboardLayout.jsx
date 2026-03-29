@@ -18,6 +18,17 @@ export default function DashboardLayout({ children, handleLogout }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
+  // Close menu when window resizes to desktop
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024 && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMobileMenuOpen]);
+
   // Navigation config makes it easy to add new pages later
   const navItems = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
@@ -47,11 +58,12 @@ export default function DashboardLayout({ children, handleLogout }) {
           SIDEBAR (Desktop & Mobile)
           ========================================== */}
       <aside 
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 border-r border-sidebar-border shadow-2xl lg:shadow-none`}
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-72 flex flex-col transition-transform duration-300 ease-in-out border-r border-sidebar-border shadow-2xl lg:shadow-none ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
         style={{ 
           backgroundColor: 'var(--sidebar)', 
-          color: 'var(--sidebar-foreground)',
-          transform: isMobileMenuOpen ? 'translateX(0)' : 'translateX(-100%)'
+          color: 'var(--sidebar-foreground)'
         }}
       >
         {/* Sidebar Header / Logo */}
@@ -95,7 +107,7 @@ export default function DashboardLayout({ children, handleLogout }) {
           })}
         </nav>
 
-        {/* Sidebar Footer / User Profile snippet */}
+        {/* Sidebar Footer / Logout Button */}
         <div className="p-4 border-t border-[var(--sidebar-border)]">
           <button 
             onClick={handleLogout}
