@@ -7,14 +7,12 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ShoppingCart,
-  Bell,
   PackageSearch,
   Package,
   LineChart,
   Settings,
+  User,
   X,
-  BrainCircuit,
-  Leaf,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -64,6 +62,7 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
   ];
 
   const bottomNavItems = [
+    { name: "Profile", path: "/profile", icon: <User size={21} /> },
     { name: "Settings", path: "/settings", icon: <Settings size={21} /> },
   ];
 

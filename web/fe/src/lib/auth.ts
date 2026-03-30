@@ -58,6 +58,32 @@ export const authAPI = {
     return response.json();
   },
 
+  updateUser: async (
+    userId: number,
+    payload: Pick<AuthUser, "name">,
+  ): Promise<AuthUser> => {
+    const token = authAPI.getToken();
+    if (!token) {
+      throw new Error("No auth token found");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/gateway/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => null);
+      throw new Error(error?.detail || "Failed to update profile");
+    }
+
+    return response.json();
+  },
+
   saveToken: (token: string) => {
     if (typeof window !== "undefined") {
       localStorage.setItem("auth_token", token);

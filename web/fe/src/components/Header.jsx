@@ -378,12 +378,14 @@ export default function Header({ toggleMobileMenu, onLogout }) {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="cursor-pointer py-2">
-                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">Profile</span>
-                  <DropdownMenuShortcut className="text-xs text-muted-foreground">
-                    ⇧⌘P
-                  </DropdownMenuShortcut>
+                <DropdownMenuItem asChild className="cursor-pointer py-2">
+                  <Link href="/profile">
+                    <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Profile</span>
+                    <DropdownMenuShortcut className="text-xs text-muted-foreground">
+                      ⇧⌘P
+                    </DropdownMenuShortcut>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer py-2">
                   <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
