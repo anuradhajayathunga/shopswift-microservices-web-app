@@ -81,7 +81,7 @@ const toPayload = (
     return {
       quantity: Number(form.quantity) || undefined,
       total_price: Number(form.total_price) || undefined,
-      status: form.status || undefined,
+      status: form.status || "pending",
     };
   }
   return {

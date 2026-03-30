@@ -95,16 +95,23 @@ export default function ProductsPage() {
 
   // Action States
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
-  const [deletingProductId, setDeletingProductId] = useState<number | null>(null);
+  const [deletingProductId, setDeletingProductId] = useState<number | null>(
+    null,
+  );
 
-  const isEditing = useMemo(() => editingProductId !== null, [editingProductId]);
+  const isEditing = useMemo(
+    () => editingProductId !== null,
+    [editingProductId],
+  );
 
   const loadProducts = useCallback(async () => {
     try {
       const data = await productAPI.list();
       setProducts(data);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to load products");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to load products",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -167,14 +174,17 @@ export default function ProductsPage() {
       resetForm();
       await loadProducts();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to save product");
+      toast.error(
+        error instanceof Error ? error.message : "Unable to save product",
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (product: Product) => {
-    if (!window.confirm(`Are you sure you want to delete "${product.name}"?`)) return;
+    if (!window.confirm(`Are you sure you want to delete "${product.name}"?`))
+      return;
 
     setDeletingProductId(product.id);
     try {
@@ -182,7 +192,9 @@ export default function ProductsPage() {
       toast.success("Product deleted successfully");
       await loadProducts();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to delete product");
+      toast.error(
+        error instanceof Error ? error.message : "Unable to delete product",
+      );
     } finally {
       setDeletingProductId(null);
     }
@@ -191,18 +203,27 @@ export default function ProductsPage() {
   const getStockBadge = (stock: number) => {
     if (stock === 0)
       return (
-        <Badge variant="destructive" className="bg-rose-100 text-rose-800 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-900 shadow-none border-0 font-medium">
+        <Badge
+          variant="destructive"
+          className="bg-rose-100 text-rose-800 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-900 shadow-none border-0 font-medium"
+        >
           Out of Stock
         </Badge>
       );
     if (stock <= 10)
       return (
-        <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-900 shadow-none border-0 font-medium">
+        <Badge
+          variant="secondary"
+          className="bg-amber-100 text-amber-800 hover:bg-amber-100 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-900 shadow-none border-0 font-medium"
+        >
           Low Stock ({stock})
         </Badge>
       );
     return (
-      <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-900 shadow-none border-0 font-medium">
+      <Badge
+        variant="secondary"
+        className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-900 shadow-none border-0 font-medium"
+      >
         In Stock ({stock})
       </Badge>
     );
@@ -210,24 +231,28 @@ export default function ProductsPage() {
 
   return (
     <div className="mx-auto space-y-6 pb-8 animate-in fade-in duration-500">
-      
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <Breadcrumb className="mb-1.5">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink asChild className="text-muted-foreground hover:text-foreground transition-colors">
+                <BreadcrumbLink
+                  asChild
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
                   <Link href="/">Dashboard</Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="font-medium text-foreground">Products</BreadcrumbPage>
+                <BreadcrumbPage className="font-medium text-foreground">
+                  Products
+                </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Products
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -241,13 +266,15 @@ export default function ProductsPage() {
       </div>
 
       {/* Product Form Modal */}
-      <Dialog open={showForm} onOpenChange={(open) => {
+      <Dialog
+        open={showForm}
+        onOpenChange={(open) => {
           if (!open) resetForm();
           else setShowForm(true);
         }}
       >
         <DialogContent className="sm:max-w-[550px] p-0 border-border/60 shadow-xl overflow-hidden">
-          <div className="px-6 pt-6 pb-4">
+          <div className="px-6 pt-6 pb-4 bg-muted/30 dark:bg-muted/5 border-b border-border/60">
             <DialogHeader>
               <DialogTitle className="text-xl">
                 {isEditing ? "Edit Product" : "New Product"}
@@ -263,38 +290,120 @@ export default function ProductsPage() {
           <form onSubmit={handleSubmit}>
             <div className="px-6 space-y-5 pb-6">
               <div className="space-y-1.5">
-                <Label htmlFor="name" className="text-xs font-semibold uppercase text-muted-foreground">Product Name</Label>
-                <Input id="name" value={form.name} onChange={handleChange("name")} placeholder="e.g. Organic Rolled Oats" disabled={isSubmitting} className="bg-muted/40 shadow-none" />
+                <Label
+                  htmlFor="name"
+                  className="text-xs font-semibold uppercase text-muted-foreground"
+                >
+                  Product Name
+                </Label>
+                <Input
+                  id="name"
+                  value={form.name}
+                  onChange={handleChange("name")}
+                  placeholder="e.g. Organic Rolled Oats"
+                  disabled={isSubmitting}
+                  className="shadow-none"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="sku" className="text-xs font-semibold uppercase text-muted-foreground">SKU / ID</Label>
-                  <Input id="sku" value={form.sku} onChange={handleChange("sku")} placeholder="ORG-OTS-001" disabled={isSubmitting} className="bg-muted/40 shadow-none font-mono text-sm" />
+                  <Label
+                    htmlFor="sku"
+                    className="text-xs font-semibold uppercase text-muted-foreground"
+                  >
+                    SKU / ID
+                  </Label>
+                  <Input
+                    id="sku"
+                    value={form.sku}
+                    onChange={handleChange("sku")}
+                    placeholder="ORG-OTS-001"
+                    disabled={isSubmitting}
+                    className="shadow-none font-mono text-sm"
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="stock" className="text-xs font-semibold uppercase text-muted-foreground">Stock Qty</Label>
-                  <Input id="stock" type="number" step="1" min="0" value={form.stock} onChange={handleChange("stock")} placeholder="0" disabled={isSubmitting} className="bg-muted/40 shadow-none" />
+                  <Label
+                    htmlFor="stock"
+                    className="text-xs font-semibold uppercase text-muted-foreground"
+                  >
+                    Stock Qty
+                  </Label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    step="1"
+                    min="0"
+                    value={form.stock}
+                    onChange={handleChange("stock")}
+                    placeholder="0"
+                    disabled={isSubmitting}
+                    className="shadow-none"
+                  />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="price" className="text-xs font-semibold uppercase text-muted-foreground">Price ($)</Label>
-                <Input id="price" type="number" step="0.01" min="0" value={form.price} onChange={handleChange("price")} placeholder="0.00" disabled={isSubmitting} className="bg-muted/40 shadow-none max-w-[50%]" />
+                <Label
+                  htmlFor="price"
+                  className="text-xs font-semibold uppercase text-muted-foreground"
+                >
+                  Price ($)
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={form.price}
+                  onChange={handleChange("price")}
+                  placeholder="0.0"
+                  disabled={isSubmitting}
+                  className="shadow-none max-w-[50%]"
+                />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="description" className="text-xs font-semibold uppercase text-muted-foreground">Description</Label>
-                <Textarea id="description" value={form.description} onChange={handleChange("description")} placeholder="Describe the product features and benefits..." disabled={isSubmitting} className="min-h-[100px] bg-muted/40 shadow-none resize-none" />
+                <Label
+                  htmlFor="description"
+                  className="text-xs font-semibold uppercase text-muted-foreground"
+                >
+                  Description
+                </Label>
+                <Textarea
+                  id="description"
+                  value={form.description}
+                  onChange={handleChange("description")}
+                  placeholder="Describe the product features and benefits..."
+                  disabled={isSubmitting}
+                  className="min-h-[100px] shadow-none resize-none bg-transparent"
+                />
               </div>
             </div>
 
-            <DialogFooter className="px-6 py-4 bg-muted/30 border-t border-border/60">
-              <Button type="button" variant="outline" onClick={resetForm} disabled={isSubmitting} className="bg-background shadow-sm">
+            <DialogFooter className="px-6 py-4 border-t border-border/60">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                disabled={isSubmitting}
+                className="bg-background shadow-sm"
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="min-w-[110px] shadow-sm">
-                {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : isEditing ? "Save Changes" : "Create"}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="min-w-[110px] shadow-sm"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : isEditing ? (
+                  "Save Changes"
+                ) : (
+                  "Create"
+                )}
               </Button>
             </DialogFooter>
           </form>
@@ -303,7 +412,6 @@ export default function ProductsPage() {
 
       {/* Data Table */}
       <Card className="border-border/60 shadow-sm dark:shadow-dark-md bg-background overflow-hidden rounded-2xl">
-        
         {/* Table Toolbar */}
         <div className="px-5 py-4 border-b border-border/60 bg-muted/5 rounded-2xl flex items-center justify-between gap-4">
           <div className="relative flex-1 max-w-sm">
@@ -313,7 +421,11 @@ export default function ProductsPage() {
               className="pl-9 h-9 bg-background shadow-sm border-border/60 transition-colors focus-visible:ring-1"
             />
           </div>
-          <Button variant="outline" size="sm" className="h-9 gap-2 bg-background shadow-sm text-muted-foreground border-border/60">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-2 bg-background shadow-sm text-muted-foreground border-border/60"
+          >
             <ListFilter className="size-4" />
             <span className="hidden sm:inline">Filter</span>
           </Button>
@@ -337,7 +449,11 @@ export default function ProductsPage() {
                 You haven&apos;t added any products to your catalog yet. Get
                 started by creating your first product.
               </p>
-              <Button onClick={openCreateForm} variant="outline" className="shadow-sm border-border/60">
+              <Button
+                onClick={openCreateForm}
+                variant="outline"
+                className="shadow-sm border-border/60"
+              >
                 <Plus className="size-4 mr-2" />
                 Add First Product
               </Button>
@@ -347,11 +463,21 @@ export default function ProductsPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="hover:bg-transparent border-b-border/60">
-                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Product</TableHead>
-                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">SKU</TableHead>
-                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">Price</TableHead>
-                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</TableHead>
-                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right w-[100px]">Actions</TableHead>
+                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Product
+                    </TableHead>
+                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      SKU
+                    </TableHead>
+                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">
+                      Price
+                    </TableHead>
+                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Status
+                    </TableHead>
+                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right w-[100px]">
+                      Actions
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -365,7 +491,10 @@ export default function ProductsPage() {
                           <span className="font-medium text-foreground">
                             {product.name}
                           </span>
-                          <span className="text-xs text-muted-foreground truncate max-w-[280px] mt-0.5" title={product.description}>
+                          <span
+                            className="text-xs text-muted-foreground truncate max-w-[280px] mt-0.5"
+                            title={product.description}
+                          >
                             {product.description}
                           </span>
                         </div>
@@ -392,7 +521,9 @@ export default function ProductsPage() {
                             variant="ghost"
                             className="size-8 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
                             onClick={() => handleEdit(product)}
-                            disabled={isSubmitting || deletingProductId === product.id}
+                            disabled={
+                              isSubmitting || deletingProductId === product.id
+                            }
                             title="Edit Product"
                           >
                             <Pencil className="size-4" />
@@ -403,7 +534,9 @@ export default function ProductsPage() {
                             variant="ghost"
                             className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                             onClick={() => handleDelete(product)}
-                            disabled={isSubmitting || deletingProductId === product.id}
+                            disabled={
+                              isSubmitting || deletingProductId === product.id
+                            }
                             title="Delete Product"
                           >
                             {deletingProductId === product.id ? (
