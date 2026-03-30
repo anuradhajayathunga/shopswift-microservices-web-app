@@ -167,7 +167,7 @@ export default function Sidebar({
       >
         <div
           className={cn(
-            "h-16 flex items-center justify-between px-6 border-b border-[var(--sidebar-border)] shrink-0",
+            "h-16 flex items-center justify-between px-6  shrink-0",
             isCollapsed && "px-0 justify-center",
           )}
         >
