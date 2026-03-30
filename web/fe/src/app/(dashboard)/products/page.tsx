@@ -42,6 +42,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { productAPI, type Product, type ProductPayload } from "@/lib/products";
 
 // --- Types & Validation ---
@@ -96,6 +97,9 @@ export default function ProductsPage() {
   // Action States
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<number | null>(
+    null,
+  );
+  const [togglingProductId, setTogglingProductId] = useState<number | null>(
     null,
   );
 
@@ -197,6 +201,29 @@ export default function ProductsPage() {
       );
     } finally {
       setDeletingProductId(null);
+    }
+  };
+
+  const handleToggleActive = async (product: Product, isActive: boolean) => {
+    if (product.is_active === isActive) {
+      return;
+    }
+
+    setTogglingProductId(product.id);
+    try {
+      await productAPI.update(product.id, { is_active: isActive });
+      toast.success(
+        isActive ? "Product activated successfully" : "Product deactivated successfully",
+      );
+      await loadProducts();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to update product status",
+      );
+    } finally {
+      setTogglingProductId(null);
     }
   };
 
@@ -511,7 +538,29 @@ export default function ProductsPage() {
                         }).format(product.price)}
                       </TableCell>
                       <TableCell className="px-5">
-                        {getStockBadge(product.stock)}
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="inline-flex items-center gap-2 rounded-md border border-border/60 px-2 py-1 bg-background">
+                            <Switch
+                              checked={product.is_active}
+                              onCheckedChange={(checked) =>
+                                void handleToggleActive(product, checked)
+                              }
+                              disabled={
+                                isSubmitting ||
+                                deletingProductId === product.id ||
+                                togglingProductId === product.id
+                              }
+                              aria-label={`Toggle ${product.name} active state`}
+                            />
+                            <span className="text-xs font-medium text-muted-foreground min-w-[58px]">
+                              {product.is_active ? "Active" : "Inactive"}
+                            </span>
+                            {togglingProductId === product.id && (
+                              <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+                            )}
+                          </div>
+                          {getStockBadge(product.stock)}
+                        </div>
                       </TableCell>
                       <TableCell className="px-5 text-right">
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity focus-within:opacity-100">
@@ -522,7 +571,9 @@ export default function ProductsPage() {
                             className="size-8 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
                             onClick={() => handleEdit(product)}
                             disabled={
-                              isSubmitting || deletingProductId === product.id
+                              isSubmitting ||
+                              deletingProductId === product.id ||
+                              togglingProductId === product.id
                             }
                             title="Edit Product"
                           >
@@ -535,7 +586,9 @@ export default function ProductsPage() {
                             className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                             onClick={() => handleDelete(product)}
                             disabled={
-                              isSubmitting || deletingProductId === product.id
+                              isSubmitting ||
+                              deletingProductId === product.id ||
+                              togglingProductId === product.id
                             }
                             title="Delete Product"
                           >

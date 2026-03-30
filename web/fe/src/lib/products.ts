@@ -9,6 +9,7 @@ export type Product = {
   sku: string;
   price: number;
   stock: number;
+  is_active: boolean;
 };
 
 export type ProductPayload = {
@@ -17,6 +18,7 @@ export type ProductPayload = {
   sku: string;
   price: number;
   stock: number;
+  is_active?: boolean;
 };
 
 const buildHeaders = () => {
@@ -72,7 +74,7 @@ export const productAPI = {
 
   update: async (
     productId: number,
-    payload: ProductPayload,
+    payload: Partial<ProductPayload>,
   ): Promise<Product> => {
     const response = await fetch(
       `${API_BASE_URL}/gateway/products/${productId}`,

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status
+from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine, Base
 from schemas import Product, ProductCreate, ProductUpdate
@@ -12,6 +13,27 @@ from crud import (
 from typing import List
 
 Base.metadata.create_all(bind=engine)
+
+
+def ensure_product_schema() -> None:
+    inspector = inspect(engine)
+    if not inspector.has_table("products"):
+        return
+
+    columns = {column["name"] for column in inspector.get_columns("products")}
+    if "is_active" in columns:
+        return
+
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "ALTER TABLE products "
+                "ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"
+            )
+        )
+
+
+ensure_product_schema()
 
 app = FastAPI(title="Product Service", version="1.0")
 
