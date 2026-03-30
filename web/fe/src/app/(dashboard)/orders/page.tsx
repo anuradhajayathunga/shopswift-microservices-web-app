@@ -342,9 +342,9 @@ export default function OrdersPage() {
         }}
       >
         <DialogContent className="sm:max-w-[500px] p-0 border-border/60 shadow-xl overflow-hidden">
-          <div className="px-6 pt-6 pb-4">
+          <div className="px-6 pt-6 pb-4 bg-muted/30 dark:bg-muted/5">
             <DialogHeader>
-              <DialogTitle className="text-xl">
+              <DialogTitle className="text-xl ">
                 {isEditing ? "Edit Order details" : "Create New Order"}
               </DialogTitle>
               <DialogDescription>
@@ -374,7 +374,7 @@ export default function OrdersPage() {
                       onChange={handleChange("user_id")}
                       placeholder="e.g. 1042"
                       disabled={isSubmitting}
-                      className="bg-muted/40 shadow-none font-mono"
+                      className="shadow-none font-mono"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -392,7 +392,7 @@ export default function OrdersPage() {
                       onChange={handleChange("product_id")}
                       placeholder="e.g. 883"
                       disabled={isSubmitting}
-                      className="bg-muted/40 shadow-none font-mono"
+                      className="shadow-none font-mono"
                     />
                   </div>
                 </div>
@@ -415,7 +415,7 @@ export default function OrdersPage() {
                     onChange={handleChange("quantity")}
                     placeholder="1"
                     disabled={isSubmitting}
-                    className="bg-muted/40 shadow-none"
+                    className=" shadow-none"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -434,7 +434,7 @@ export default function OrdersPage() {
                     onChange={handleChange("total_price")}
                     placeholder="0.00"
                     disabled={isSubmitting}
-                    className="bg-muted/40 shadow-none"
+                    className=" shadow-none"
                   />
                 </div>
               </div>
@@ -451,7 +451,7 @@ export default function OrdersPage() {
                   onValueChange={(value) => handleChange("status")(value)}
                   disabled={isSubmitting}
                 >
-                  <SelectTrigger className="bg-muted/40 shadow-none">
+                  <SelectTrigger className="shadow-none">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -465,13 +465,13 @@ export default function OrdersPage() {
               </div>
             </div>
 
-            <DialogFooter className="px-6 py-4 bg-muted/30 border-t border-border/60">
+            <DialogFooter className="px-6 py-4  border-t border-border/60">
               <Button
                 type="button"
                 variant="outline"
                 onClick={resetForm}
                 disabled={isSubmitting}
-                className="bg-background shadow-sm"
+                className="shadow-sm"
               >
                 Cancel
               </Button>
@@ -594,7 +594,7 @@ export default function OrdersPage() {
                   {filteredOrders.map((order) => (
                     <TableRow
                       key={order.id}
-                      className="group hover:bg-muted/40 transition-colors border-b-border/50"
+                      className="group hover:bg-muted/40 hover:dark:bg-muted/10 transition-colors border-b-border/50"
                     >
                       <TableCell className="px-5 py-3.5 font-semibold text-foreground">
                         #{order.id}

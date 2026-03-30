@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ShoppingCart,
+  Bell,
   PackageSearch,
   Package,
   LineChart,
@@ -37,23 +38,28 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
       path: "/inventory",
       icon: <PackageSearch size={21} />,
     },
+    // {
+    //   name: "Notifications",
+    //   path: "/notifications",
+    //   icon: <Bell size={21} />,
+    // },
     {
       name: "Products",
       path: "/products",
       icon: <Package size={21} />,
     },
-    {
-      name: "AI Forecasts",
-      path: "/forecasts",
-      icon: <BrainCircuit size={21} />,
-      badge: "Pro",
-      badgeVariant: "secondary",
-    },
-    {
-      name: "Waste Tracking",
-      path: "/waste-reports",
-      icon: <Leaf size={21} />,
-    },
+    // {
+    //   name: "AI Forecasts",
+    //   path: "/forecasts",
+    //   icon: <BrainCircuit size={21} />,
+    //   badge: "Pro",
+    //   badgeVariant: "secondary",
+    // },
+    // {
+    //   name: "Waste Tracking",
+    //   path: "/waste-reports",
+    //   icon: <Leaf size={21} />,
+    // },
     { name: "Analytics", path: "/analytics", icon: <LineChart size={21} /> },
   ];
 

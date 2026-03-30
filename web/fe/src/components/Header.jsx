@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Icon } from "@iconify/react";
 import {
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { authAPI } from "@/lib/auth";
+import { notificationAPI } from "@/lib/notifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,38 +31,70 @@ import {
 
 export default function Header({ toggleMobileMenu, onLogout }) {
   const { theme, setTheme } = useTheme();
-  const [notificationCount] = useState(3);
+  const [notifications, setNotifications] = useState([]);
+  const [isNotificationsLoading, setIsNotificationsLoading] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [profile, setProfile] = useState(null);
 
-  // Added 'read' state for a more realistic UI interaction
-  const notifications = [
-    {
-      id: 1,
-      title: "Low Stock Alert",
-      description: "Organic Tomatoes below threshold",
-      time: "5m ago",
-      type: "warning",
-      read: false,
-    },
-    {
-      id: 2,
-      title: "New Order Received",
-      description: "Order #12847 from Restaurant XYZ",
-      time: "12m ago",
-      type: "info",
-      read: false,
-    },
-    {
-      id: 3,
-      title: "AI Forecast Ready",
-      description: "Weekly demand prediction updated",
-      time: "1h ago",
-      type: "success",
-      read: true,
-    },
-  ];
+  const formatRelativeTime = (value) => {
+    const timestamp = new Date(value).getTime();
+    const diffMs = Date.now() - timestamp;
+
+    if (Number.isNaN(diffMs)) {
+      return "Just now";
+    }
+
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+
+    if (diffMs < minute) {
+      return "Just now";
+    }
+    if (diffMs < hour) {
+      return `${Math.floor(diffMs / minute)}m ago`;
+    }
+    if (diffMs < day) {
+      return `${Math.floor(diffMs / hour)}h ago`;
+    }
+
+    return `${Math.floor(diffMs / day)}d ago`;
+  };
+
+  const latestNotifications = useMemo(() => {
+    return [...notifications]
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
+      .slice(0, 5);
+  }, [notifications]);
+
+  const unreadNotifications = useMemo(
+    () =>
+      notifications.filter((notification) => notification.status !== "sent"),
+    [notifications],
+  );
+
+  const notificationCount = unreadNotifications.length;
+
+  const loadNotifications = useCallback(async () => {
+    if (!authAPI.isAuthenticated()) {
+      return;
+    }
+
+    setIsNotificationsLoading(true);
+    try {
+      const userId = profile?.id;
+      const data = await notificationAPI.list(userId);
+      setNotifications(data);
+    } catch {
+      // Keep header stable when notification fetch fails.
+    } finally {
+      setIsNotificationsLoading(false);
+    }
+  }, [profile?.id]);
 
   const toggleMode = () => {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
@@ -108,6 +142,31 @@ export default function Header({ toggleMobileMenu, onLogout }) {
 
     loadProfile();
   }, []);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    void loadNotifications();
+  }, [isAuthenticated, loadNotifications]);
+
+  const handleMarkAllAsRead = async () => {
+    if (unreadNotifications.length === 0) {
+      return;
+    }
+
+    try {
+      await Promise.all(
+        unreadNotifications.map((notification) =>
+          notificationAPI.update(notification.id, { status: "sent" }),
+        ),
+      );
+      await loadNotifications();
+    } catch {
+      // Avoid noisy header errors for bulk action.
+    }
+  };
 
   const displayName =
     profile?.name || profile?.email?.split("@")[0] || "Signed in user";
@@ -213,56 +272,73 @@ export default function Header({ toggleMobileMenu, onLogout }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <div className="max-h-[320px] overflow-y-auto py-1">
-              {notifications.map((notification) => (
-                <DropdownMenuItem
-                  key={notification.id}
-                  className={cn(
-                    "flex flex-col items-start p-3 m-1 cursor-pointer rounded-md transition-colors",
-                    !notification.read ? "bg-accent/50" : "hover:bg-accent",
-                  )}
-                >
-                  <div className="flex items-start justify-between w-full gap-2">
-                    <div className="flex-1 space-y-1">
-                      <p
-                        className={cn(
-                          "text-sm leading-none",
-                          !notification.read
-                            ? "font-semibold text-foreground"
-                            : "font-medium text-foreground/80",
+              {isNotificationsLoading ? (
+                <div className="px-3 py-6 text-xs text-muted-foreground">
+                  Loading notifications...
+                </div>
+              ) : latestNotifications.length === 0 ? (
+                <div className="px-3 py-6 text-xs text-muted-foreground">
+                  No notifications found.
+                </div>
+              ) : (
+                latestNotifications.map((notification) => {
+                  const isUnread = notification.status !== "sent";
+                  return (
+                    <DropdownMenuItem
+                      key={notification.id}
+                      className={cn(
+                        "flex flex-col items-start p-3 m-1 cursor-pointer rounded-md transition-colors",
+                        isUnread ? "bg-accent/50" : "hover:bg-accent",
+                      )}
+                    >
+                      <div className="flex items-start justify-between w-full gap-2">
+                        <div className="flex-1 space-y-1">
+                          <p
+                            className={cn(
+                              "text-sm leading-none",
+                              isUnread
+                                ? "font-semibold text-foreground"
+                                : "font-medium text-foreground/80",
+                            )}
+                          >
+                            {notification.type.toUpperCase()} Notification
+                          </p>
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {notification.message}
+                          </p>
+                        </div>
+                        {isUnread && (
+                          <div className="h-2 w-2 rounded-full shrink-0 mt-0.5 shadow-sm bg-primary" />
                         )}
-                      >
-                        {notification.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        {notification.description}
-                      </p>
-                    </div>
-                    {/* Status Indicator */}
-                    {!notification.read && (
-                      <div
-                        className={cn(
-                          "h-2 w-2 rounded-full shrink-0 mt-0.5 shadow-sm",
-                          notification.type === "warning" && "bg-amber-500",
-                          notification.type === "info" && "bg-primary",
-                          notification.type === "success" && "bg-emerald-500",
-                        )}
-                      />
-                    )}
-                  </div>
-                  <span className="text-[10px] text-muted-foreground/80 mt-2 font-medium">
-                    {notification.time}
-                  </span>
-                </DropdownMenuItem>
-              ))}
+                      </div>
+                      <span className="text-[10px] text-muted-foreground/80 mt-2 font-medium">
+                        {formatRelativeTime(notification.created_at)}
+                      </span>
+                    </DropdownMenuItem>
+                  );
+                })
+              )}
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="p-2 cursor-pointer">
+            <DropdownMenuItem
+              className="p-2 cursor-pointer"
+              onClick={handleMarkAllAsRead}
+            >
               <Button
                 variant="ghost"
                 className="w-full h-8 text-xs text-primary hover:text-primary hover:bg-primary/10"
+                disabled={notificationCount === 0}
               >
                 Mark all as read
               </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link
+                href="/notifications"
+                className="w-full text-xs text-foreground hover:bg-accent rounded-sm px-2 py-2"
+              >
+                View all notifications
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
