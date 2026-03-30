@@ -192,12 +192,12 @@ export default function SignUpPage() {
           </div>
 
           {/* Error Alert */}
-          {error && (
+          {/* {error && (
             <div className="mb-6 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
               <div className="h-2 w-2 rounded-full bg-destructive shrink-0" />
               {error}
             </div>
-          )}
+          )} */}
 
           {/* Form */}
           <form onSubmit={handleSignUp} className="space-y-4 flex-1">

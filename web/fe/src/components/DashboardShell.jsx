@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useRouter } from "next/navigation";
@@ -8,6 +8,7 @@ import { authAPI } from "@/lib/auth";
 
 export default function DashboardShell({ children }) {
   const router = useRouter();
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window === "undefined") {
@@ -17,6 +18,15 @@ export default function DashboardShell({ children }) {
     const savedState = localStorage.getItem("sidebar-collapsed");
     return savedState !== null ? JSON.parse(savedState) : false;
   });
+
+  useEffect(() => {
+    if (!authAPI.isAuthenticated()) {
+      router.replace("/signin");
+      return;
+    }
+
+    setIsAuthChecking(false);
+  }, [router]);
 
   const toggleMobileMenu = (state) => {
     setIsMobileMenuOpen(typeof state === "boolean" ? state : !isMobileMenuOpen);
@@ -34,6 +44,14 @@ export default function DashboardShell({ children }) {
     router.replace("/signin");
     router.refresh();
   };
+
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen w-full bg-background flex items-center justify-center text-muted-foreground">
+        Checking session...
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-full bg-lightgray dark:bg-dark overflow-hidden text-foreground">

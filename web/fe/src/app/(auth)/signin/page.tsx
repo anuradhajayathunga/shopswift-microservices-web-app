@@ -65,8 +65,7 @@ export default function SignInPage() {
         authAPI.saveUser({ email: formData.email });
       }
 
-      toast.success("Signed in successfully!");
-      // Redirect to the dashboard layout we just built!
+      toast.success("Successfully signed in!");
       router.push("/");
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Sign in failed";
@@ -78,13 +77,10 @@ export default function SignInPage() {
   };
 
   return (
-    // Outer wrapper uses your Next.js globals background
     <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      {/* The Main Container Card */}
       <div className="w-full max-w-[1360px] bg-card rounded-[2rem] shadow-premium border border-border overflow-hidden flex flex-col lg:flex-row min-h-[860px] animate-in fade-in zoom-in-95 duration-500">
         {/* LEFT COLUMN: Form Section */}
         <div className="w-full lg:w-[45%] p-8 lg:p-12 xl:p-16 flex flex-col relative overflow-y-auto">
-          {/* Brand Logo */}
           <Link
             href="/"
             className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground mb-12 w-fit"
@@ -146,13 +142,12 @@ export default function SignInPage() {
             </div>
           </div>
 
-          {/* Error Alert */}
-          {error && (
+          {/* {error && (
             <div className="mb-6 p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-destructive shrink-0" />
               {error}
             </div>
-          )}
+          )} */}
 
           {/* Form */}
           <form onSubmit={handleSignIn} className="space-y-5 flex-1">
