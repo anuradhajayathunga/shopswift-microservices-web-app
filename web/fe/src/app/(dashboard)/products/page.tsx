@@ -213,7 +213,9 @@ export default function ProductsPage() {
     try {
       await productAPI.update(product.id, { is_active: isActive });
       toast.success(
-        isActive ? "Product activated successfully" : "Product deactivated successfully",
+        isActive
+          ? "Product activated successfully"
+          : "Product deactivated successfully",
       );
       await loadProducts();
     } catch (error) {
