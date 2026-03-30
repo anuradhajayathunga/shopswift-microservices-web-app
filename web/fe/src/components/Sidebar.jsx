@@ -171,20 +171,22 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
           <div className="overflow-hidden">
             <div className="flex w-full bg-lightprimary rounded-lg p-6 relative">
               <div className="w-1/2 relative z-10">
-                <h5 className="text-base font-semibold text-charcoal dark:text-white">
-                  Haven&apos;t Account?
+                <h5 className="text-base font-bold text-charcoal dark:text-white">
+                  Get 20% off with ShopSwift Pro!  
+                  {/* Upgrade for advanced
+                  analytics, AI forecasts, and priority support. */}
                 </h5>
                 <Button className="whitespace-nowrap mt-3 text-[13px] bg-primary hover:bg-primary/90 text-white h-8 px-4">
                   Get Pro
                 </Button>
               </div>
-              <div className="w-1/2 absolute right-0 bottom-0 translate-x-4 scale-[1.2] shrink-0">
+              <div className="w-1/2 absolute -right-5 bottom-7 translate-x-4 scale-[1.5] shrink-0">
                 <Image
                   src="/images/backgrounds/rocket.png"
                   alt="rocket"
                   width={100}
                   height={100}
-                  className="w-auto h-auto object-contain drop-shadow-sm"
+                  className="w-auto h-auto object-contain drop-shadow-lg opacity-90"
                   style={{ width: "auto", height: "auto" }}
                 />
               </div>
