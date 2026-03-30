@@ -83,9 +83,9 @@ export default function Header({ toggleMobileMenu, onLogout }) {
           <Input
             type="text"
             placeholder="Search anything..."
-            className="w-full pl-9 pr-14 h-9 bg-muted/40 border-transparent hover:bg-muted/60 focus-visible:bg-background focus-visible:ring-1 focus-visible:ring-primary/30 focus-visible:border-primary/30 transition-all rounded-md shadow-sm text-sm"
+            className="w-full h-9 pl-9 pr-14 rounded-md text-sm shadow-sm transition-colors bg-card/80 dark:bg-card border border-border/70 dark:border-border hover:bg-card focus-visible:bg-card focus-visible:ring-1 focus-visible:ring-primary/30 focus-visible:border-primary/40"
           />
-          <kbd className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground shadow-sm">
+          <kbd className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border/80 bg-background/85 dark:bg-background/70 px-1.5 font-mono text-[10px] font-medium text-muted-foreground shadow-sm">
             <Command className="h-3 w-3" />
             <span>K</span>
           </kbd>
