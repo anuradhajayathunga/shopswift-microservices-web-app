@@ -53,7 +53,7 @@ export default function DashboardShell({ children }) {
         {/* 3. Your Page Content (children) goes here */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 relative scroll-smooth">
           <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[var(--primary)]/[0.03] to-transparent pointer-events-none" />
-          <div className="max-w-[1600px] mx-auto w-full relative animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
+          <div className="max-w-[1500px] mx-auto w-full relative animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
             {children}
           </div>
         </main>

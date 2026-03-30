@@ -28,7 +28,7 @@ export default function Header({ toggleMobileMenu, onLogout }) {
 
   // Using your custom glass-panel utility for that high-end translucent effect
   return (
-    <header className="h-16 sticky top-0 z-40 w-full glass-panel shadow-premium flex items-center justify-between px-4 sm:px-6">
+    <header className="h-20 sticky top-0 z-40 w-full glass-panel shadow-premium flex items-center justify-between px-4 sm:px-6">
       
       {/* Left side: Mobile Toggle & Search */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1">
