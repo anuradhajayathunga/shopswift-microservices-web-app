@@ -1,31 +1,51 @@
-"use client"
+import * as React from 'react';
+import * as ProgressPrimitive from '@radix-ui/react-progress';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-import * as React from "react"
-import { Progress as ProgressPrimitive } from "radix-ui"
+import { cn } from '@/lib/utils';
 
-import { cn } from "@/lib/utils"
+// Define the variants using cva
+const progressIndicatorVariants = cva('h-full w-full flex-1 transition-all', {
+  variants: {
+    variant: {
+      default: 'bg-primary',
+      primary: 'bg-primary',
+      secondary: 'bg-secondary',
+      success: 'bg-success',
+      error: 'bg-error',
+      warning: 'bg-warning',
+      info: 'bg-info',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+});
 
-function Progress({
-  className,
-  value,
-  ...props
-}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
-  return (
+// Extend the props to include variant
+interface ProgressProps
+  extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>,
+  VariantProps<typeof progressIndicatorVariants> {
+  value?: number;
+}
+
+const Progress = React.forwardRef<React.ElementRef<typeof ProgressPrimitive.Root>, ProgressProps>(
+  ({ className, value, variant, ...props }, ref) => (
     <ProgressPrimitive.Root
-      data-slot="progress"
+      ref={ref}
       className={cn(
-        "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
-        className
+        'relative h-1 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/15',
+        className,
       )}
       {...props}
     >
       <ProgressPrimitive.Indicator
-        data-slot="progress-indicator"
-        className="size-full flex-1 bg-primary transition-all"
+        className={cn(progressIndicatorVariants({ variant }))}
         style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
       />
     </ProgressPrimitive.Root>
-  )
-}
+  ),
+);
+Progress.displayName = ProgressPrimitive.Root.displayName;
 
-export { Progress }
+export { Progress, progressIndicatorVariants };
