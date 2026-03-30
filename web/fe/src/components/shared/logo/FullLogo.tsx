@@ -12,7 +12,8 @@ const FullLogo = () => {
         alt="logo"
         width={152}
         height={36}
-        className="block dark:hidden rtl:scale-x-[-1]"
+        className="block w-auto h-auto dark:hidden rtl:scale-x-[-1]"
+        style={{ width: "auto", height: "auto" }}
       />
       {/* Light Logo */}
       <Image
@@ -20,7 +21,8 @@ const FullLogo = () => {
         alt="logo"
         width={152}
         height={36}
-        className="hidden dark:block rtl:scale-x-[-1]"
+        className="hidden w-auto h-auto dark:block rtl:scale-x-[-1]"
+        style={{ width: "auto", height: "auto" }}
       />
     </Link>
   );

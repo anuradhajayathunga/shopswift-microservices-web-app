@@ -173,7 +173,8 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
                   alt="rocket"
                   width={100}
                   height={100}
-                  className="object-contain drop-shadow-sm"
+                  className="w-auto h-auto object-contain drop-shadow-sm"
+                  style={{ width: "auto", height: "auto" }}
                 />
               </div>
             </div>
