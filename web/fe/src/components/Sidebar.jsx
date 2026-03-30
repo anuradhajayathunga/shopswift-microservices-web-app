@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   ShoppingCart,
   PackageSearch,
+  Package,
   LineChart,
   Settings,
   X,
@@ -35,6 +36,11 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
       name: "Inventory",
       path: "/inventory",
       icon: <PackageSearch size={21} />,
+    },
+    {
+      name: "Products",
+      path: "/products",
+      icon: <Package size={21} />,
     },
     {
       name: "AI Forecasts",
