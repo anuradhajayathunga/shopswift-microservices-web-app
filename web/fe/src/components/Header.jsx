@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Icon } from "@iconify/react";
 import {
@@ -29,6 +29,7 @@ import {
 export default function Header({ toggleMobileMenu, onLogout }) {
   const { theme, setTheme } = useTheme();
   const [notificationCount] = useState(3);
+  const [isSticky, setIsSticky] = useState(false);
 
   // Added 'read' state for a more realistic UI interaction
   const notifications = [
@@ -62,9 +63,27 @@ export default function Header({ toggleMobileMenu, onLogout }) {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
 
-  // Using your custom glass-panel utility for that high-end translucent effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <header className="h-20 sticky top-0 z-40 w-full glass-panel shadow-premium flex items-center justify-between px-4 sm:px-6">
+    <header
+      className={`h-20 sticky top-0 z-40 w-full glass-panel shadow-premium flex items-center justify-between px-4 sm:px-6${
+        isSticky ? "bg-background shadow-md fixed w-full" : "bg-transparent"
+      }`}
+    >
       {/* Left side: Mobile Toggle & Search */}
       <div className="flex items-center gap-2 sm:gap-4 flex-1">
         <Button
