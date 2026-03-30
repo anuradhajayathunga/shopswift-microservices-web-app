@@ -58,6 +58,13 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
 def get_users(db: Session = Depends(get_db)):
     return get_all_users(db)
 
+@app.get("/api/users/by-email", response_model=User)
+def get_user_by_email_endpoint(email: str, db: Session = Depends(get_db)):
+    user = get_user_by_email(db, email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
 @app.get("/api/users/{user_id}", response_model=User)
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     user = get_user(db, user_id)

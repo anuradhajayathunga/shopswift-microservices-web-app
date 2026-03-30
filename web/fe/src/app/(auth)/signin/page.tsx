@@ -57,6 +57,14 @@ export default function SignInPage() {
         formData.password,
       );
       authAPI.saveToken(access_token);
+
+      try {
+        const user = await authAPI.getUserByEmail(formData.email);
+        authAPI.saveUser(user);
+      } catch {
+        authAPI.saveUser({ email: formData.email });
+      }
+
       toast.success("Signed in successfully!");
       // Redirect to the dashboard layout we just built!
       router.push("/");

@@ -86,6 +86,10 @@ def read_root():
 async def get_all_users(_: None = Depends(verify_jwt_token)):
     return await forward_request("user", "/api/users", "GET")
 
+@app.get("/gateway/users/by-email")
+async def get_user_by_email(email: str, _: None = Depends(verify_jwt_token)):
+    return await forward_request("user", "/api/users/by-email", "GET", params={"email": email})
+
 @app.get("/gateway/users/{user_id}")
 async def get_user_by_id(user_id: int, _: None = Depends(verify_jwt_token)):
     return await forward_request("user", f"/api/users/{user_id}", "GET")

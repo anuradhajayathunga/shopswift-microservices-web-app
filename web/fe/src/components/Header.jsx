@@ -11,9 +11,10 @@ import {
   Command,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { authAPI } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -30,6 +31,8 @@ export default function Header({ toggleMobileMenu, onLogout }) {
   const { theme, setTheme } = useTheme();
   const [notificationCount] = useState(3);
   const [isSticky, setIsSticky] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [profile, setProfile] = useState(null);
 
   // Added 'read' state for a more realistic UI interaction
   const notifications = [
@@ -77,6 +80,45 @@ export default function Header({ toggleMobileMenu, onLogout }) {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const authenticated = authAPI.isAuthenticated();
+      setIsAuthenticated(authenticated);
+      if (!authenticated) {
+        setProfile(null);
+        return;
+      }
+
+      const cachedProfile = authAPI.getUser();
+      setProfile(cachedProfile);
+
+      if (!cachedProfile?.email) {
+        return;
+      }
+
+      try {
+        const fullUser = await authAPI.getUserByEmail(cachedProfile.email);
+        authAPI.saveUser(fullUser);
+        setProfile(fullUser);
+      } catch {
+        // Keep cached profile when refresh fails.
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  const displayName =
+    profile?.name || profile?.email?.split("@")[0] || "Signed in user";
+  const displayEmail = profile?.email || "";
+  const initials =
+    displayName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "SU";
 
   return (
     <header
@@ -228,69 +270,67 @@ export default function Header({ toggleMobileMenu, onLogout }) {
         {/* <div className="h-5 w-px bg-border hidden sm:block mx-1" /> */}
 
         {/* User Profile Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex items-center px-1  gap-2 hover:bg-accent h-9 rounded-full transition-colors"
+        {isAuthenticated && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center px-1 gap-2 hover:bg-accent h-9 rounded-full transition-colors"
+              >
+                <Avatar className="h-10 w-10 border border-border shadow-sm">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-56 shadow-premium border-border"
             >
-              <Avatar className="h-10 w-10 border border-border shadow-sm">
-                <AvatarImage src="/avatars/admin.jpg" alt="Adikari A." />
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-semibold">
-                  AA
-                </AvatarFallback>
-              </Avatar>
-              {/* <div className="hidden md:flex flex-col items-start text-left">
-                <span className="text-sm font-medium text-foreground leading-none">
-                  Adikari A.
-                </span>
-              </div> */}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="w-56 shadow-premium border-border"
-          >
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1.5 p-1">
-                <p className="text-sm font-semibold leading-none text-foreground">
-                  Adikari A.
-                </p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  admin@auralink.io
-                </p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem className="cursor-pointer py-2">
-                <User className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">Profile</span>
-                <DropdownMenuShortcut className="text-xs text-muted-foreground">
-                  ⇧⌘P
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1.5 p-1">
+                  <p className="text-sm font-semibold leading-none text-foreground">
+                    {displayName}
+                  </p>
+                  {displayEmail && (
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {displayEmail}
+                    </p>
+                  )}
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem className="cursor-pointer py-2">
+                  <User className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Profile</span>
+                  <DropdownMenuShortcut className="text-xs text-muted-foreground">
+                    ⇧⌘P
+                  </DropdownMenuShortcut>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer py-2">
+                  <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">Settings</span>
+                  <DropdownMenuShortcut className="text-xs text-muted-foreground">
+                    ⌘S
+                  </DropdownMenuShortcut>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer py-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+                onClick={onLogout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span className="text-sm font-medium">Sign out</span>
+                <DropdownMenuShortcut className="text-xs opacity-70">
+                  ⇧⌘Q
                 </DropdownMenuShortcut>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer py-2">
-                <Settings className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">Settings</span>
-                <DropdownMenuShortcut className="text-xs text-muted-foreground">
-                  ⌘S
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer py-2 text-destructive focus:text-destructive focus:bg-destructive/10"
-              onClick={onLogout}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              <span className="text-sm font-medium">Sign out</span>
-              <DropdownMenuShortcut className="text-xs opacity-70">
-                ⇧⌘Q
-              </DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </header>
   );
