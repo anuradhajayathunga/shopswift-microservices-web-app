@@ -5,6 +5,8 @@ from database import SessionLocal, engine, Base
 from schemas import Product, ProductCreate, ProductUpdate
 from crud import (
     get_all_products,
+    get_active_product,
+    get_active_products,
     get_product,
     get_product_by_sku,
     create_product,
@@ -51,6 +53,19 @@ def read_root():
 @app.get("/api/products", response_model=List[Product])
 def get_products(db: Session = Depends(get_db)):
     return get_all_products(db)
+
+
+@app.get("/api/products/public", response_model=List[Product])
+def get_public_products(db: Session = Depends(get_db)):
+    return get_active_products(db)
+
+
+@app.get("/api/products/public/{product_id}", response_model=Product)
+def get_public_product_by_id(product_id: int, db: Session = Depends(get_db)):
+    product = get_active_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    return product
 
 @app.get("/api/products/{product_id}", response_model=Product)
 def get_product_by_id(product_id: int, db: Session = Depends(get_db)):

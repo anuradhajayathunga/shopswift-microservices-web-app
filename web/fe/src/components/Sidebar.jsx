@@ -13,6 +13,7 @@ import {
   Settings,
   User,
   X,
+  Home
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,7 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
 
   const bottomNavItems = [
     { name: "Profile", path: "/profile", icon: <User size={21} /> },
+    { name: "Store", path: "/store", icon: <Home size={21} /> },
     { name: "Settings", path: "/settings", icon: <Settings size={21} /> },
   ];
 

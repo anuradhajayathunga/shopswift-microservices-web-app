@@ -128,6 +128,16 @@ async def delete_user(user_id: int, _: None = Depends(verify_jwt_token)):
 async def get_all_products(_: None = Depends(verify_jwt_token)):
     return await forward_request("product", "/api/products", "GET")
 
+
+@app.get("/gateway/public/products")
+async def get_public_products():
+    return await forward_request("product", "/api/products/public", "GET")
+
+
+@app.get("/gateway/public/products/{product_id}")
+async def get_public_product_by_id(product_id: int):
+    return await forward_request("product", f"/api/products/public/{product_id}", "GET")
+
 @app.get("/gateway/products/{product_id}")
 async def get_product_by_id(product_id: int, _: None = Depends(verify_jwt_token)):
     return await forward_request("product", f"/api/products/{product_id}", "GET")
