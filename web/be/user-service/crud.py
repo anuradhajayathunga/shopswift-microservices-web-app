@@ -20,7 +20,12 @@ def get_all_users(db: Session):
     return db.query(User).all()
 
 def create_user(db: Session, user: UserCreate):
-    db_user = User(name=user.name, email=user.email, password=user.password)
+    db_user = User(
+        name=user.name,
+        email=user.email,
+        password=user.password,
+        role=user.role,
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -31,6 +36,7 @@ def update_user(db: Session, user_id: int, user: UserUpdate):
     if db_user:
         if user.name: db_user.name = user.name
         if user.email: db_user.email = user.email
+        if user.role: db_user.role = user.role
         db.commit()
         db.refresh(db_user)
     return db_user

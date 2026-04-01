@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 import jwt
 from dotenv import load_dotenv
 from database import SessionLocal, engine, Base
@@ -27,6 +28,25 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "hype.-secret-key")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "60"))
 
+
+def ensure_role_column_exists() -> None:
+    """Backfill the role column for existing SQLite databases."""
+    with engine.connect() as connection:
+        columns_result = connection.execute(text("PRAGMA table_info(users)"))
+        existing_columns = {row[1] for row in columns_result.fetchall()}
+
+        if "role" not in existing_columns:
+            connection.execute(
+                text("ALTER TABLE users ADD COLUMN role VARCHAR DEFAULT 'customer'")
+            )
+            connection.execute(
+                text("UPDATE users SET role = 'customer' WHERE role IS NULL")
+            )
+            connection.commit()
+
+
+ensure_role_column_exists()
+
 def get_db():
     db = SessionLocal()
     try:
@@ -51,8 +71,10 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    token = create_access_token({"sub": str(user.id), "email": user.email})
-    return TokenResponse(access_token=token)
+    token = create_access_token(
+        {"sub": str(user.id), "email": user.email, "role": user.role}
+    )
+    return TokenResponse(access_token=token, role=user.role)
 
 @app.get("/api/users", response_model=List[User])
 def get_users(db: Session = Depends(get_db)):
