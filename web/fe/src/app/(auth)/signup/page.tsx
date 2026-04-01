@@ -96,7 +96,7 @@ export default function SignUpPage() {
       );
 
       // Auto sign in after signup
-      const { access_token } = await authAPI.signin(
+      const { access_token, role } = await authAPI.signin(
         formData.email,
         formData.password,
       );
@@ -109,11 +109,12 @@ export default function SignUpPage() {
         authAPI.saveUser({
           name: formData.fullName.trim(),
           email: formData.email,
+          role: role ?? "admin",
         });
       }
 
       toast.success("Account created and signed in successfully!");
-      router.push("/"); // Redirects to your new Dashboard Layout
+      router.push("/signin");
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Sign up failed";
       setError(errorMsg);

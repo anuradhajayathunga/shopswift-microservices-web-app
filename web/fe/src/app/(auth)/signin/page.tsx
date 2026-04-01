@@ -56,7 +56,7 @@ export default function SignInPage() {
 
     try {
       // Using your existing auth logic from the first code block
-      const { access_token } = await authAPI.signin(
+      const { access_token, role } = await authAPI.signin(
         formData.email,
         formData.password,
       );
@@ -66,11 +66,11 @@ export default function SignInPage() {
         const user = await authAPI.getUserByEmail(formData.email);
         authAPI.saveUser(user);
       } catch {
-        authAPI.saveUser({ email: formData.email });
+        authAPI.saveUser({ email: formData.email, role });
       }
 
       toast.success("Successfully signed in!");
-      router.push("/");
+      router.push(role === "customer" ? "/store" : "/");
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Sign in failed";
       setError(errorMsg);

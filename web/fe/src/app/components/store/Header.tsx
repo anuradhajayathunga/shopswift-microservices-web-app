@@ -27,6 +27,7 @@ import {
   CART_UPDATED_EVENT,
   type CartUpdatedDetail,
 } from "@/lib/cart";
+import { LoginModal } from "@/app/(store)/store/auth/LoginModal";
 
 export default function Header() {
   const { theme } = useTheme();
@@ -294,6 +295,7 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <>
+            <LoginModal>
               <Button
                 variant="ghost"
                 size="icon"
@@ -303,38 +305,8 @@ export default function Header() {
                 <User className="w-5 h-5" />
               </Button>
 
-              <Dialog
-                open={isAuthPromptOpen}
-                onOpenChange={setIsAuthPromptOpen}
-              >
-                <DialogContent className="sm:max-w-sm">
-                  <DialogHeader>
-                    <DialogTitle>Welcome to ShopSwift</DialogTitle>
-                    <DialogDescription>
-                      Sign in to view your profile and checkout faster.
-                    </DialogDescription>
-                  </DialogHeader>
-
-                  <div className="grid gap-2 pt-2">
-                    <Button asChild>
-                      <Link
-                        href="/signin"
-                        onClick={() => setIsAuthPromptOpen(false)}
-                      >
-                        Sign In
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                      <Link
-                        href="/signup"
-                        onClick={() => setIsAuthPromptOpen(false)}
-                      >
-                        Sign Up
-                      </Link>
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+            </LoginModal>
+              
             </>
           )}
           <Button

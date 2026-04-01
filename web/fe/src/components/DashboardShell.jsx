@@ -25,6 +25,12 @@ export default function DashboardShell({ children }) {
       return;
     }
 
+    const role = authAPI.getRole();
+    if (role === "customer") {
+      router.replace("/store");
+      return;
+    }
+
     setIsAuthChecking(false);
   }, [router]);
 
