@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Search, User, Heart, ShoppingBag, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,10 +14,17 @@ import FullLogo from "@/components/shared/logo/FullLogo";
 import { CartDrawer } from "../shared/CartDrawer";
 import { SearchOverlay } from "../shared/SearchOverlay";
 import { useTheme } from "next-themes";
+import { authAPI } from "@/lib/auth";
+import {
+  cartAPI,
+  CART_UPDATED_EVENT,
+  type CartUpdatedDetail,
+} from "@/lib/cart";
 
 export default function Header() {
   const { theme } = useTheme();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const categoryCloseTimer = useRef<NodeJS.Timeout | null>(null);
 
   const categoryItems = [
@@ -47,6 +54,59 @@ export default function Header() {
       categoryCloseTimer.current = null;
     }, 120);
   };
+
+  useEffect(() => {
+    const loadCartCount = async () => {
+      if (!authAPI.isAuthenticated()) {
+        setCartCount(0);
+        return;
+      }
+
+      const user = authAPI.getUser();
+      let userId = user?.id;
+
+      if (!userId && user?.email) {
+        try {
+          const fullUser = await authAPI.getUserByEmail(user.email);
+          authAPI.saveUser(fullUser);
+          userId = fullUser.id;
+        } catch {
+          setCartCount(0);
+          return;
+        }
+      }
+
+      if (!userId) {
+        setCartCount(0);
+        return;
+      }
+
+      try {
+        const items = await cartAPI.list(userId);
+        setCartCount(items.reduce((total, item) => total + item.quantity, 0));
+      } catch {
+        setCartCount(0);
+      }
+    };
+
+    const handleCartUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<CartUpdatedDetail>).detail;
+      const delta = detail?.delta;
+
+      if (typeof delta === "number") {
+        setCartCount((currentCount) => Math.max(0, currentCount + delta));
+      }
+
+      void loadCartCount();
+    };
+
+    void loadCartCount();
+    window.addEventListener(CART_UPDATED_EVENT, handleCartUpdated);
+
+    return () => {
+      window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdated);
+    };
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
@@ -155,7 +215,7 @@ export default function Header() {
             size="icon"
             className="text-muted-foreground hover:text-foreground"
           >
-            <Heart className="w-5 h-5" />
+            <Heart className="w-20 h-20" />
           </Button>
           {/* <Button
             variant="ghost"
@@ -165,7 +225,14 @@ export default function Header() {
             <ShoppingBag className="w-5 h-5" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-foreground rounded-full border-2 border-background"></span>
           </Button> */}
-          <CartDrawer />
+          <div className="relative">
+            <CartDrawer />
+            {cartCount > 0 && (
+              <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-foreground px-1.5 py-1.5 text-center text-[10px] font-semibold leading-none text-background">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </header>
