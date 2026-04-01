@@ -5,21 +5,18 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Loader2,
-  Star,
+  Minus,
+  Plus,
   Truck,
   RefreshCw,
   ShieldCheck,
-  Heart,
+  Share2,
+  MessageCircleQuestion,
+  Box,
+  Droplets,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -34,13 +31,37 @@ import { cartAPI, notifyCartUpdated } from "@/lib/cart";
 import { publicProductAPI, type PublicProduct } from "@/lib/public-products";
 import { toast } from "sonner";
 
-const PRODUCT_COLORS = ["#111827", "#F3F4F6", "#78716C"];
-const PRODUCT_SIZES = ["S", "M", "L", "XL", "XXL"];
+// Mock data based on the screenshot
+const PRODUCT_COLORS = [
+  { name: "Grey Green", hex: "#8F9E93", image: "/images/products/product-01.jpg" },
+  { name: "Light Blue", hex: "#A8DADC", image: "/images/products/product-02.jpg" }
+];
+const PRODUCT_SIZES = ["2XL", "XL", "L", "M", "S"];
 const PRODUCT_IMAGES = [
   "/images/products/product-01.jpg",
   "/images/products/product-02.jpg",
   "/images/products/product-03.jpg",
   "/images/products/product-04.jpg",
+  "/images/products/product-05.jpg",
+];
+
+const PRODUCT_DETAILS_TABLE = [
+  { label: "Material", value: "Single Jersey Material" },
+  { label: "Fabric Composition", value: "230 GSM/ Cotton 100%" },
+  { label: "Style", value: "Casual Street style" },
+  { label: "Neckline", value: "RIB Fabric (Contrast Color)" },
+  { label: "Fit Type", value: "Regular Oversize style" },
+  { label: "Print Type", value: "Screen Print" },
+  { label: "Care Instruction", value: "Hand Gentle wash & iron inside out" },
+  { label: "Product Code", value: "DTE" },
+];
+
+const SIZE_GUIDE = [
+  { size: "S", chest: "22", length: "26", sleeve: "9.5", shoulder: "17.5" },
+  { size: "M", chest: "23.5", length: "26.5", sleeve: "9.5", shoulder: "18.5" },
+  { size: "L", chest: "24", length: "28", sleeve: "10.5", shoulder: "19.5" },
+  { size: "XL", chest: "25.5", length: "28.5", sleeve: "10.5", shoulder: "20.5" },
+  { size: "2XL", chest: "26", length: "30", sleeve: "11", shoulder: "22" },
 ];
 
 export default function ProductDetailsPage() {
@@ -51,8 +72,8 @@ export default function ProductDetailsPage() {
   const productId = useMemo(() => Number(params.id), [params.id]);
 
   const [selectedColor, setSelectedColor] = useState(PRODUCT_COLORS[0]);
-  const [selectedSize, setSelectedSize] = useState(PRODUCT_SIZES[2]);
-  const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState("2XL");
+  const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(PRODUCT_IMAGES[0]);
 
   useEffect(() => {
@@ -77,30 +98,20 @@ export default function ProductDetailsPage() {
 
   const productView = {
     id: product?.id ?? productId,
-    name: product?.name ?? "Backline Authority Heavyweight T-Shirt",
-    price: product?.price ?? 4950,
-    originalPrice: product?.price
-      ? Number((product.price * 1.12).toFixed(2))
-      : 5500,
-    description:
-      product?.description ||
-      "Experience premium comfort with our heavyweight cotton blend. Designed for the modern streetwear aesthetic, featuring a relaxed drop-shoulder fit and high-density puff print graphics.",
-    colors: PRODUCT_COLORS,
-    sizes: PRODUCT_SIZES,
+    name: product?.name ?? "BACKYARD GRAPHIC T",
+    price: product?.price ?? 4650,
     images: PRODUCT_IMAGES,
-    stock: product?.stock ?? 0,
-    sku: product?.sku ?? "N/A",
-    isActive: product?.is_active ?? false,
+    stock: product?.stock ?? 10,
+    sku: product?.sku ?? "DTE",
+  };
+
+  const handleQuantityChange = (type: "inc" | "dec") => {
+    if (type === "dec" && quantity > 1) setQuantity(quantity - 1);
+    if (type === "inc" && quantity < productView.stock) setQuantity(quantity + 1);
   };
 
   const handleAddToCart = async () => {
-    if (!product) {
-      return;
-    }
-
-    if (!Number.isInteger(productId) || productId <= 0) {
-      return;
-    }
+    if (!product || !Number.isInteger(productId) || productId <= 0) return;
 
     setIsAddingToCart(true);
 
@@ -114,52 +125,36 @@ export default function ProductDetailsPage() {
         userId = fullUser.id;
       }
 
-      if (!userId) {
-        throw new Error("Unable to identify current user");
-      }
+      if (!userId) throw new Error("Unable to identify current user");
 
       await cartAPI.add({
         user_id: userId,
         product_id: product.id,
-        quantity: selectedQuantity,
+        quantity: quantity,
       });
 
-      notifyCartUpdated({ delta: selectedQuantity });
-
+      notifyCartUpdated({ delta: quantity });
       toast.success("Added to cart successfully");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to add to cart",
-      );
+      toast.error(error instanceof Error ? error.message : "Failed to add to cart");
     } finally {
       setIsAddingToCart(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-white pb-20 font-sans text-slate-900">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        
         {/* Breadcrumb Navigation */}
-        <Breadcrumb className="mb-8">
+        <Breadcrumb className="mb-6 text-xs uppercase tracking-wider">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink
-                asChild
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <BreadcrumbLink asChild className="text-muted-foreground hover:text-foreground transition-colors">
                 <Link href="/">Home</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            {/* <BreadcrumbSeparator /> */}
-            {/* <BreadcrumbItem>
-              <BreadcrumbLink
-                asChild
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <Link href="/collections/mens">Men's Tops</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem> */}
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage className="font-medium text-foreground">
@@ -169,293 +164,239 @@ export default function ProductDetailsPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-12 xl:gap-16 items-start">
+          
           {/* Left Column: Image Gallery */}
-          <div className="space-y-4">
-            {/* Main Image Container */}
-            <div className="relative aspect-[4/5] md:aspect-[3/4] w-full overflow-hidden rounded-2xl border border-border/50 bg-muted/30 flex items-center justify-center">
-              <Badge
-                variant="secondary"
-                className="absolute top-4 left-4 z-10 bg-background/80 backdrop-blur-md shadow-sm border-border/50 font-medium"
-              >
-                Best Seller
-              </Badge>
-              <img
-                src={activeImage}
-                alt={productView.name}
-                className="object-cover w-full h-full transition-opacity duration-300"
-              />
-            </div>
-
-            {/* Thumbnail Grid */}
-            <div className="grid grid-cols-4 gap-4">
+          <div className="flex flex-col-reverse md:flex-row gap-4 sticky top-6">
+            {/* Thumbnails */}
+            <div className="flex md:flex-col gap-3 overflow-x-auto md:w-20 shrink-0 pb-2 md:pb-0 scrollbar-hide">
               {productView.images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImage(img)}
-                  className={`relative aspect-[4/5] overflow-hidden rounded-xl border-2 transition-all ${
-                    activeImage === img
-                      ? "border-primary ring-1 ring-primary/20"
-                      : "border-border/50 hover:border-border"
+                  className={`relative aspect-[3/4] w-20 md:w-full overflow-hidden border transition-all ${
+                    activeImage === img ? "border-slate-900 opacity-100" : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <img
-                    src={img}
-                    alt={`Thumbnail ${idx + 1}`}
-                    className="object-cover w-full h-full opacity-90 hover:opacity-100"
-                  />
+                  <img src={img} alt={`Thumbnail ${idx + 1}`} className="object-cover w-full h-full bg-slate-100" />
                 </button>
               ))}
+            </div>
+            {/* Main Image */}
+            <div className="relative flex-1 aspect-[3/4] w-full bg-slate-100 overflow-hidden">
+              <img
+                src={activeImage}
+                alt={productView.name}
+                className="object-cover w-full h-full"
+              />
             </div>
           </div>
 
           {/* Right Column: Product Info */}
-          <div className="flex flex-col pt-2 lg:pt-8">
+          <div className="flex flex-col space-y-6">
+            
             {/* Title & Price */}
-            <div className="mb-6 space-y-2">
-              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+            <div className="space-y-4">
+              <h1 className="text-2xl sm:text-3xl font-medium tracking-tight uppercase">
                 {productView.name}
               </h1>
-              <div className="flex items-center gap-4">
-                <span className="text-2xl font-semibold text-foreground">
-                  Rs {productView.price.toLocaleString()}
+              <div className="space-y-1">
+                <span className="text-2xl font-normal">
+                  Rs {productView.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                 </span>
-                {productView.originalPrice && (
-                  <>
-                    <span className="text-lg text-muted-foreground line-through">
-                      Rs {productView.originalPrice.toLocaleString()}
-                    </span>
-                    <Badge
-                      variant="destructive"
-                      className="font-semibold shadow-none rounded-sm"
-                    >
-                      Save{" "}
-                      {Math.round(
-                        (1 - productView.price / productView.originalPrice) *
-                          100,
-                      )}
-                      %
-                    </Badge>
-                  </>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Loading product details...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>SKU: {productView.sku}</span>
-                    <span>•</span>
-                    <span>
-                      {productView.isActive ? "Active" : "Inactive"} product
-                    </span>
-                    <span>•</span>
-                    <span>Stock: {productView.stock}</span>
-                  </>
-                )}
-              </div>
-              <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                <div className="flex items-center text-amber-500">
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                  <Star className="w-4 h-4 fill-current" />
-                </div>
-                <span>(128 Reviews)</span>
+                <p className="text-sm text-muted-foreground">
+                  3 installments of Rs {(productView.price / 3).toLocaleString("en-US", { minimumFractionDigits: 2 })} or 6% Cashback with <span className="font-bold text-slate-800">mintpay</span>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  or pay in 3 x Rs {(productView.price / 3).toLocaleString("en-US", { minimumFractionDigits: 2 })} with <span className="font-bold text-[#8c67f6]">KOKO</span>
+                </p>
               </div>
             </div>
 
-            <p className="text-muted-foreground text-sm leading-relaxed mb-8">
-              {productView.description}
-            </p>
-
-            <Separator className="mb-8 border-border/60" />
-
-            {/* Options Form */}
-            <div className="space-y-8 mb-8">
-              {/* Color Selection */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">
-                    Color
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  {productView.colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${
-                        selectedColor === color
-                          ? "border-primary ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
-                          : "border-border/50 hover:border-border"
-                      }`}
-                      style={{ backgroundColor: color }}
-                      aria-label={`Select color ${color}`}
-                    />
-                  ))}
-                </div>
+            {/* Color Selection */}
+            <div className="space-y-3">
+              <div className="text-sm">
+                Color: <span className="font-medium">{selectedColor.name}</span>
               </div>
-
-              {/* Size Selection */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">
-                    Size
-                  </span>
-                  <button className="text-xs font-medium text-muted-foreground hover:text-foreground underline underline-offset-4">
-                    Size Guide
+              <div className="flex items-center gap-3">
+                {PRODUCT_COLORS.map((color) => (
+                  <button
+                    key={color.name}
+                    onClick={() => setSelectedColor(color)}
+                    className={`relative w-14 h-16 border overflow-hidden transition-all ${
+                      selectedColor.name === color.name
+                        ? "border-slate-900 p-0.5"
+                        : "border-border hover:border-slate-400"
+                    }`}
+                    title={color.name}
+                  >
+                    <img src={color.image} alt={color.name} className="w-full h-full object-cover" />
                   </button>
-                </div>
-                <div className="grid grid-cols-5 gap-2 sm:gap-3">
-                  {productView.sizes.map((size) => (
-                    <Button
-                      key={size}
-                      type="button"
-                      variant={selectedSize === size ? "default" : "outline"}
-                      onClick={() => setSelectedSize(size)}
-                      className={`h-12 w-full shadow-none ${
-                        selectedSize === size
-                          ? "bg-foreground text-background font-semibold"
-                          : "bg-background border-border/60 text-foreground hover:border-foreground/50 hover:bg-muted/50"
-                      }`}
-                    >
-                      {size}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Quantity Selection */}
-            <div className="mb-8 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-foreground">
-                  Quantity
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {productView.stock > 0
-                    ? `${productView.stock} available`
-                    : "Out of stock"}
-                </span>
-              </div>
-              <select
-                value={selectedQuantity}
-                onChange={(event) =>
-                  setSelectedQuantity(Number(event.target.value))
-                }
-                disabled={productView.stock <= 0}
-                className="h-12 w-full rounded-md border border-border/60 bg-background px-4 text-sm text-foreground shadow-none outline-none transition-colors focus:border-foreground/40 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {Array.from(
-                  {
-                    length: Math.max(1, Math.min(productView.stock || 1, 10)),
-                  },
-                  (_, index) => index + 1,
-                ).map((quantity) => (
-                  <option key={quantity} value={quantity}>
-                    {quantity}
-                  </option>
                 ))}
-              </select>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-4 mb-10">
-              <Button
-                size="lg"
-                className="flex-1 h-14 text-base font-semibold shadow-sm"
-                onClick={() => void handleAddToCart()}
-                disabled={isAddingToCart || productView.stock <= 0}
-              >
-                {isAddingToCart ? (
-                  <>
-                    <Loader2 className="size-4 animate-spin" />
-                    Adding to Cart...
-                  </>
-                ) : (
-                  `Add ${selectedQuantity} to Cart`
-                )}
-              </Button>
-              <Button
-                size="icon"
-                variant="outline"
-                className="h-14 w-14 border-border/60 shadow-none text-muted-foreground hover:text-red-500 hover:border-red-500/50 hover:bg-red-50 transition-colors"
-              >
-                <Heart className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-border/50 bg-muted/20 text-center space-y-2">
-                <Truck className="w-5 h-5 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  Island-wide
-                  <br />
-                  Delivery
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-border/50 bg-muted/20 text-center space-y-2">
-                <RefreshCw className="w-5 h-5 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  7 Days
-                  <br />
-                  Easy Return
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-border/50 bg-muted/20 text-center space-y-2">
-                <ShieldCheck className="w-5 h-5 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  Secure
-                  <br />
-                  Checkout
-                </span>
               </div>
             </div>
 
-            {/* Product Details Accordion */}
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="details" className="border-border/60">
-                <AccordionTrigger className="text-sm font-medium hover:no-underline hover:text-primary transition-colors">
-                  Product Details
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm space-y-2 leading-relaxed">
-                  <ul className="list-disc pl-4 space-y-1">
-                    <li>100% Premium Heavyweight Cotton</li>
-                    <li>Oversized drop-shoulder fit</li>
-                    <li>High-density puff print graphic on front/back</li>
-                    <li>Ribbed crewneck collar</li>
-                    <li>Pre-shrunk to minimize shrinkage</li>
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="shipping" className="border-border/60">
-                <AccordionTrigger className="text-sm font-medium hover:no-underline hover:text-primary transition-colors">
-                  Shipping & Returns
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm space-y-2 leading-relaxed">
-                  Standard delivery takes 2-4 business days. Express next-day
-                  delivery is available at checkout for selected areas. Returns
-                  are accepted within 7 days of receiving your order, provided
-                  the items are unworn and in original condition.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="care" className="border-border/60">
-                <AccordionTrigger className="text-sm font-medium hover:no-underline hover:text-primary transition-colors">
-                  Care Instructions
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm space-y-2 leading-relaxed">
-                  Machine wash cold with like colors. Tumble dry low or hang dry
-                  to preserve the print quality. Do not iron directly over the
-                  graphics.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            {/* Size Selection */}
+            <div className="space-y-3">
+              <div className="text-sm">
+                Size: <span className="font-medium">{selectedSize}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {PRODUCT_SIZES.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`h-10 px-6 border text-sm transition-colors ${
+                      selectedSize === size
+                        ? "border-slate-900 text-slate-900 font-medium"
+                        : "border-border text-slate-500 hover:border-slate-400"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Badge variant="outline" className="rounded-sm font-normal text-xs uppercase tracking-wider py-1 px-3">New</Badge>
+                <Badge variant="outline" className="rounded-sm font-normal text-xs uppercase tracking-wider py-1 px-3">Online</Badge>
+                <Badge variant="secondary" className="bg-slate-100 hover:bg-slate-100 rounded-sm font-normal text-xs py-1 px-3 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  Instock, ready to ship
+                </Badge>
+              </div>
+            </div>
+
+            {/* Product Details Table */}
+            <div className="pt-4 pb-2 border-b border-t border-slate-100 mt-6">
+              <h3 className="text-sm font-bold uppercase tracking-wider mb-4 border-b pb-2 inline-block border-slate-900">
+                Product Details
+              </h3>
+              <div className="border border-slate-200 divide-y divide-slate-200 text-sm">
+                {PRODUCT_DETAILS_TABLE.map((row, idx) => (
+                  <div key={idx} className="grid grid-cols-2 divide-x divide-slate-200">
+                    <div className="p-3 text-muted-foreground bg-slate-50/50">{row.label}</div>
+                    <div className="p-3 font-medium">{row.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity & Actions */}
+            <div className="space-y-4 pt-4">
+              <div className="text-sm font-medium">Quantity</div>
+              <div className="flex items-center w-32 h-12 border border-slate-200">
+                <button
+                  onClick={() => handleQuantityChange("dec")}
+                  className="w-10 h-full flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+                  disabled={quantity <= 1}
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <div className="flex-1 h-full flex items-center justify-center font-medium text-sm border-x border-slate-100">
+                  {quantity}
+                </div>
+                <button
+                  onClick={() => handleQuantityChange("inc")}
+                  className="w-10 h-full flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+                  disabled={quantity >= productView.stock}
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
+                <Box className="w-4 h-4 text-green-600" />
+                <span className="text-slate-900 text-xs">Pickup available at <span className="font-semibold">No. 282, Park Road, Colombo 05</span> Usually ready in 1 hour</span>
+              </div>
+
+              {/* Action Links */}
+              <div className="flex flex-wrap items-center gap-6 py-2 text-xs font-medium text-slate-600">
+                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors"><Droplets className="w-4 h-4"/> Compare color</button>
+                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors"><MessageCircleQuestion className="w-4 h-4"/> Ask a question</button>
+                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors"><Truck className="w-4 h-4"/> Delivery & Return</button>
+                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors"><Share2 className="w-4 h-4"/> Share</button>
+              </div>
+
+              {/* Add to Cart / Buy Now Buttons */}
+              <div className="flex flex-col gap-3 pt-4">
+                <Button
+                  variant="secondary"
+                  className="w-full h-12 rounded-none bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium tracking-wide shadow-none"
+                  onClick={() => void handleAddToCart()}
+                  disabled={isAddingToCart || productView.stock <= 0}
+                >
+                  {isAddingToCart ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Adding...</>
+                  ) : (
+                    `Add to cart - Rs ${(productView.price * quantity).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
+                  )}
+                </Button>
+                
+                {/* Custom Teal Button matching screenshot */}
+                <Button
+                  className="w-full h-12 rounded-none bg-[#4A8E9A] hover:bg-[#3d7781] text-white font-medium tracking-widest uppercase shadow-none"
+                >
+                  Buy It Now
+                </Button>
+              </div>
+            </div>
+
+            {/* Size Guide Section */}
+            <div className="pt-10 space-y-6 flex flex-col items-center border-t border-slate-100 mt-6">
+              <h2 className="text-2xl tracking-widest uppercase font-medium">Size Guide</h2>
+              <div className="w-full max-w-md border border-slate-200 rounded-sm overflow-hidden text-sm">
+                <div className="grid grid-cols-5 bg-black text-white text-center font-medium">
+                  <div className="p-3 border-r border-slate-700">SIZE</div>
+                  <div className="p-3 border-r border-slate-700">CHEST</div>
+                  <div className="p-3 border-r border-slate-700">LENGTH</div>
+                  <div className="p-3 border-r border-slate-700">SLEEVE</div>
+                  <div className="p-3">SHOULDER</div>
+                </div>
+                {SIZE_GUIDE.map((row, idx) => (
+                  <div key={idx} className={`grid grid-cols-5 text-center ${idx % 2 !== 0 ? 'bg-slate-50' : 'bg-white'} border-t border-slate-200`}>
+                    <div className="p-3 bg-black text-white font-medium border-r border-slate-700">{row.size}</div>
+                    <div className="p-3 border-r border-slate-200">{row.chest}</div>
+                    <div className="p-3 border-r border-slate-200">{row.length}</div>
+                    <div className="p-3 border-r border-slate-200">{row.sleeve}</div>
+                    <div className="p-3">{row.shoulder}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-center text-muted-foreground max-w-sm leading-relaxed">
+                *** All measurements are in inches.<br/>
+                Please note that these measurements are approximate and may vary slightly. The oversized fit of these t-shirts is designed for a relaxed and comfortable fit. If you're between sizes or prefer a looser fit, we recommend going up a size.
+              </p>
+            </div>
+
+            {/* Delivery Info Boxes */}
+            <div className="grid grid-cols-2 gap-4 mt-8">
+              <div className="flex flex-col items-center text-center p-6 border border-slate-200 bg-slate-50/50 space-y-3">
+                <Truck className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
+                <span className="text-xs text-slate-600">
+                  Island-wide Cash-on-Delivery <span className="font-bold text-slate-900">350 LKR</span><br/>(within 1-3 working days)
+                </span>
+              </div>
+              <div className="flex flex-col items-center text-center p-6 border border-slate-200 bg-slate-50/50 space-y-3">
+                <RefreshCw className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
+                <span className="text-xs text-slate-600">
+                  Exchange within <span className="font-bold text-slate-900">7 days</span> of purchase.
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 p-4 border border-slate-200 mt-4 bg-slate-50/50">
+               <ShieldCheck className="w-4 h-4 text-slate-600" />
+               <span className="text-xs font-medium uppercase tracking-wide mr-2">Guarantee Safe Checkout</span>
+               {/* Placeholders for payment icons */}
+               <div className="flex gap-2">
+                 <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center text-[8px] text-white font-bold italic">VISA</div>
+                 <div className="w-8 h-5 bg-slate-800 rounded flex items-center justify-center text-[8px] text-white font-bold relative overflow-hidden">
+                    <div className="w-3 h-3 bg-red-500 rounded-full absolute -left-0.5"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full absolute -right-0.5"></div>
+                 </div>
+               </div>
+            </div>
+
           </div>
         </div>
       </div>
