@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "hype. - E-commerce Platform",
+  title: "hype.",
   description: "hype. microservices e-commerce platform for modern shopping",
 };
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { useTheme } from "next-themes";
 // Make sure this path matches your auth utility location
 import { authAPI } from "@/lib/auth";
@@ -85,7 +86,7 @@ export default function SignInPage() {
         {/* LEFT COLUMN: Form Section */}
         <div className="w-full lg:w-[45%] p-8 lg:p-12 xl:p-16 flex flex-col relative overflow-y-auto">
           {/* <Link href="/signin" className="flex items-center gap-2 mb-12 w-fit"> */}
-            {/* <img
+          {/* <img
               src={
                 theme === "dark"
                   ? "/images/logos/hype-dark-logo.svg"
@@ -273,51 +274,28 @@ export default function SignInPage() {
               </p>
             </div>
 
-            {/* CSS Abstract Dashboard Mockup */}
+            {/* Dashboard Mockup Images */}
             <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-[40%] w-[120%] h-[500px] pointer-events-none">
-              <div className="absolute top-0 left-12 w-[80%] h-full bg-white rounded-xl shadow-2xl p-6 transform rotate-[-2deg] opacity-95">
-                {/* Mock Header */}
-                <div className="flex items-center justify-between mb-8 border-b pb-4 border-slate-100">
-                  <div className="flex items-center gap-4">
-                    <div className="h-6 w-24 bg-slate-100 rounded-md"></div>
-                    <div className="h-6 w-32 bg-slate-100 rounded-md"></div>
-                  </div>
-                  <div className="h-8 w-24 bg-primary/10 rounded-full"></div>
-                </div>
-                {/* Mock Content */}
-                <div className="flex gap-6 mb-8">
-                  <div className="flex-1 h-32 bg-slate-50 border border-slate-100 rounded-lg p-4 flex flex-col justify-between">
-                    <div className="h-4 w-20 bg-slate-200 rounded"></div>
-                    <div className="h-8 w-32 bg-slate-800 rounded"></div>
-                  </div>
-                  <div className="flex-1 h-32 bg-slate-50 border border-slate-100 rounded-lg p-4 flex flex-col justify-between">
-                    <div className="h-4 w-20 bg-slate-200 rounded"></div>
-                    <div className="h-8 w-24 bg-slate-800 rounded"></div>
-                  </div>
-                </div>
-                {/* Mock List */}
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-slate-200"></div>
-                        <div className="h-4 w-32 bg-slate-200 rounded"></div>
-                      </div>
-                      <div className="h-2 w-48 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary w-2/3"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="absolute top-0 left-12 w-[80%] h-full rotate-[-2deg] opacity-95">
+                <Image
+                  src="/images/auth/Dashboard Mockup.png"
+                  alt="Dashboard mockup"
+                  fill
+                  className="object-contain drop-shadow-2xl"
+                  sizes="(min-width: 1024px) 48vw, 0px"
+                  priority
+                />
               </div>
 
-              {/* Small Floating Action Card */}
-              <div className="absolute top-[20%] right-[10%] w-64 bg-white rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] p-4 transform rotate-[3deg]">
-                <div className="h-4 w-32 bg-slate-800 rounded mb-4"></div>
-                <div className="space-y-3">
-                  <div className="h-10 w-full border border-slate-200 rounded-md"></div>
-                  <div className="h-10 w-full bg-primary rounded-md"></div>
-                </div>
+              <div className="absolute top-[20%] right-[10%] w-64 h-48 rotate-[3deg]">
+                <Image
+                  src="/images/auth/Action Card.png"
+                  alt="Action card"
+                  fill
+                  className="object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+                  sizes="256px"
+                  priority
+                />
               </div>
             </div>
 
