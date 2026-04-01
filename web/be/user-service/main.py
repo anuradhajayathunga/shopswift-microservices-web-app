@@ -101,6 +101,31 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     return create_user(db, user)
 
+
+@app.post("/api/users/admin", response_model=User, status_code=status.HTTP_201_CREATED)
+def create_admin_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = get_user_by_email(db, user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    admin_user = UserCreate(name=user.name, email=user.email, password=user.password, role="admin")
+    return create_user(db, admin_user)
+
+
+@app.post("/api/users/customer", response_model=User, status_code=status.HTTP_201_CREATED)
+def create_customer_user_endpoint(user: UserCreate, db: Session = Depends(get_db)):
+    db_user = get_user_by_email(db, user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    customer_user = UserCreate(
+        name=user.name,
+        email=user.email,
+        password=user.password,
+        role="customer",
+    )
+    return create_user(db, customer_user)
+
 @app.put("/api/users/{user_id}", response_model=User)
 def update_user_endpoint(user_id: int, user: UserUpdate, db: Session = Depends(get_db)):
     updated = update_user(db, user_id, user)

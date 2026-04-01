@@ -89,7 +89,7 @@ export default function SignUpPage() {
 
     setLoading(true);
     try {
-      await authAPI.signup(
+      await authAPI.signupAdmin(
         formData.email,
         formData.password,
         formData.fullName,
@@ -100,6 +100,11 @@ export default function SignUpPage() {
         formData.email,
         formData.password,
       );
+
+      if (role !== "admin") {
+        throw new Error("This signup page creates admin accounts only");
+      }
+
       authAPI.saveToken(access_token);
 
       try {
@@ -109,12 +114,12 @@ export default function SignUpPage() {
         authAPI.saveUser({
           name: formData.fullName.trim(),
           email: formData.email,
-          role: role ?? "admin",
+          role: "admin",
         });
       }
 
       toast.success("Account created and signed in successfully!");
-      router.push("/signin");
+      router.push("/");
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Sign up failed";
       setError(errorMsg);

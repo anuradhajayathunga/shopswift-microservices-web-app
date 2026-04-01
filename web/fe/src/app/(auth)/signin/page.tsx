@@ -60,6 +60,11 @@ export default function SignInPage() {
         formData.email,
         formData.password,
       );
+
+      if (role !== "admin") {
+        throw new Error("Use the store login for customer accounts");
+      }
+
       authAPI.saveToken(access_token);
 
       try {
@@ -70,7 +75,7 @@ export default function SignInPage() {
       }
 
       toast.success("Successfully signed in!");
-      router.push(role === "customer" ? "/store" : "/");
+      router.push("/");
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Sign in failed";
       setError(errorMsg);

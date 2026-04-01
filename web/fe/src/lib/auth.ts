@@ -31,15 +31,14 @@ const parseJwtPayload = (token: string): Record<string, unknown> | null => {
 };
 
 export const authAPI = {
-  signup: async (email: string, password: string, full_name: string) => {
-    const response = await fetch(`${API_BASE_URL}/gateway/users`, {
+  signupAdmin: async (email: string, password: string, full_name: string) => {
+    const response = await fetch(`${API_BASE_URL}/gateway/users/admin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
         password,
         name: full_name,
-        role: "customer",
       }),
     });
     if (!response.ok) {
@@ -47,6 +46,31 @@ export const authAPI = {
       throw new Error(error.detail || "Sign up failed");
     }
     return response.json();
+  },
+
+  signupCustomer: async (
+    email: string,
+    password: string,
+    full_name: string,
+  ) => {
+    const response = await fetch(`${API_BASE_URL}/gateway/users/customer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        name: full_name,
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Sign up failed");
+    }
+    return response.json();
+  },
+
+  signup: async (email: string, password: string, full_name: string) => {
+    return authAPI.signupCustomer(email, password, full_name);
   },
 
   signin: async (email: string, password: string): Promise<SignInResponse> => {

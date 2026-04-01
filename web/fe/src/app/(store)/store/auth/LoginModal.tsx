@@ -52,7 +52,7 @@ export function LoginModal({ children }: { children: React.ReactNode }) {
 
     try {
       if (isSignUp) {
-        await authAPI.signup(
+        await authAPI.signupCustomer(
           formData.email.trim(),
           formData.password,
           formData.name.trim(),

@@ -111,6 +111,24 @@ async def create_user(request: Request):
         raise HTTPException(status_code=400, detail="Invalid JSON body")
     return await forward_request("user", "/api/users", "POST", json=payload)
 
+
+@app.post("/gateway/users/admin")
+async def create_admin_user(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    return await forward_request("user", "/api/users/admin", "POST", json=payload)
+
+
+@app.post("/gateway/users/customer")
+async def create_customer_user(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    return await forward_request("user", "/api/users/customer", "POST", json=payload)
+
 @app.put("/gateway/users/{user_id}")
 async def update_user(user_id: int, request: Request, _: None = Depends(verify_jwt_token)):
     try:
