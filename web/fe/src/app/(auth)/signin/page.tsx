@@ -264,21 +264,21 @@ export default function SignInPage() {
             <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-white/10 to-transparent pointer-events-none" />
 
             {/* Header Text */}
-            <div className="relative z-10 max-w-md mt-8">
+            <div className="relative z-10 max-w-lg mt-4">
               <h2 className="text-4xl font-semibold text-primary-foreground mb-6 leading-tight">
                 The simplest way to manage your e-commerce
               </h2>
-              <p className="text-primary-foreground/80 text-base leading-relaxed">
+              <p className="text-primary-foreground/60 text-base leading-relaxed">
                 Enter your credentials to access your secure hype. dashboard and
                 monitor your global sales in real-time.
               </p>
             </div>
 
             {/* Dashboard Mockup Images */}
-            <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-[40%] w-[120%] h-[500px] pointer-events-none">
-              <div className="absolute top-0 left-12 w-[80%] h-full rotate-[-2deg] opacity-95">
+            <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-[40%] w-[120%] h-[540px] pointer-events-none">
+              <div className="absolute top-0 left-10 w-[84%] h-full rotate-[-2deg] opacity-95">
                 <Image
-                  src="/images/auth/Dashboard Mockup.png"
+                  src="/images/auth/dashboard-mockup.png"
                   alt="Dashboard mockup"
                   fill
                   className="object-contain drop-shadow-2xl"
@@ -287,9 +287,9 @@ export default function SignInPage() {
                 />
               </div>
 
-              <div className="absolute top-[20%] right-[10%] w-64 h-48 rotate-[3deg]">
+              <div className="absolute top-[18%] right-[10%] w-64 h-48 rotate-[3deg]">
                 <Image
-                  src="/images/auth/Action Card.png"
+                  src="/images/auth/action-card.png"
                   alt="Action card"
                   fill
                   className="object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]"

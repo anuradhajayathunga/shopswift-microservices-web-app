@@ -1,19 +1,26 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 
 const FullLogo = () => {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const logoSrc =
+    mounted && resolvedTheme === "dark"
+      ? "/images/logos/hype-dark-logo.svg"
+      : "/images/logos/hype-light-logo.svg";
 
   return (
     <Link href={"/"}>
       <img
-        src={
-          theme === "dark"
-            ? "/images/logos/hype-dark-logo.svg"
-            : "/images/logos/hype-light-logo.svg"
-        }
+        src={logoSrc}
         alt="Hype Logo"
         // width={120}
         // height={40}

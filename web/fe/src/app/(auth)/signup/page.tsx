@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, LayoutDashboard, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import FullLogo from "@/components/shared/logo/FullLogo";
+import Image from "next/image";
 
 const validateEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -346,20 +347,19 @@ export default function SignUpPage() {
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
 
             {/* Header Text */}
-            <div className="relative z-10 max-w-md mt-8">
+            <div className="relative z-10 max-w-lg mt-4">
               <h2 className="text-4xl font-semibold text-primary-foreground mb-6 leading-tight">
                 Join thousands of businesses scaling globally
               </h2>
-              <p className="text-primary-foreground/80 text-base leading-relaxed">
+              <p className="text-primary-foreground/60 text-base leading-relaxed">
                 hype. gives you the analytics, inventory management, and AI
                 forecasting tools to dominate your market.
               </p>
             </div>
 
             {/* CSS Abstract Dashboard Mockup */}
-            <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-[40%] w-[120%] h-[500px] pointer-events-none">
-              <div className="absolute top-0 left-12 w-[80%] h-full bg-white rounded-xl shadow-2xl p-6 transform rotate-[-2deg] opacity-95">
-                {/* Mock Header */}
+            <div className="absolute top-[50%] left-1/2 -translate-x-1/2 -translate-y-[40%] w-[120%] h-[500px] pointer-events-none">
+              {/* <div className="absolute top-0 left-12 w-[80%] h-full bg-white rounded-xl shadow-2xl p-6 transform rotate-[-2deg] opacity-95">
                 <div className="flex items-center justify-between mb-8 border-b pb-4 border-slate-100">
                   <div className="flex items-center gap-4">
                     <div className="h-6 w-24 bg-slate-100 rounded-md"></div>
@@ -367,7 +367,6 @@ export default function SignUpPage() {
                   </div>
                   <div className="h-8 w-24 bg-primary/10 rounded-full"></div>
                 </div>
-                {/* Mock Content */}
                 <div className="flex gap-6 mb-8">
                   <div className="flex-1 h-32 bg-slate-50 border border-slate-100 rounded-lg p-4 flex flex-col justify-between">
                     <div className="h-4 w-20 bg-slate-200 rounded"></div>
@@ -378,7 +377,6 @@ export default function SignUpPage() {
                     <div className="h-8 w-24 bg-slate-800 rounded"></div>
                   </div>
                 </div>
-                {/* Mock List */}
                 <div className="space-y-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center justify-between">
@@ -392,15 +390,36 @@ export default function SignUpPage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Small Floating Action Card */}
-              <div className="absolute top-[20%] right-[10%] w-64 bg-white rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] p-4 transform rotate-[3deg]">
+              {/* <div className="absolute top-[20%] right-[10%] w-64 bg-white rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)] p-4 transform rotate-[3deg]">
                 <div className="h-4 w-32 bg-slate-800 rounded mb-4"></div>
                 <div className="space-y-3">
                   <div className="h-10 w-full border border-slate-200 rounded-md"></div>
                   <div className="h-10 w-full bg-primary rounded-md"></div>
                 </div>
+              </div> */}
+              <div className="absolute top-0 left-10 w-[84%] h-full rotate-[-2deg] opacity-95">
+                <Image
+                  src="/images/auth/dashboard-mockup.png"
+                  alt="Dashboard mockup"
+                  fill
+                  className="object-contain drop-shadow-2xl"
+                  sizes="(min-width: 1024px) 48vw, 0px"
+                  priority
+                />
+              </div>
+
+              <div className="absolute top-[18%] right-[10%] w-64 h-48 rotate-[3deg]">
+                <Image
+                  src="/images/auth/action-card.png"
+                  alt="Action card"
+                  fill
+                  className="object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+                  sizes="256px"
+                  priority
+                />
               </div>
             </div>
 
