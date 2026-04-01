@@ -6,19 +6,16 @@ export function HeroBanner() {
       <div className="relative w-full h-[80vh] min-h-[500px] rounded-none overflow-hidden bg-muted flex items-center justify-center">
         {/* Replace with next/image */}
         <img
-          src="/images/backgrounds/my-card.jpg"
+          src="/images/backgrounds/hero.png"
           alt="Backyard Club"
           className="absolute inset-0 w-full h-full object-cover opacity-90"
         />
 
         {/* Overlay Content */}
-        <div className="relative z-10 text-center space-y-4 bg-background/30 backdrop-blur-sm p-8 rounded-xl border border-white/10">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight drop-shadow-md">
-            BACKYARD CLUB
+        <div className="relative z-10 text-center space-y-4 bg-background/30 backdrop-blur-sm p-2 rounded-md border border-white/10">
+          <h1 className="text-xl font-bold text-white tracking-tight drop-shadow-md">
+            Shop Now!
           </h1>
-          <p className="text-lg text-white/90 font-medium tracking-wide uppercase">
-            Launching Soon
-          </p>
         </div>
       </div>
     </section>

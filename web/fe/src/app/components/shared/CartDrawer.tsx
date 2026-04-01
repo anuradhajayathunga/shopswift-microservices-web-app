@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, Loader2, ShoppingBag, Trash2 } from "lucide-react";
+import { Loader2, ShoppingBag, X, RefreshCw, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { authAPI } from "@/lib/auth";
 import { cartAPI, notifyCartUpdated, type CartItem } from "@/lib/cart";
@@ -21,19 +22,21 @@ type CartLineItem = CartItem & {
   product: PublicProduct | null;
 };
 
-export function CartDrawer() {
+type CartDrawerProps = {
+  cartCount?: number;
+};
+
+export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<CartLineItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [pendingItemId, setPendingItemId] = useState<number | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const router = useRouter();
 
   const resolveUserId = useCallback(async () => {
-    if (!authAPI.isAuthenticated()) {
-      return null;
-    }
-
+    if (!authAPI.isAuthenticated()) return null;
     const user = authAPI.getUser();
     let userId = user?.id;
 
@@ -42,7 +45,6 @@ export function CartDrawer() {
       authAPI.saveUser(fullUser);
       userId = fullUser.id;
     }
-
     return userId ?? null;
   }, []);
 
@@ -55,17 +57,13 @@ export function CartDrawer() {
 
   useEffect(() => {
     const loadCart = async () => {
-      if (!open) {
-        return;
-      }
-
+      if (!open) return;
       if (!authAPI.isAuthenticated()) {
         setItems([]);
         return;
       }
 
       let userId: number | null;
-
       try {
         userId = await resolveUserId();
       } catch (error) {
@@ -95,7 +93,6 @@ export function CartDrawer() {
             }
           }),
         );
-
         setItems(cartWithProducts);
       } catch (error) {
         toast.error(
@@ -117,12 +114,8 @@ export function CartDrawer() {
       setItems((currentItems) =>
         currentItems.filter((item) => item.id !== itemId),
       );
-      if (removedItem) {
-        notifyCartUpdated({ delta: -removedItem.quantity });
-      } else {
-        notifyCartUpdated({ refresh: true });
-      }
-      toast.success("Item removed from cart");
+      if (removedItem) notifyCartUpdated({ delta: -removedItem.quantity });
+      else notifyCartUpdated({ refresh: true });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to remove item",
@@ -132,14 +125,9 @@ export function CartDrawer() {
 
   const handleQuantityChange = async (item: CartLineItem, delta: 1 | -1) => {
     setPendingItemId(item.id);
-
     try {
       if (delta === -1 && item.quantity === 1) {
-        await cartAPI.remove(item.id);
-        setItems((currentItems) =>
-          currentItems.filter((currentItem) => currentItem.id !== item.id),
-        );
-        notifyCartUpdated({ delta: -1 });
+        await handleRemoveItem(item.id);
         return;
       }
 
@@ -167,182 +155,217 @@ export function CartDrawer() {
   };
 
   const handleCheckout = async () => {
-    if (items.length === 0 || isCheckingOut) {
+    if (items.length === 0 || isCheckingOut) return;
+    if (!agreedToTerms) {
+      toast.error("Please agree to the terms and conditions.");
       return;
     }
-
     setOpen(false);
-    router.push("/checkout");
+    router.push("/store/checkout");
+  };
+
+  const handleViewCart = () => {
+    setOpen(false);
+    router.push("/cart");
   };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ShoppingBag className="h-5 w-5" />
-        </Button>
+        <div className="text-foreground hover:text-primary transition-colors relative">
+          <ShoppingBag className="h-6 w-6" strokeWidth={2} />
+          {cartCount > 0 && (
+            <span className="absolute -right-2 -top-2 min-w-5 rounded-full bg-foreground p-1.5 text-center text-[10px] font-medium leading-none text-background">
+              {cartCount > 99 ? "99+" : cartCount}
+            </span>
+          )}
+        </div>
       </SheetTrigger>
 
-      <SheetContent className="flex w-full flex-col border-l border-border/50 p-0 sm:max-w-md">
-        <SheetHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border/40 px-6 py-5 text-left">
-          <SheetTitle className="text-lg font-medium tracking-tight text-foreground">
+      <SheetContent className="flex w-full flex-col p-0 sm:max-w-[420px] bg-white border-l-0 shadow-2xl font-sans text-gray-900 [&>button]:hidden">
+        {/* Header */}
+        <SheetHeader className="flex flex-row items-center justify-between px-6 py-4 border-b border-gray-100">
+          <SheetTitle className="text-xl font-medium tracking-wide">
             Shopping cart
           </SheetTitle>
+          <SheetClose className="text-gray-500 hover:text-gray-900 transition-colors">
+            <X className="h-5 w-5" strokeWidth={1.5} />
+          </SheetClose>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto">
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto bg-white">
           {!authAPI.isAuthenticated() ? (
-            <div className="flex h-full flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
-              <h2 className="mb-3 text-2xl font-medium tracking-tight text-foreground">
-                Sign in to view your cart
+            <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+              <h2 className="mb-2 text-lg font-medium text-gray-900">
+                Sign in to view cart
               </h2>
-              <p className="mb-8 max-w-[280px] text-sm leading-relaxed text-muted-foreground">
-                Add products to your cart after signing in so we can fetch your
-                saved items from the backend.
+              <p className="mb-6 text-sm text-gray-500">
+                Log in to see items you've added previously.
               </p>
-
               <Button
                 asChild
                 variant="outline"
-                className="h-11 rounded-md border-border/60 px-8 font-medium transition-colors hover:bg-muted/50 group"
+                className="rounded-none border-gray-300 hover:bg-gray-50 h-12 px-8"
               >
-                <Link href="/signin">
-                  Go to sign in
-                  <ArrowUpRight className="ml-2 h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
-                </Link>
+                <Link href="/signin">Sign In</Link>
               </Button>
             </div>
           ) : isLoading ? (
-            <div className="flex h-full items-center justify-center p-6 text-muted-foreground">
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Loading cart...
+            <div className="flex h-full items-center justify-center p-6 text-gray-500">
+              <Loader2 className="h-5 w-5 animate-spin" />
             </div>
           ) : items.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center p-6 text-center animate-in fade-in duration-500">
-              <h2 className="mb-3 text-2xl font-medium tracking-tight text-foreground">
+            <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+              <h2 className="mb-2 text-lg font-medium text-gray-900">
                 Your cart is empty
               </h2>
-              <p className="mb-8 max-w-[280px] text-sm leading-relaxed text-muted-foreground">
-                You may check out all the available products and buy some in the
-                shop
-              </p>
-
-              <SheetTrigger asChild>
+              <SheetClose asChild>
                 <Button
-                  asChild
                   variant="outline"
-                  className="h-11 rounded-md border-border/60 px-8 font-medium transition-colors hover:bg-muted/50 group"
+                  className="mt-4 rounded-none border-gray-300 hover:bg-gray-50 h-12 px-8"
                 >
-                  <Link href="/store">
-                    Return to shop
-                    <ArrowUpRight className="ml-2 h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
-                  </Link>
+                  Continue Shopping
                 </Button>
-              </SheetTrigger>
+              </SheetClose>
             </div>
           ) : (
-            <div className="space-y-4 p-6">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex gap-4 rounded-xl border border-border/50 bg-background p-4 shadow-sm"
-                >
-                  <div className="h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
-                    <img
-                      src="/api/placeholder/120/160"
-                      alt={item.product?.name || `Product ${item.product_id}`}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <div>
-                      <p className="line-clamp-1 text-sm font-semibold text-foreground">
-                        {item.product?.name || "Product unavailable"}
-                      </p>
-                      <p className="line-clamp-2 text-xs text-muted-foreground">
-                        {item.product?.description ||
-                          `SKU item #${item.product_id}`}
-                      </p>
+            <div className="flex flex-col h-full">
+              {/* Cart Items List */}
+              <div className="p-6 space-y-6 flex-1">
+                {items.map((item) => (
+                  <div key={item.id} className="flex gap-5">
+                    {/* Product Image */}
+                    <div className="h-[120px] w-[90px] shrink-0 bg-gray-100 overflow-hidden">
+                      <img
+                        src="/images/products/product-01.jpg" // Fallback placeholder
+                        alt={item.product?.name || "Product"}
+                        className="h-full w-full object-cover mix-blend-multiply"
+                      />
                     </div>
 
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-foreground">
-                        Rs {(item.product?.price ?? 0).toLocaleString()}
-                      </span>
-                    </div>
+                    {/* Product Details */}
+                    <div className="flex flex-col pt-1 flex-1">
+                      <p className="text-sm font-medium tracking-wide uppercase text-gray-900">
+                        {item.product?.name || "Product Unavailable"}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Grey Green / 2XL
+                      </p>
 
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="inline-flex items-center rounded-md border border-border/60 bg-background">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-none rounded-l-md text-muted-foreground hover:text-foreground"
-                          onClick={() => handleQuantityChange(item, -1)}
-                          disabled={pendingItemId === item.id}
+                      <p className="text-sm font-medium mt-2">
+                        Rs{" "}
+                        {(item.product?.price ?? 0).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </p>
+
+                      {/* Controls */}
+                      <div className="flex items-center gap-4 mt-auto pt-4">
+                        <div className="flex items-center gap-4 text-sm">
+                          <button
+                            onClick={() => handleQuantityChange(item, -1)}
+                            disabled={pendingItemId === item.id}
+                            className="text-gray-500 hover:text-gray-900 px-1 disabled:opacity-50"
+                          >
+                            −
+                          </button>
+                          <span className="w-2 text-center select-none">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => handleQuantityChange(item, 1)}
+                            disabled={pendingItemId === item.id}
+                            className="text-gray-500 hover:text-gray-900 px-1 disabled:opacity-50"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="text-sm text-gray-500 hover:text-gray-900 underline underline-offset-4 decoration-gray-300 hover:decoration-gray-900 transition-all ml-4"
                         >
-                          -
-                        </Button>
-                        <span className="min-w-10 px-3 text-center text-sm font-medium text-foreground">
-                          {item.quantity}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 rounded-none rounded-r-md text-muted-foreground hover:text-foreground"
-                          onClick={() => handleQuantityChange(item, 1)}
-                          disabled={pendingItemId === item.id}
-                        >
-                          +
-                        </Button>
+                          Remove
+                        </button>
                       </div>
-
-                      <span className="text-xs text-muted-foreground">
-                        Subtotal Rs{" "}
-                        {(
-                          (item.product?.price ?? 0) * item.quantity
-                        ).toLocaleString()}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-2 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleRemoveItem(item.id)}
-                      >
-                        <Trash2 className="mr-1 size-3.5" />
-                        Remove
-                      </Button>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
-              <div className="sticky bottom-0 space-y-4 border-t border-border/40 bg-background/95 p-4 backdrop-blur-sm">
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>Cart total</span>
-                  <span className="font-semibold text-foreground">
-                    Rs {cartTotal.toLocaleString()}
+              {/* Footer Section */}
+              <div className="mt-auto px-6 pb-6 pt-4 bg-white">
+                {/* Info Icons */}
+                <div className="flex justify-center gap-12 mb-8 text-gray-600">
+                  <RefreshCw className="w-5 h-5" strokeWidth={1.5} />
+                  <Truck className="w-6 h-6" strokeWidth={1.5} />
+                </div>
+
+                {/* Subtotal */}
+                <div className="flex items-end justify-between mb-2">
+                  <span className="text-lg text-gray-900">Subtotal</span>
+                  <span className="text-lg font-medium text-gray-900">
+                    Rs{" "}
+                    {cartTotal.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                    })}{" "}
+                    LKR
                   </span>
                 </div>
 
-                <Button
-                  className="h-11 w-full font-medium"
-                  onClick={() => void handleCheckout()}
-                  disabled={isCheckingOut}
-                >
-                  {isCheckingOut ? (
-                    <>
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                      Placing order...
-                    </>
-                  ) : (
-                    "Proceed to checkout"
-                  )}
-                </Button>
+                <p className="text-sm text-gray-500 mb-6">
+                  Taxes and{" "}
+                  <span className="underline underline-offset-4 decoration-gray-300">
+                    shipping
+                  </span>{" "}
+                  calculated at checkout
+                </p>
+
+                {/* Terms Checkbox */}
+                <label className="flex items-center gap-3 mb-6 cursor-pointer">
+                  <div
+                    className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${agreedToTerms ? "border-gray-900 bg-gray-900" : "border-gray-300"}`}
+                  >
+                    {agreedToTerms && (
+                      <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                    )}
+                  </div>
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  />
+                  <span className="text-sm text-gray-900">
+                    I agree with the{" "}
+                    <span className="font-bold underline underline-offset-4">
+                      terms and conditions
+                    </span>
+                  </span>
+                </label>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    className="w-full h-12 rounded-none border-gray-300 text-gray-900 font-medium hover:bg-gray-50 shadow-none text-base"
+                    onClick={handleViewCart}
+                  >
+                    View cart
+                  </Button>
+                  <Button
+                    className="w-full h-12 rounded-none bg-white border border-gray-300 text-gray-900 font-medium hover:bg-gray-50 shadow-none text-base"
+                    onClick={() => void handleCheckout()}
+                    disabled={isCheckingOut}
+                  >
+                    {isCheckingOut ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Check out"
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           )}

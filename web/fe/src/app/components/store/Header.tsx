@@ -250,28 +250,23 @@ export default function Header() {
         </div>
 
         {/* Right Icons */}
-        <div className="ml-auto flex items-center gap-1 ">
+        <div className="ml-auto flex items-center gap-4 ">
           <SearchOverlay>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Search className="w-5 h-5" />
-            </Button>
+            <span className="text-foreground hover:text-primary transition-colors cursor-pointer">
+              <Search className="w-6 h-6" strokeWidth={2} />
+            </span>
           </SearchOverlay>
           {authUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <User className="w-5 h-5" />
-                </Button>
+                <span className="text-foreground hover:text-primary transition-colors cursor-pointer">
+                  <User className="w-6 h-6" strokeWidth={2} />
+                </span>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 mt-4 p-2 bg-background/80 max-w-[200px]">
+              <DropdownMenuContent
+                align="end"
+                className="w-64 mt-4 p-2 bg-background/80 max-w-[200px]"
+              >
                 <div className="px-2 py-2">
                   <p className="text-sm font-semibold text-foreground">
                     {authUser.name || "User"}
@@ -295,27 +290,16 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <>
-            <LoginModal>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-muted-foreground hover:text-foreground"
-                onClick={() => setIsAuthPromptOpen(true)}
-              >
-                <User className="w-5 h-5" />
-              </Button>
-
-            </LoginModal>
-              
+              <LoginModal>
+                <span className="text-foreground hover:text-primary transition-colors cursor-pointer">
+                  <User className="w-6 h-6" strokeWidth={1} />
+                </span>
+              </LoginModal>
             </>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Heart className="w-20 h-20" />
-          </Button>
+          <span className="text-foreground hover:text-primary transition-colors cursor-pointer">
+            <Heart className="w-6 h-6" strokeWidth={2} />
+          </span>
           {/* <Button
             variant="ghost"
             size="icon"
@@ -324,14 +308,7 @@ export default function Header() {
             <ShoppingBag className="w-5 h-5" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-foreground rounded-full border-2 border-background"></span>
           </Button> */}
-          <div className="relative">
-            <CartDrawer />
-            {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 min-w-5 rounded-full bg-foreground px-1.5 py-1.5 text-center text-[10px] font-semibold leading-none text-background">
-                {cartCount > 99 ? "99+" : cartCount}
-              </span>
-            )}
-          </div>
+          <CartDrawer cartCount={cartCount} />
         </div>
       </div>
     </header>
