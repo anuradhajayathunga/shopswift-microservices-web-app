@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, LayoutDashboard, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import FullLogo from "@/components/shared/logo/FullLogo";
 
 const validateEmail = (email: string) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -128,15 +129,18 @@ export default function SignUpPage() {
         {/* LEFT COLUMN: Form Section */}
         <div className="w-full lg:w-[45%] p-8 lg:p-12 xl:p-16 flex flex-col relative overflow-y-auto">
           {/* Brand Logo */}
-          <Link
+          {/* <Link
             href="/"
             className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground mb-10 w-fit"
           >
             <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground">
               <LayoutDashboard size={18} />
             </div>
-            ShopSwift<span className="text-primary">.</span>
-          </Link>
+            hype.<span className="text-primary">.</span>
+          </Link> */}
+          <div className="mb-12">
+            <FullLogo />
+          </div>
 
           {/* Header */}
           <div className="mb-8">
@@ -144,7 +148,7 @@ export default function SignUpPage() {
               Create an account
             </h1>
             <p className="text-muted-foreground text-sm">
-              Get started with ShopSwift and scale your business today.
+              Get started with hype. and scale your business today.
             </p>
           </div>
 
@@ -347,7 +351,7 @@ export default function SignUpPage() {
                 Join thousands of businesses scaling globally
               </h2>
               <p className="text-primary-foreground/80 text-base leading-relaxed">
-                ShopSwift gives you the analytics, inventory management, and AI
+                hype. gives you the analytics, inventory management, and AI
                 forecasting tools to dominate your market.
               </p>
             </div>

@@ -13,7 +13,7 @@ import {
   Settings,
   User,
   X,
-  Home
+  Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -174,7 +174,7 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
             <div className="flex w-full bg-lightprimary rounded-lg p-6 relative">
               <div className="w-1/2 relative z-10">
                 <h5 className="text-base font-bold text-charcoal dark:text-white">
-                  Get 20% off with ShopSwift Pro!  
+                  Get 20% off with hype. Pro!
                   {/* Upgrade for advanced
                   analytics, AI forecasts, and priority support. */}
                 </h5>
@@ -186,6 +186,7 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
                 <Image
                   src="/images/backgrounds/rocket.png"
                   alt="rocket"
+                  loading="eager"
                   width={100}
                   height={100}
                   className="w-auto h-auto object-contain drop-shadow-lg opacity-90"

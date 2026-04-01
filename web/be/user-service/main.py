@@ -23,7 +23,7 @@ app = FastAPI(title="User Service", version="1.0")
 
 load_dotenv()
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "shopswift-secret-key")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "hype.-secret-key")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "60"))
 

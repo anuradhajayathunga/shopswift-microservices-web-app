@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 // Make sure this path matches your auth utility location
 import { authAPI } from "@/lib/auth";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2, LayoutDashboard, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import FullLogo from "@/components/shared/logo/FullLogo";
 
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -18,6 +20,7 @@ const validateEmail = (email: string): boolean => {
 
 export default function SignInPage() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -81,15 +84,22 @@ export default function SignInPage() {
       <div className="w-full max-w-[1360px] bg-card rounded-[2rem] shadow-premium border border-border overflow-hidden flex flex-col lg:flex-row min-h-[860px] animate-in fade-in zoom-in-95 duration-500">
         {/* LEFT COLUMN: Form Section */}
         <div className="w-full lg:w-[45%] p-8 lg:p-12 xl:p-16 flex flex-col relative overflow-y-auto">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground mb-12 w-fit"
-          >
-            <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground">
-              <LayoutDashboard size={18} />
-            </div>
-            ShopSwift<span className="text-primary">.</span>
-          </Link>
+          {/* <Link href="/signin" className="flex items-center gap-2 mb-12 w-fit"> */}
+            {/* <img
+              src={
+                theme === "dark"
+                  ? "/images/logos/hype-dark-logo.svg"
+                  : "/images/logos/hype-light-logo.svg"
+              }
+              alt="Hype Logo"
+              width={120}
+              height={40}
+              className="h-10 w-auto"
+            /> */}
+          {/* </Link> */}
+          <div className="mb-12">
+            <FullLogo />
+          </div>
 
           {/* Header */}
           <div className="mb-8">
@@ -242,7 +252,7 @@ export default function SignInPage() {
           </div>
 
           <div className="mt-8 text-xs text-muted-foreground/60">
-            © {new Date().getFullYear()} ShopSwift. All rights reserved.
+            © {new Date().getFullYear()} hype.. All rights reserved.
           </div>
         </div>
 
@@ -258,8 +268,8 @@ export default function SignInPage() {
                 The simplest way to manage your e-commerce
               </h2>
               <p className="text-primary-foreground/80 text-base leading-relaxed">
-                Enter your credentials to access your secure ShopSwift dashboard
-                and monitor your global sales in real-time.
+                Enter your credentials to access your secure hype. dashboard and
+                monitor your global sales in real-time.
               </p>
             </div>
 

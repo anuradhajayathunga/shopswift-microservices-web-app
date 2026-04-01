@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { publicProductAPI, type PublicProduct } from "@/lib/public-products";
-import  Header  from "@/app/components/store/Header";
+import Header from "@/app/components/store/Header";
 import { HeroBanner, PromoSplit } from "@/app/components/store/HeroSections";
 export default function StorePage() {
   const [products, setProducts] = useState<PublicProduct[]>([]);
@@ -52,14 +52,14 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-background">
-                  <Header />
-<HeroBanner />
-        <PromoSplit />
+      <Header />
+      <HeroBanner />
+      <PromoSplit />
       <section className="border-b border-border/70 bg-gradient-to-b from-primary/5 via-background to-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="space-y-3">
             <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border-0">
-              ShopSwift Store
+              hype. Store
             </Badge>
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground">
               Explore Products

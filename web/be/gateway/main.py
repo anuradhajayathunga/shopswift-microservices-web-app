@@ -8,7 +8,7 @@ import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
 from dotenv import load_dotenv
 
-app = FastAPI(title="ShopSwift API Gateway", version="1.0")
+app = FastAPI(title="hype. API Gateway", version="1.0")
 
 DEV_ORIGINS = [
     "http://localhost:5173",
@@ -29,7 +29,7 @@ app.add_middleware(
 
 load_dotenv()
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "shopswift-secret-key")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "hype.-secret-key")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
 SERVICES = {
@@ -79,7 +79,7 @@ def verify_jwt_token(request: Request):
 
 @app.get("/")
 def read_root():
-    return {"message": "ShopSwift API Gateway is running", "services": list(SERVICES.keys())}
+    return {"message": "hype. API Gateway is running", "services": list(SERVICES.keys())}
 
 # User Service Routes
 @app.get("/gateway/users")

@@ -7,9 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ShopSwift - E-commerce Platform",
-  description:
-    "ShopSwift microservices e-commerce platform for modern shopping",
+  title: "hype. - E-commerce Platform",
+  description: "hype. microservices e-commerce platform for modern shopping",
 };
 
 export default function RootLayout({

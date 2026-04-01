@@ -1,6 +1,6 @@
-# ShopSwift Microservices
+# hype. Microservices
 
-ShopSwift is a simple microservices-based backend built with FastAPI.
+hype. is a simple microservices-based backend built with FastAPI.
 
 ## Services
 

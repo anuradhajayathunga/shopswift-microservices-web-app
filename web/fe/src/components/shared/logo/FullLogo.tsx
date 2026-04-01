@@ -1,28 +1,25 @@
 "use client";
 
-import Image from "next/image";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 
 const FullLogo = () => {
+  const { theme } = useTheme();
+
   return (
     <Link href={"/"}>
-      {/* Dark Logo */}
-      <Image
-        src="/images/logos/materialm-dark-logo.svg"
-        alt="logo"
+      <img
+        src={
+          theme === "dark"
+            ? "/images/logos/hype-dark-logo.svg"
+            : "/images/logos/hype-light-logo.svg"
+        }
+        alt="Hype Logo"
+        // width={120}
+        // height={40}
         width={152}
         height={36}
-        className="block w-auto h-auto dark:hidden rtl:scale-x-[-1]"
-        style={{ width: "auto", height: "auto" }}
-      />
-      {/* Light Logo */}
-      <Image
-        src="/images/logos/materialm-light-logo.svg"
-        alt="logo"
-        width={152}
-        height={36}
-        className="hidden w-auto h-auto dark:block rtl:scale-x-[-1]"
-        style={{ width: "auto", height: "auto" }}
+        className="h-10 w-auto"
       />
     </Link>
   );
