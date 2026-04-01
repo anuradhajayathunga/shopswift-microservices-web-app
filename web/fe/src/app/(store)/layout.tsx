@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { authAPI } from "@/lib/auth";
 
 export default function StoreLayout({
@@ -9,23 +8,12 @@ export default function StoreLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
   const [isRoleChecking, setIsRoleChecking] = useState(true);
 
   useEffect(() => {
-    if (!authAPI.isAuthenticated()) {
-      setIsRoleChecking(false);
-      return;
-    }
-
-    const role = authAPI.getRole();
-    if (role === "admin") {
-      router.replace("/");
-      return;
-    }
-
+    // Store is available for guests, customers, and admins.
     setIsRoleChecking(false);
-  }, [router]);
+  }, []);
 
   if (isRoleChecking) {
     return (

@@ -64,10 +64,6 @@ export function LoginModal({ children }: { children: React.ReactNode }) {
         formData.password,
       );
 
-      if (role && role !== "customer") {
-        throw new Error("This login section is for customer accounts only");
-      }
-
       authAPI.saveToken(access_token);
 
       try {
@@ -77,7 +73,7 @@ export function LoginModal({ children }: { children: React.ReactNode }) {
         authAPI.saveUser({
           email: formData.email.trim(),
           name: formData.name.trim() || undefined,
-          role: "customer",
+          role: role === "admin" ? "admin" : "customer",
         });
       }
 
