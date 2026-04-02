@@ -2,23 +2,36 @@
 
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { TbBrandFacebook, TbBrandInstagram, TbBrandTiktok } from "react-icons/tb";
+import { FaFacebookF, FaInstagram, FaTiktok } from "react-icons/fa6";
+import { useTheme } from "next-themes";
 
 export default function Footer() {
+  const { theme } = useTheme();
+
   return (
     <footer className="w-full bg-white border-t border-gray-200 font-sans pt-20 pb-10">
       <div className="container mx-auto px-4 md:px-8 max-w-7xl">
-        
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-20">
-          
           {/* Column 1: Brand & Contact (4 cols) */}
           <div className="md:col-span-12 lg:col-span-4 flex flex-col space-y-8">
             {/* Minimalist Logo */}
-            <Link href="/" className="inline-block">
-              <span className="text-3xl font-black tracking-widest uppercase text-gray-900">
-                HYPE.
-              </span>
+            <Link href="/store" className="inline-block">
+              {/* Fallback text logo if SVG fails, styled to match the screenshot */}
+              {/* <span className="text-3xl font-black tracking-widest uppercase text-slate-900">
+                CALISTA
+              </span> */}
+              <img
+                src={
+                  theme === "dark"
+                    ? "/images/logos/dark-logo.svg"
+                    : "/images/logos/light-logo.svg"
+                }
+                alt="Hype Logo"
+                width={120}
+                height={40}
+                className="h-10 w-auto"
+              />
             </Link>
 
             {/* Contact Info */}
@@ -35,7 +48,8 @@ export default function Footer() {
               <p>Store: 282 Park Road, Colombo 05</p>
               <p>10.00am – 8.00pm Monday – Sunday</p>
               <p>
-                Phone: <span className="text-gray-900 font-medium">077 840 9997</span>
+                Phone:{" "}
+                <span className="text-gray-900 font-medium">077 840 9997</span>
               </p>
             </div>
 
@@ -49,15 +63,33 @@ export default function Footer() {
             </Link>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-5 pt-2">
-              <Link href="#" aria-label="Facebook" className="text-gray-400 hover:text-gray-900 transition-colors">
-                <TbBrandFacebook className="w-5 h-5" />
+            <div className="flex items-center gap-3 pt-2">
+              <Link
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="group inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-all duration-200 hover:border-gray-900 hover:text-gray-900 hover:shadow-sm"
+              >
+                <FaFacebookF className="h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-105" />
               </Link>
-              <Link href="#" aria-label="Instagram" className="text-gray-400 hover:text-gray-900 transition-colors">
-                <TbBrandInstagram className="w-5 h-5" />
+              <Link
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="group inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-all duration-200 hover:border-gray-900 hover:text-gray-900 hover:shadow-sm"
+              >
+                <FaInstagram className="h-5 w-5 transition-transform duration-200 group-hover:scale-105" />
               </Link>
-              <Link href="#" aria-label="TikTok" className="text-gray-400 hover:text-gray-900 transition-colors">
-                <TbBrandTiktok className="w-5 h-5" />
+              <Link
+                href="https://tiktok.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="group inline-flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-all duration-200 hover:border-gray-900 hover:text-gray-900 hover:shadow-sm"
+              >
+                <FaTiktok className="h-4.5 w-4.5 transition-transform duration-200 group-hover:scale-105" />
               </Link>
             </div>
           </div>
@@ -114,7 +146,7 @@ export default function Footer() {
             </p>
 
             {/* SaaS Editorial Style Newsletter Input */}
-            <form 
+            <form
               className="flex w-full max-w-md relative"
               onSubmit={(e) => e.preventDefault()}
             >
@@ -157,7 +189,6 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        
       </div>
     </footer>
   );

@@ -171,17 +171,17 @@ export default function Header() {
               {/* <span className="text-3xl font-black tracking-widest uppercase text-slate-900">
                 CALISTA
               </span> */}
-                 <img
-              src={
-                theme === "dark"
-                  ? "/images/logos/dark-logo.svg"
-                  : "/images/logos/light-logo.svg"
-              }
-              alt="Hype Logo"
-              width={120}
-              height={40}
-              className="h-10 w-auto"
-            />
+              <img
+                src={
+                  theme === "dark"
+                    ? "/images/logos/dark-logo.svg"
+                    : "/images/logos/light-logo.svg"
+                }
+                alt="Hype Logo"
+                width={120}
+                height={40}
+                className="h-10 w-auto"
+              />
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 text-[11px] font-bold tracking-[0.1em] text-slate-600">
