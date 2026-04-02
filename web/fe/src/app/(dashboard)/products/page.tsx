@@ -52,6 +52,9 @@ type ProductFormState = {
   sku: string;
   price: string;
   stock: string;
+  image_url: string;
+  tag: string;
+  offer_percentage: string;
 };
 
 const initialFormState: ProductFormState = {
@@ -60,6 +63,9 @@ const initialFormState: ProductFormState = {
   sku: "",
   price: "",
   stock: "",
+  image_url: "",
+  tag: "",
+  offer_percentage: "",
 };
 
 const toPayload = (form: ProductFormState): ProductPayload => ({
@@ -68,6 +74,12 @@ const toPayload = (form: ProductFormState): ProductPayload => ({
   sku: form.sku.trim(),
   price: Number(form.price),
   stock: Number(form.stock),
+  image_url: form.image_url.trim() || undefined,
+  tag: form.tag.trim() || undefined,
+  offer_percentage:
+    form.offer_percentage.trim() === ""
+      ? undefined
+      : Number(form.offer_percentage),
 });
 
 const validateForm = (form: ProductFormState) => {
@@ -81,6 +93,13 @@ const validateForm = (form: ProductFormState) => {
   const stock = Number(form.stock);
   if (!Number.isInteger(stock) || stock < 0)
     return "Stock must be 0 or greater";
+
+  if (form.offer_percentage.trim() !== "") {
+    const offer = Number(form.offer_percentage);
+    if (Number.isNaN(offer) || offer < 0 || offer > 100) {
+      return "Offer percentage must be between 0 and 100";
+    }
+  }
 
   return null;
 };
@@ -151,6 +170,13 @@ export default function ProductsPage() {
       sku: product.sku,
       price: String(product.price),
       stock: String(product.stock),
+      image_url: product.image_url ?? "",
+      tag: product.tag ?? "",
+      offer_percentage:
+        product.offer_percentage === null ||
+        product.offer_percentage === undefined
+          ? ""
+          : String(product.offer_percentage),
     });
     setShowForm(true);
   };
@@ -409,6 +435,63 @@ export default function ProductsPage() {
                   className="min-h-[100px] shadow-none resize-none bg-transparent"
                 />
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="tag"
+                    className="text-xs font-semibold uppercase text-muted-foreground"
+                  >
+                    Tag (Optional)
+                  </Label>
+                  <Input
+                    id="tag"
+                    value={form.tag}
+                    onChange={handleChange("tag")}
+                    placeholder="e.g. NEW, HOT, SALE"
+                    disabled={isSubmitting}
+                    className="shadow-none"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="offer_percentage"
+                    className="text-xs font-semibold uppercase text-muted-foreground"
+                  >
+                    Offer % (Optional)
+                  </Label>
+                  <Input
+                    id="offer_percentage"
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="100"
+                    value={form.offer_percentage}
+                    onChange={handleChange("offer_percentage")}
+                    placeholder="e.g. 20"
+                    disabled={isSubmitting}
+                    className="shadow-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="image_url"
+                  className="text-xs font-semibold uppercase text-muted-foreground"
+                >
+                  Image URL (Optional)
+                </Label>
+                <Input
+                  id="image_url"
+                  value={form.image_url}
+                  onChange={handleChange("image_url")}
+                  placeholder="https://example.com/product.jpg"
+                  disabled={isSubmitting}
+                  className="shadow-none"
+                />
+              </div>
             </div>
 
             <DialogFooter className="px-6 py-4 border-t border-border/60">
@@ -498,6 +581,9 @@ export default function ProductsPage() {
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       SKU
                     </TableHead>
+                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Promo
+                    </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">
                       Price
                     </TableHead>
@@ -516,22 +602,51 @@ export default function ProductsPage() {
                       className="group hover:bg-muted/40 transition-colors border-b-border/50"
                     >
                       <TableCell className="px-5 py-3.5">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground">
-                            {product.name}
-                          </span>
-                          <span
-                            className="text-xs text-muted-foreground truncate max-w-[280px] mt-0.5"
-                            title={product.description}
-                          >
-                            {product.description}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={
+                              product.image_url ||
+                              "/images/products/product-placeholder.jpg"
+                            }
+                            alt={product.name}
+                            className="h-10 w-10 rounded-md object-cover border border-border/60"
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground">
+                              {product.name}
+                            </span>
+                            <span
+                              className="text-xs text-muted-foreground truncate max-w-[240px] mt-0.5"
+                              title={product.description}
+                            >
+                              {product.description}
+                            </span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell className="px-5">
                         <span className="font-mono text-[11px] font-medium text-muted-foreground bg-muted/60 dark:bg-muted/30 px-2 py-1 rounded-md border border-border/40">
                           {product.sku}
                         </span>
+                      </TableCell>
+                      <TableCell className="px-5">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {product.tag ? (
+                            <Badge className="bg-sky-100 text-sky-800 hover:bg-sky-100 border-0 shadow-none font-medium dark:bg-sky-950/50 dark:text-sky-300">
+                              {product.tag}
+                            </Badge>
+                          ) : null}
+                          {product.offer_percentage &&
+                          product.offer_percentage > 0 ? (
+                            <Badge className="bg-rose-100 text-rose-800 hover:bg-rose-100 border-0 shadow-none font-medium dark:bg-rose-950/50 dark:text-rose-300">
+                              -{Math.round(product.offer_percentage)}%
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              -
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="px-5 text-right font-medium text-foreground">
                         {new Intl.NumberFormat("en-US", {
