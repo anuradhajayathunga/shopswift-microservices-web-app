@@ -41,10 +41,6 @@ def add_item_to_cart(cart_item: CartItemCreate, db: Session = Depends(get_db)):
         product_resp = client.get(f"http://localhost:8002/api/products/{cart_item.product_id}")
         if product_resp.status_code != 200:
             raise HTTPException(status_code=404, detail="Product not found")
-    # Check if item already in cart for this user
-    existing = get_cart_item_by_user_product(db, cart_item.user_id, cart_item.product_id)
-    if existing:
-        raise HTTPException(status_code=400, detail="Product already in cart")
     return add_to_cart(db, cart_item)
 
 @app.delete("/api/cart/{item_id}")

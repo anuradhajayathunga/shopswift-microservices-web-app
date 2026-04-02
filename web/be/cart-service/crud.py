@@ -12,6 +12,16 @@ def get_cart_item_by_user_product(db: Session, user_id: int, product_id: int):
     ).first()
 
 def add_to_cart(db: Session, cart_item: CartItemCreate):
+    existing_item = get_cart_item_by_user_product(
+        db, cart_item.user_id, cart_item.product_id
+    )
+
+    if existing_item:
+        existing_item.quantity += cart_item.quantity
+        db.commit()
+        db.refresh(existing_item)
+        return existing_item
+
     db_item = CartItem(**cart_item.dict())
     db.add(db_item)
     db.commit()

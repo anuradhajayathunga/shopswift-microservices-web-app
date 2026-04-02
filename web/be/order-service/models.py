@@ -11,5 +11,5 @@ class Order(Base):
     product_id = Column(Integer, nullable=False, index=True)
     quantity = Column(Integer, nullable=False, default=1)
     total_price = Column(Float, nullable=False)
-    status = Column(String, nullable=False, default="placed")
+    status = Column(String, nullable=False, default="pending")
     created_at = Column(DateTime, default=datetime.utcnow)

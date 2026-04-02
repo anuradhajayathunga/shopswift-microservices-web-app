@@ -8,12 +8,14 @@ import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
 from dotenv import load_dotenv
 
-app = FastAPI(title="ShopSwift API Gateway", version="1.0")
+app = FastAPI(title="hype. API Gateway", version="1.0")
 
 DEV_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:4173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
     "http://127.0.0.1:4173"
 ]
 
@@ -27,7 +29,7 @@ app.add_middleware(
 
 load_dotenv()
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "shopswift-secret-key")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "hype.-secret-key")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
 SERVICES = {
@@ -77,12 +79,16 @@ def verify_jwt_token(request: Request):
 
 @app.get("/")
 def read_root():
-    return {"message": "ShopSwift API Gateway is running", "services": list(SERVICES.keys())}
+    return {"message": "hype. API Gateway is running", "services": list(SERVICES.keys())}
 
 # User Service Routes
 @app.get("/gateway/users")
 async def get_all_users(_: None = Depends(verify_jwt_token)):
     return await forward_request("user", "/api/users", "GET")
+
+@app.get("/gateway/users/by-email")
+async def get_user_by_email(email: str, _: None = Depends(verify_jwt_token)):
+    return await forward_request("user", "/api/users/by-email", "GET", params={"email": email})
 
 @app.get("/gateway/users/{user_id}")
 async def get_user_by_id(user_id: int, _: None = Depends(verify_jwt_token)):
@@ -105,6 +111,24 @@ async def create_user(request: Request):
         raise HTTPException(status_code=400, detail="Invalid JSON body")
     return await forward_request("user", "/api/users", "POST", json=payload)
 
+
+@app.post("/gateway/users/admin")
+async def create_admin_user(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    return await forward_request("user", "/api/users/admin", "POST", json=payload)
+
+
+@app.post("/gateway/users/customer")
+async def create_customer_user(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+    return await forward_request("user", "/api/users/customer", "POST", json=payload)
+
 @app.put("/gateway/users/{user_id}")
 async def update_user(user_id: int, request: Request, _: None = Depends(verify_jwt_token)):
     try:
@@ -121,6 +145,16 @@ async def delete_user(user_id: int, _: None = Depends(verify_jwt_token)):
 @app.get("/gateway/products")
 async def get_all_products(_: None = Depends(verify_jwt_token)):
     return await forward_request("product", "/api/products", "GET")
+
+
+@app.get("/gateway/public/products")
+async def get_public_products():
+    return await forward_request("product", "/api/products/public", "GET")
+
+
+@app.get("/gateway/public/products/{product_id}")
+async def get_public_product_by_id(product_id: int):
+    return await forward_request("product", f"/api/products/public/{product_id}", "GET")
 
 @app.get("/gateway/products/{product_id}")
 async def get_product_by_id(product_id: int, _: None = Depends(verify_jwt_token)):

@@ -16,7 +16,7 @@ def get_all_orders(db: Session, user_id: Optional[int] = None):
 
 
 def create_order(db: Session, order: OrderCreate):
-    db_order = Order(**order.dict(), status="placed")
+    db_order = Order(**order.dict(), status="pending")
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
