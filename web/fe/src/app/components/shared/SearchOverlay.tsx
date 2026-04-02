@@ -104,6 +104,10 @@ export function SearchOverlay({ children }: { children: React.ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       {/* Full Screen Dialog Content */}
       <DialogContent className="max-w-none w-screen h-dvh p-0 m-0 border-none bg-white/90 font-sans sm:rounded-none !rounded-none overflow-y-auto flex flex-col [&>button]:hidden">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Search products</DialogTitle>
+        </DialogHeader>
+
         {/* Top Section: Oversized Editorial Search Input */}
         <div className="w-full border-b border-gray-200 sticky top-0 z-20 bg-white/0">
           <div className="container mx-auto px-4 md:px-8 relative flex items-center">
