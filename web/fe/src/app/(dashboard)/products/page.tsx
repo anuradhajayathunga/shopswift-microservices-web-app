@@ -404,7 +404,7 @@ export default function ProductsPage() {
                   htmlFor="price"
                   className="text-xs font-semibold uppercase text-muted-foreground"
                 >
-                  Price ($)
+                  Price (LKR)
                 </Label>
                 <Input
                   id="price"
@@ -649,9 +649,9 @@ export default function ProductsPage() {
                         </div>
                       </TableCell>
                       <TableCell className="px-5 text-right font-medium text-foreground">
-                        {new Intl.NumberFormat("en-US", {
+                        {new Intl.NumberFormat("en-LK", {
                           style: "currency",
-                          currency: "USD",
+                          currency: "LKR",
                         }).format(product.price)}
                       </TableCell>
                       <TableCell className="px-5">

@@ -423,7 +423,7 @@ export default function OrdersPage() {
                     htmlFor="total_price"
                     className="text-xs font-semibold uppercase text-muted-foreground"
                   >
-                    Total Price ($)
+                    Total Price (LKR)
                   </Label>
                   <Input
                     id="total_price"
@@ -613,9 +613,9 @@ export default function OrdersPage() {
                         {order.quantity}
                       </TableCell>
                       <TableCell className="px-5 text-right font-medium text-foreground">
-                        {new Intl.NumberFormat("en-US", {
+                        {new Intl.NumberFormat("en-LK", {
                           style: "currency",
-                          currency: "USD",
+                          currency: "LKR",
                         }).format(order.total_price)}
                       </TableCell>
                       <TableCell className="px-5">
