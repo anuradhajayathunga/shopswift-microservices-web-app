@@ -2,44 +2,34 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Search, User, Heart, ShoppingBag, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, User, Heart, ChevronDown } from "lucide-react";
+import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import FullLogo from "@/components/shared/logo/FullLogo";
 import { CartDrawer } from "../shared/CartDrawer";
 import { SearchOverlay } from "../shared/SearchOverlay";
-import { useTheme } from "next-themes";
+import { LoginModal } from "@/app/(store)/store/auth/LoginModal";
 import { authAPI } from "@/lib/auth";
 import {
   cartAPI,
   CART_UPDATED_EVENT,
   type CartUpdatedDetail,
 } from "@/lib/cart";
-import { LoginModal } from "@/app/(store)/store/auth/LoginModal";
 
 export default function Header() {
   const { theme } = useTheme();
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [authUser, setAuthUser] = useState<{
     id?: number;
     name?: string;
     email?: string;
   } | null>(null);
-  const categoryCloseTimer = useRef<NodeJS.Timeout | null>(null);
+  const categoryCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const categoryItems = [
     { label: "BOLD GRAPHIC", href: "/category/bold-graphic" },
@@ -54,19 +44,15 @@ export default function Header() {
   ];
 
   const openCategoryMenu = () => {
-    if (categoryCloseTimer.current) {
-      clearTimeout(categoryCloseTimer.current);
-      categoryCloseTimer.current = null;
-    }
-
+    if (categoryCloseTimer.current) clearTimeout(categoryCloseTimer.current);
     setIsCategoryOpen(true);
   };
 
   const closeCategoryMenu = () => {
-    categoryCloseTimer.current = setTimeout(() => {
-      setIsCategoryOpen(false);
-      categoryCloseTimer.current = null;
-    }, 120);
+    categoryCloseTimer.current = setTimeout(
+      () => setIsCategoryOpen(false),
+      220,
+    );
   };
 
   const handleLogout = () => {
@@ -160,28 +146,32 @@ export default function Header() {
     window.addEventListener("storage", handleStorage);
 
     return () => {
+      if (categoryCloseTimer.current) clearTimeout(categoryCloseTimer.current);
       window.removeEventListener(CART_UPDATED_EVENT, handleCartUpdated);
       window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
-      <div className="container mx-auto relative px-4 h-20 flex items-center justify-between ">
-        {/* Left / Logo */}
+    <>
+      {/* Top Promotion Bar */}
+      <div className="w-full bg-black text-white text-[11px] sm:text-xs font-medium tracking-[0.15em] uppercase py-2.5 px-4 text-center">
+        Free island-wide delivery on orders over Rs 15,000
+      </div>
 
-        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
-          {/* <Link
-            href="/"
-            className="text-xl font-bold tracking-tighter flex items-center gap-2"
-          >
-            <div className="w-8 h-8 bg-foreground rounded-md flex items-center justify-center text-background text-xs font-bold">
-              CX
-            </div>
-            hype
-          </Link> */}
-          <Link href="/store" className="inline-block">
-            <img
+      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/90 backdrop-blur-md transition-all">
+        <div className="container mx-auto px-4 lg:px-8 h-[90px] flex items-center justify-between">
+          {/* Left Spacer (Balances the flex layout) */}
+          <div className="hidden lg:flex w-1/3"></div>
+
+          {/* Center / Logo & Navigation */}
+          <div className="flex flex-col items-center justify-center w-full lg:w-1/3 gap-3">
+            <Link href="/store" className="inline-block">
+              {/* Fallback text logo if SVG fails, styled to match the screenshot */}
+              {/* <span className="text-3xl font-black tracking-widest uppercase text-slate-900">
+                CALISTA
+              </span> */}
+                 <img
               src={
                 theme === "dark"
                   ? "/images/logos/dark-logo.svg"
@@ -192,125 +182,121 @@ export default function Header() {
               height={40}
               className="h-10 w-auto"
             />
-          </Link>
-
-          {/* Center Navigation */}
-          <nav className="hidden md:flex items-center gap-8 mt-2 text-sm font-medium">
-            <Link
-              href="/new"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              NEW DROPS
             </Link>
-            <DropdownMenu
-              open={isCategoryOpen}
-              onOpenChange={setIsCategoryOpen}
-            >
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+
+            <nav className="hidden md:flex items-center gap-6 text-[11px] font-bold tracking-[0.1em] text-slate-600">
+              <Link
+                href="/new"
+                className="hover:text-slate-900 transition-colors"
+              >
+                NEW DROPS
+              </Link>
+              <DropdownMenu open={isCategoryOpen}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex items-center gap-1 hover:text-slate-900 transition-colors outline-none"
+                    onMouseEnter={openCategoryMenu}
+                    onMouseLeave={closeCategoryMenu}
+                  >
+                    CATEGORY <ChevronDown className="h-3 w-3" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="center"
+                  sideOffset={4}
+                  className="w-64 rounded-none border-gray-200 dark:bg-white shadow-xl"
                   onMouseEnter={openCategoryMenu}
                   onMouseLeave={closeCategoryMenu}
                 >
-                  CATEGORY
-                  <ChevronDown className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="center"
-                className="w-72 mt-2"
-                onMouseEnter={openCategoryMenu}
-                onMouseLeave={closeCategoryMenu}
-              >
-                {categoryItems.map((item) => (
-                  <DropdownMenuItem key={item.href} asChild>
-                    <Link
-                      href={item.href}
-                      className="w-full cursor-pointer text-sm font-medium"
+                  {categoryItems.map((item) => (
+                    <DropdownMenuItem
+                      key={item.href}
+                      asChild
+                      className="rounded-none focus:bg-gray-50"
                     >
-                      {item.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Link
-              href="/sale"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              SAVE BIG
-            </Link>
-            <Link
-              href="/about"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ABOUT
-            </Link>
-          </nav>
-        </div>
-
-        {/* Right Icons */}
-        <div className="ml-auto flex items-center gap-4 ">
-          <SearchOverlay>
-            <span className="text-foreground hover:text-primary transition-colors cursor-pointer">
-              <Search className="w-6 h-6" strokeWidth={2} />
-            </span>
-          </SearchOverlay>
-          {authUser ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <span className="text-foreground hover:text-primary transition-colors cursor-pointer">
-                  <User className="w-6 h-6" strokeWidth={2} />
-                </span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-64 mt-4 p-2 bg-background/80 max-w-[200px]"
+                      <Link
+                        href={item.href}
+                        className="w-full cursor-pointer text-xs font-medium uppercase tracking-wider py-3"
+                      >
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Link
+                href="/sale"
+                className="hover:text-slate-900 transition-colors"
               >
-                <div className="px-2 py-2">
-                  <p className="text-sm font-semibold text-foreground">
-                    {authUser.name || "User"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {authUser.email || "No email"}
-                  </p>
-                </div>
-                <DropdownMenuItem asChild>
-                  {/* <Link href="/dashboard/profile" className="cursor-pointer">
-                    My Profile
-                  </Link> */}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={handleLogout}
-                  className="cursor-pointer"
+                SAVE BIG
+              </Link>
+              <Link
+                href="/about"
+                className="hover:text-slate-900 transition-colors"
+              >
+                ABOUT
+              </Link>
+            </nav>
+          </div>
+
+          {/* Right Icons */}
+          <div className="flex items-center justify-end gap-5 w-1/3 text-slate-900">
+            <SearchOverlay>
+              <button className="hover:text-slate-500 transition-colors">
+                <Search className="w-5 h-5" strokeWidth={1.5} />
+              </button>
+            </SearchOverlay>
+
+            {authUser ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="hover:text-slate-500 transition-colors">
+                    <User className="w-5 h-5" strokeWidth={1.5} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 mt-4 border-gray-200 dark:bg-white rounded-none"
                 >
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
+                  <div className="px-3 py-3 border-b border-gray-100">
+                    <p className="text-sm font-semibold">
+                      {authUser.name || "User"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {authUser.email || "No email"}
+                    </p>
+                  </div>
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer text-sm py-3 rounded-none bg-transparent"
+                  >
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
               <LoginModal>
-                <span className="text-foreground hover:text-primary transition-colors cursor-pointer">
-                  <User className="w-6 h-6" strokeWidth={1} />
-                </span>
+                <button className="hover:text-slate-500 transition-colors">
+                  <User className="w-5 h-5" strokeWidth={1.5} />
+                </button>
               </LoginModal>
-            </>
-          )}
-          <span className="text-foreground hover:text-primary transition-colors cursor-pointer">
-            <Heart className="w-6 h-6" strokeWidth={2} />
-          </span>
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            className="relative text-muted-foreground hover:text-foreground"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-foreground rounded-full border-2 border-background"></span>
-          </Button> */}
-          <CartDrawer cartCount={cartCount} />
+            )}
+
+            <button className="hover:text-slate-500 transition-colors hidden sm:block">
+              <Heart className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+
+            <div className="relative">
+              <CartDrawer cartCount={cartCount} />
+              {/* {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 bg-slate-900 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )} */}
+            </div>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 }

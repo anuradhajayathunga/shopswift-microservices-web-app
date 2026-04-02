@@ -1,124 +1,77 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, ChevronUp, MessageCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { TbBrandFacebook, TbBrandInstagram, TbBrandTiktok } from "react-icons/tb";
 
 export default function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   return (
-    <footer className="bg-muted/0 pt-16 pb-8 border-t border-border/40">
-      <div className="container mx-auto px-4 md:px-6">
+    <footer className="w-full bg-white border-t border-gray-200 font-sans pt-20 pb-10">
+      <div className="container mx-auto px-4 md:px-8 max-w-7xl">
+        
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-16">
-          {/* Column 1: Brand & Contact (Takes up 4 columns on large screens) */}
-          <div className="md:col-span-12 lg:col-span-4 flex flex-col space-y-6">
-            {/* Logo */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8 mb-20">
+          
+          {/* Column 1: Brand & Contact (4 cols) */}
+          <div className="md:col-span-12 lg:col-span-4 flex flex-col space-y-8">
+            {/* Minimalist Logo */}
             <Link href="/" className="inline-block">
-              {/* Replace with your actual SVG logo. Using a placeholder text logo for now to match the vibe */}
-              <div className="flex flex-col">
-                <div className="w-16 h-8 bg-foreground flex items-center justify-center mb-1">
-                  <span className="text-background text-xs font-bold tracking-widest">
-                    XX
-                  </span>
-                </div>
-                <span className="font-extrabold text-xl tracking-tight text-foreground">
-                  hype
-                </span>
-              </div>
+              <span className="text-3xl font-black tracking-widest uppercase text-gray-900">
+                HYPE.
+              </span>
             </Link>
 
             {/* Contact Info */}
-            <div className="text-sm text-muted-foreground space-y-2.5 leading-relaxed">
+            <div className="text-sm text-gray-500 space-y-3 font-light leading-relaxed">
               <p>
                 Email:{" "}
                 <a
                   href="mailto:info@hypeclothing.com"
-                  className="text-foreground font-medium hover:underline"
+                  className="text-gray-900 font-medium hover:underline underline-offset-4 transition-all"
                 >
                   info@hypeclothing.com
                 </a>
               </p>
-              <p>Store : 282 Park Road, Colombo 05</p>
+              <p>Store: 282 Park Road, Colombo 05</p>
               <p>10.00am – 8.00pm Monday – Sunday</p>
               <p>
-                Phone:{" "}
-                <span className="text-foreground font-medium">
-                  077 840 9997
-                </span>
+                Phone: <span className="text-gray-900 font-medium">077 840 9997</span>
               </p>
             </div>
 
             {/* Flagship Link */}
             <Link
               href="/store"
-              className="inline-flex items-center text-sm font-semibold text-foreground hover:underline underline-offset-4"
+              className="group inline-flex items-center text-xs font-bold tracking-[0.15em] uppercase text-gray-900 hover:text-gray-500 transition-colors"
             >
               Flagship Store
-              <ArrowUpRight className="ml-1 w-4 h-4" />
+              <ArrowUpRight className="ml-1 w-4 h-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-3 pt-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full w-10 h-10 border-border/60 hover:bg-muted/50 text-foreground"
-                asChild
-              >
-                <Link href="#" aria-label="Facebook">
-                  <MessageCircle className="w-4 h-4" />
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full w-10 h-10 border-border/60 hover:bg-muted/50 text-foreground"
-                asChild
-              >
-                <Link href="#" aria-label="Instagram">
-                  <MessageCircle className="w-4 h-4" />
-                </Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full w-10 h-10 border-border/60 hover:bg-muted/50 text-foreground"
-                asChild
-              >
-                <Link href="#" aria-label="TikTok">
-                  {/* Custom TikTok SVG since Lucide doesn't have it natively */}
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="w-4 h-4"
-                  >
-                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
-                  </svg>
-                </Link>
-              </Button>
+            <div className="flex items-center gap-5 pt-2">
+              <Link href="#" aria-label="Facebook" className="text-gray-400 hover:text-gray-900 transition-colors">
+                <TbBrandFacebook className="w-5 h-5" />
+              </Link>
+              <Link href="#" aria-label="Instagram" className="text-gray-400 hover:text-gray-900 transition-colors">
+                <TbBrandInstagram className="w-5 h-5" />
+              </Link>
+              <Link href="#" aria-label="TikTok" className="text-gray-400 hover:text-gray-900 transition-colors">
+                <TbBrandTiktok className="w-5 h-5" />
+              </Link>
             </div>
           </div>
 
-          {/* Column 2: Support Links (Takes up 3 columns) */}
-          <div className="md:col-span-5 lg:col-span-3">
-            <h3 className="text-base font-semibold text-foreground mb-6">
+          {/* Column 2: Support Links (3 cols) */}
+          <div className="md:col-span-5 lg:col-span-3 lg:pl-8">
+            <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-gray-900 mb-8">
               Support
             </h3>
             <ul className="space-y-4">
               <li>
                 <Link
                   href="/privacy-policy"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
                 >
                   Privacy Policy
                 </Link>
@@ -126,7 +79,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/terms"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
                 >
                   Terms and Conditions
                 </Link>
@@ -134,80 +87,77 @@ export default function Footer() {
               <li>
                 <Link
                   href="/exchange-policy"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
                 >
                   Exchange Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+                >
+                  Contact Us
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Column 3: Newsletter (Takes up 5 columns) */}
-          <div className="md:col-span-7 lg:col-span-5 flex flex-col">
-            <h3 className="text-base font-semibold text-foreground mb-6">
-              Sign Up for Email
+          {/* Column 3: Newsletter (5 cols) */}
+          <div className="md:col-span-7 lg:col-span-5 flex flex-col lg:pl-8">
+            <h3 className="text-xs font-bold tracking-[0.2em] uppercase text-gray-900 mb-8">
+              The Insider
             </h3>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed max-w-md">
+            <p className="text-sm text-gray-500 mb-8 leading-relaxed max-w-md font-light">
               Sign up to get first dibs on new arrivals, sales, exclusive offers
-              and many more!
+              and editorial content straight to your inbox.
             </p>
 
-            {/* SaaS Style Newsletter Input */}
-            <form className="flex w-full max-w-md bg-background border border-border/60 p-1.5 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 rounded-md shadow-sm transition-all">
-              <Input
+            {/* SaaS Editorial Style Newsletter Input */}
+            <form 
+              className="flex w-full max-w-md relative"
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <input
                 type="email"
-                placeholder="Enter email address"
-                className="border-0 shadow-none focus-visible:ring-0 bg-transparent px-3 text-sm flex-1"
+                placeholder="ENTER EMAIL ADDRESS"
+                className="w-full bg-transparent border-0 border-b border-gray-300 px-0 py-3 text-sm tracking-widest text-gray-900 placeholder:text-gray-900 focus:ring-0 focus:border-gray-900 transition-colors outline-none"
                 required
               />
-              <Button
+              <button
                 type="submit"
-                className="shrink-0 h-10 px-6 rounded font-medium"
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-900 hover:text-gray-500 transition-colors p-2"
+                aria-label="Subscribe"
               >
-                Subscribe
-                <ArrowUpRight className="ml-1.5 w-4 h-4" />
-              </Button>
+                <ArrowRight className="w-5 h-5" strokeWidth={1.5} />
+              </button>
             </form>
           </div>
         </div>
 
-        {/* Separator */}
-        <Separator className="bg-border/40 mb-8" />
-
-        {/* Bottom Bar: Copyright, Payments, Scroll to Top */}
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6 relative">
-          <p className="text-sm text-muted-foreground text-center md:text-left">
-            © {new Date().getFullYear()} hype Clothing. All rights reserved.
+        {/* Bottom Bar: Copyright & Payments */}
+        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6 pt-8 border-t border-gray-200">
+          <p className="text-xs text-gray-500 tracking-wide text-center md:text-left">
+            © {new Date().getFullYear()} HYPE CLOTHING. ALL RIGHTS RESERVED.
           </p>
 
-          <div className="flex items-center gap-4">
-            {/* Custom Payment Icons to match the screenshot perfectly without needing image files */}
-            <div className="flex gap-2">
-              <div className="h-8 w-12 bg-background border border-border/60 rounded flex items-center justify-center">
-                {/* Visa Approximation */}
-                <span className="text-[#1A1F71] font-bold italic text-[11px] tracking-wider">
-                  VISA
-                </span>
-              </div>
-              <div className="h-8 w-12 bg-background border border-border/60 rounded flex items-center justify-center relative overflow-hidden">
-                {/* Mastercard Approximation */}
-                <div className="w-5 h-5 bg-[#EB001B] rounded-full absolute left-1.5 opacity-90 mix-blend-multiply"></div>
-                <div className="w-5 h-5 bg-[#F79E1B] rounded-full absolute right-1.5 opacity-90 mix-blend-multiply"></div>
-              </div>
+          <div className="flex items-center gap-3">
+            {/* Minimalist Payment Icons */}
+            <div className="h-7 w-11 border border-gray-200 rounded-sm flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity">
+              <span className="text-[#1A1F71] font-bold italic text-[9px] tracking-wider">
+                VISA
+              </span>
             </div>
-
-            {/* Scroll to top button */}
-            {/* <Button
-              variant="outline"
-              size="icon"
-              onClick={scrollToTop}
-              className="absolute right-0 bottom-full mb-12 md:static md:mb-0 w-10 h-10 border-border/60 bg-background hover:bg-muted shadow-sm transition-all"
-              aria-label="Scroll to top"
-            >
-              <ChevronUp className="w-5 h-5 text-foreground" />
-            </Button> */}
+            <div className="h-7 w-11 border border-gray-200 rounded-sm flex items-center justify-center relative overflow-hidden opacity-70 hover:opacity-100 transition-opacity">
+              <div className="w-3.5 h-3.5 bg-[#EB001B] rounded-full absolute left-2 mix-blend-multiply"></div>
+              <div className="w-3.5 h-3.5 bg-[#F79E1B] rounded-full absolute right-2 mix-blend-multiply"></div>
+            </div>
+            <div className="h-7 px-2 border border-gray-200 rounded-sm flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity text-[9px] font-bold tracking-tighter italic text-slate-800">
+              mintpay
+            </div>
           </div>
         </div>
+        
       </div>
     </footer>
   );

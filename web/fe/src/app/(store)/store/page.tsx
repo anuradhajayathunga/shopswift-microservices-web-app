@@ -70,21 +70,19 @@ export default function StorePage() {
   return (
     <div className="w-full min-h-screen bg-background flex flex-col">
       <Header />
-
       <main className="flex-1">
         <HeroBanner />
+
+        <ProductGrid products={products} isLoading={isLoading} />
 
         <PromoSplit />
 
         <ShopByCategory />
 
-        <ProductGrid products={products} isLoading={isLoading} />
-
         <InstagramGrid />
 
         <FaqAndNewsletter />
       </main>
-
       <Footer />
       <ScrollToTop />
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronUp } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 
 export function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
@@ -9,27 +9,26 @@ export function ScrollToTop() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // 1. Show button after scrolling past the hero section (e.g., 500px or 100vh)
-      const showThreshold = window.innerHeight * 0.8; // Appears after scrolling 80% of the screen height
-      if (window.scrollY > showThreshold) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
+      // Show button after scrolling down a bit (e.g., 50% of screen height)
+      const showThreshold = window.innerHeight * 0.5;
+      setIsVisible(window.scrollY > showThreshold);
 
-      // 2. Calculate scroll progress percentage (0 to 100)
+      // Calculate scroll progress percentage (0 to 100)
       const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      
+      const docHeight =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+
       if (docHeight > 0) {
         const scrollPercent = (scrollTop / docHeight) * 100;
         setProgress(scrollPercent);
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    // Use passive listener for better scroll performance
+    window.addEventListener("scroll", handleScroll, { passive: true });
     
-    // Initial check in case the user reloads while already scrolled down
+    // Initial check
     handleScroll();
 
     return () => window.removeEventListener("scroll", handleScroll);
@@ -42,55 +41,67 @@ export function ScrollToTop() {
     });
   };
 
+  // SVG Circle Math for the clockwise fill
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
   return (
     <button
       onClick={scrollToTop}
       aria-label="Scroll to top"
-      className={`fixed bottom-8 right-8 z-50 flex items-center justify-center w-12 h-12 outline-none group transition-all duration-500 ease-out ${
+      className={`fixed bottom-8 right-8 z-50 flex items-center justify-center w-14 h-14 outline-none group transition-all duration-500 ease-out ${
         isVisible
           ? "opacity-100 translate-y-0"
           : "opacity-0 translate-y-8 pointer-events-none"
       }`}
     >
       {/* Background & Hover Effect */}
-      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-xl group-hover:bg-muted/50 transition-colors" />
+      <div className="absolute inset-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-full shadow-lg group-hover:shadow-xl transition-all duration-300" />
 
-      {/* Static Background Border (Light Gray) */}
+      {/* SVG Container rotated -90deg so the fill starts exactly at the top (12 o'clock) */}
       <svg
-        className="absolute inset-0 w-full h-full text-border/50"
+        className="absolute inset-0 w-full h-full -rotate-90"
         viewBox="0 0 48 48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path
-          d="M 24 2 L 40 2 Q 46 2 46 8 L 46 40 Q 46 46 40 46 L 8 46 Q 2 46 2 40 L 2 8 Q 2 2 8 2 Z"
+        {/* Static Background Track (Light Gray) */}
+        <circle
+          cx="24"
+          cy="24"
+          r={radius}
           stroke="currentColor"
-          strokeWidth="3"
+          strokeWidth="1.5"
+          className="text-gray-200 dark:text-gray-800 transition-colors"
         />
-      </svg>
 
-      {/* Animated Foreground Border (Black/Foreground) */}
-      <svg
-        className="absolute inset-0 w-full h-full text-foreground -rotate-90 origin-center"
-        viewBox="0 0 48 48"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ transform: "rotateY(180deg) rotateZ(-90deg)" }} // Rotated to start at top-center and go clockwise
-      >
-        <path
-          d="M 24 2 L 40 2 Q 46 2 46 8 L 46 40 Q 46 46 40 46 L 8 46 Q 2 46 2 40 L 2 8 Q 2 2 8 2 Z"
+        {/* Animated Foreground Progress Fill (Solid Black/White) */}
+        <circle
+          cx="24"
+          cy="24"
+          r={radius}
           stroke="currentColor"
-          strokeWidth="1"
+          strokeWidth="1.5"
           strokeLinecap="round"
-          pathLength="100"
-          strokeDasharray="100"
-          strokeDashoffset={100 - progress}
-          className="transition-[stroke-dashoffset] duration-200 ease-out"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          className="text-gray-900 dark:text-white transition-[stroke-dashoffset] duration-150 ease-out"
         />
       </svg>
 
-      {/* Center Icon */}
-      <ChevronUp className="w-5 h-5 text-foreground relative z-10 group-hover:-translate-y-1 transition-transform duration-300" />
+      {/* Center Icon: Replaced Chevron with a sharper, more editorial ArrowUp */}
+      <div className="relative z-10 flex items-center justify-center overflow-hidden h-6 w-6">
+        <ArrowUp 
+          className="w-5 h-5 text-gray-900 dark:text-white transform group-hover:-translate-y-6 transition-transform duration-300 ease-out absolute" 
+          strokeWidth={1.5}
+        />
+        {/* Secondary arrow that slides in from the bottom on hover */}
+        <ArrowUp 
+          className="w-5 h-5 text-gray-900 dark:text-white transform translate-y-6 group-hover:translate-y-0 transition-transform duration-300 ease-out absolute" 
+          strokeWidth={1.5}
+        />
+      </div>
     </button>
   );
 }

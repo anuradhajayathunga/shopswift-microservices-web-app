@@ -35,55 +35,56 @@ export default function SignUpPage() {
     confirmPassword: "",
   });
 
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const showFormError = (message: string) => {
+    toast.error(message);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError("");
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
 
     // Validation
     if (!formData.fullName.trim()) {
-      setError("Full name is required");
+      showFormError("Full name is required");
       return;
     }
     if (formData.fullName.trim().length < 2) {
-      setError("Full name must be at least 2 characters");
+      showFormError("Full name must be at least 2 characters");
       return;
     }
     if (!formData.email.trim()) {
-      setError("Email is required");
+      showFormError("Email is required");
       return;
     }
     if (!validateEmail(formData.email)) {
-      setError("Please enter a valid email address");
+      showFormError("Please enter a valid email address");
       return;
     }
     if (!formData.password) {
-      setError("Password is required");
+      showFormError("Password is required");
       return;
     }
 
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
-      setError(passwordError);
+      showFormError(passwordError);
       return;
     }
 
     if (!formData.confirmPassword) {
-      setError("Please confirm your password");
+      showFormError("Please confirm your password");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      showFormError("Passwords do not match");
       return;
     }
 
@@ -119,10 +120,9 @@ export default function SignUpPage() {
       }
 
       toast.success("Account created and signed in successfully!");
-      router.push("/");
+      router.push("/signin");
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Sign up failed";
-      setError(errorMsg);
       toast.error(errorMsg);
     } finally {
       setLoading(false);
@@ -196,9 +196,7 @@ export default function SignUpPage() {
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase font-medium">
-              <span className="bg-card px-3 text-muted-foreground">
-                or sign up with email
-              </span>
+              <span className="bg-card px-3 text-muted-foreground">or</span>
             </div>
           </div>
 

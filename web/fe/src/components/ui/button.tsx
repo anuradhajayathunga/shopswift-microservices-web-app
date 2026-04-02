@@ -48,12 +48,17 @@ const buttonVariants = cva(
           'bg-lightwarning text-warning hover:bg-warning hover:text-white',
         lightinfo: 'bg-lightinfo text-info hover:bg-info hover:text-white',
         lighterror: 'bg-lighterror text-error hover:bg-error hover:text-white',
+        // NEW VARIANT HERE
+        reveal:
+          'bg-black text-white text-sm font-light tracking-[0.2em] uppercase shadow-xl transform translate-y-2 group-hover:translate-y-0 opacity-90 group-hover:opacity-100 transition-all duration-500 rounded-[2px]',
       },
       size: {
         default: 'h-10 px-5 py-2',
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
         icon: 'h-10 w-10',
+        // NEW SIZE HERE TO MATCH YOUR PADDING
+        reveal: 'px-7 py-4',
       },
       shape: {
         pill: 'rounded-full',

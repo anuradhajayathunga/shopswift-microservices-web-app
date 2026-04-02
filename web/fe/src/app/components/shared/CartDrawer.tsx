@@ -3,7 +3,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, ShoppingBag, X, RefreshCw, Truck } from "lucide-react";
+import {
+  Loader2,
+  ShoppingBag,
+  X,
+  RefreshCw,
+  Truck,
+  PlusIcon,
+  MinusIcon,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -172,8 +180,8 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <div className="text-foreground hover:text-primary transition-colors relative">
-          <ShoppingBag className="h-6 w-6" strokeWidth={2} />
+        <div className="hover:text-slate-500 transition-colors relative">
+          <ShoppingBag className="h-5 w-5" strokeWidth={1.5} />
           {cartCount > 0 && (
             <span className="absolute -right-2 -top-2 min-w-5 rounded-full bg-foreground p-1.5 text-center text-[10px] font-medium leading-none text-background">
               {cartCount > 99 ? "99+" : cartCount}
@@ -182,13 +190,13 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
         </div>
       </SheetTrigger>
 
-      <SheetContent className="flex w-full flex-col p-0 sm:max-w-[420px] bg-white border-l-0 shadow-2xl font-sans text-gray-900 [&>button]:hidden">
+      <SheetContent className="flex w-full flex-col p-0 sm:max-w-[420px] dark:bg-white border-l-0 shadow-2xl font-sans text-gray-900 [&>button]:hidden">
         {/* Header */}
         <SheetHeader className="flex flex-row items-center justify-between px-6 py-4 border-b border-gray-100">
-          <SheetTitle className="text-xl font-medium tracking-wide">
+          <SheetTitle className="text-xl dark:text-back font-medium tracking-wide">
             Shopping cart
           </SheetTitle>
-          <SheetClose className="text-gray-500 hover:text-gray-900 transition-colors">
+          <SheetClose className="text-gray-500 hover:text-gray-900 !bg-transparent hover:!bg-transparent focus:!bg-transparent active:!bg-transparent data-[state=open]:!bg-transparent shadow-none transition-colors">
             <X className="h-5 w-5" strokeWidth={1.5} />
           </SheetClose>
         </SheetHeader>
@@ -268,9 +276,9 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
                             disabled={pendingItemId === item.id}
                             className="text-gray-500 hover:text-gray-900 px-1 disabled:opacity-50"
                           >
-                            −
+                            <MinusIcon className="w-4 h-4" strokeWidth={2} />
                           </button>
-                          <span className="w-2 text-center select-none">
+                          <span className="w-2 text-center text-md font-bold select-none">
                             {item.quantity}
                           </span>
                           <button
@@ -278,16 +286,16 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
                             disabled={pendingItemId === item.id}
                             className="text-gray-500 hover:text-gray-900 px-1 disabled:opacity-50"
                           >
-                            +
+                            <PlusIcon className="w-4 h-4" strokeWidth={2} />
                           </button>
                         </div>
 
-                        <button
+                        <div
                           onClick={() => handleRemoveItem(item.id)}
                           className="text-sm text-gray-500 hover:text-gray-900 underline underline-offset-4 decoration-gray-300 hover:decoration-gray-900 transition-all ml-4"
                         >
                           Remove
-                        </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -355,7 +363,7 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
                     View cart
                   </Button>
                   <Button
-                    className="w-full h-12 rounded-none bg-white border border-gray-300 text-gray-900 font-medium hover:bg-gray-50 shadow-none text-base"
+                    className="w-full h-12 rounded-none bg-red-800 text-white hover:bg-slate-800 border border-gray-300 font-medium shadow-none text-base"
                     onClick={() => void handleCheckout()}
                     disabled={isCheckingOut}
                   >
