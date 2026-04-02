@@ -1,6 +1,7 @@
 "use client";
 
 import Image, { StaticImageData } from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { Icon } from "@iconify/react";
 import SimpleBar from "simplebar-react";
@@ -27,8 +28,19 @@ import product2 from "../../../../public/images/products/s2.jpg";
 import product3 from "../../../../public/images/products/s3.jpg";
 import product4 from "../../../../public/images/products/s4.jpg";
 import product5 from "../../../../public/images/products/s5.jpg";
+import { productAPI, type Product } from "@/lib/products";
 
 const MAX_PRODUCTS = 4;
+
+const fallbackImages = [product1, product2, product3, product4, product5];
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+};
 
 const PopularProducts = () => {
   type BadgeVariant =
@@ -58,68 +70,74 @@ const PopularProducts = () => {
     progressVariant?: ProgressVariant;
   };
 
-  const ProductTableData: ProductItem[] = [
-    {
-      img: product1,
-      name: "iPhone 13 pro max-Pacific Blue-128GB storage",
-      payment: "$180",
-      paymentstatus: "Partially paid",
-      process: 45,
-      processcolor: "bg-yellow-400",
-      statuscolor: "secondary",
-      statustext: "Confirmed",
-      variant: "lightSuccess",
-      progressVariant: "warning",
-    },
-    {
-      img: product2,
-      name: "Apple MacBook Pro 13 inch-M1-8/256GB-space",
-      payment: "$120",
-      paymentstatus: "Full paid",
-      process: 100,
-      processcolor: "bg-green-500",
-      statuscolor: "success",
-      statustext: "Confirmed",
-      variant: "lightSuccess",
-      progressVariant: "success",
-    },
-    {
-      img: product3,
-      name: "PlayStation 5 DualSense Wireless Controller",
-      payment: "$120",
-      paymentstatus: "Cancelled",
-      process: 100,
-      processcolor: "bg-red-500",
-      statuscolor: "destructive",
-      statustext: "Cancelled",
-      variant: "lightError",
-      progressVariant: "error",
-    },
-    {
-      img: product5,
-      name: "Amazon Basics Mesh, Mid-Back, Swivel Office",
-      payment: "$120",
-      paymentstatus: "Partially paid",
-      process: 45,
-      processcolor: "bg-yellow-400",
-      statuscolor: "secondary",
-      statustext: "Confirmed",
-      variant: "lightSuccess",
-      progressVariant: "warning",
-    },
-    {
-      img: product4,
-      name: "Sony X85J 75 Inch Sony 4K Ultra HD LED Smart",
-      payment: "$120",
-      paymentstatus: "Full paid",
-      process: 100,
-      processcolor: "bg-green-500",
-      statuscolor: "success",
-      statustext: "Confirmed",
-      variant: "lightSuccess",
-      progressVariant: "success",
-    },
-  ];
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const deriveProgress = (stock: number, offerPercentage?: number | null) => {
+    if (typeof offerPercentage === "number") {
+      return Math.max(0, Math.min(100, Math.round(offerPercentage)));
+    }
+
+    return Math.max(10, Math.min(100, stock));
+  };
+
+  const mapProductToItem = (product: Product, index: number): ProductItem => {
+    const isActive = product.is_active;
+    const hasOffer = typeof product.offer_percentage === "number";
+    const progress = deriveProgress(product.stock, product.offer_percentage);
+    const fallbackImage = fallbackImages[index % fallbackImages.length];
+    const imageSrc =
+      typeof product.image_url === "string" && product.image_url.startsWith("/")
+        ? product.image_url
+        : fallbackImage;
+
+    return {
+      img: imageSrc,
+      name: product.name,
+      payment: formatCurrency(product.price),
+      paymentstatus: `Stock: ${product.stock}`,
+      process: progress,
+      processcolor: isActive ? "bg-green-500" : "bg-red-500",
+      statuscolor: isActive ? "success" : "destructive",
+      statustext: isActive ? (hasOffer ? "On sale" : "Active") : "Inactive",
+      variant: isActive ? "lightSuccess" : "lightError",
+      progressVariant: isActive ? (hasOffer ? "warning" : "success") : "error",
+    };
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProducts = async () => {
+      try {
+        const data = await productAPI.list();
+
+        if (!isMounted) {
+          return;
+        }
+
+        setProducts(data.map(mapProductToItem).slice(0, MAX_PRODUCTS));
+      } catch {
+        if (!isMounted) {
+          return;
+        }
+
+        setProducts([]);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const productRows = useMemo(() => products.slice(0, MAX_PRODUCTS), [products]);
 
   const tableActionData = [
     { icon: "solar:add-circle-outline", listtitle: "Add" },
@@ -131,7 +149,9 @@ const PopularProducts = () => {
     <div className="rounded-3xl dark:shadow-dark-md shadow-md bg-background py-6 px-0 relative w-full break-words">
       <div className="px-6">
         <h5 className="card-title">Popular Products</h5>
-        <p className="card-subtitle">Total 9k Visitors</p>
+        <p className="card-subtitle">
+          {isLoading ? "Loading live products" : `Total ${products.length} Products`}
+        </p>
       </div>
 
       <SimpleBar className="max-h-[450px]">
@@ -147,7 +167,7 @@ const PopularProducts = () => {
             </TableHeader>
 
             <TableBody>
-              {ProductTableData.slice(0, MAX_PRODUCTS).map((item, index) => (
+              {productRows.map((item, index) => (
                 <TableRow key={index}>
                   <TableCell className="whitespace-nowrap ps-6">
                     <div className="flex gap-3 items-center">
@@ -168,7 +188,7 @@ const PopularProducts = () => {
                     <h5 className="text-base text-wrap">
                       {item.payment}
                       <span className="text-dark dark:text-darklink opacity-70">
-                        <span className="mx-1">/</span>499
+                        <span className="mx-1">/</span>{item.paymentstatus}
                       </span>
                     </h5>
                     <div className="text-sm font-medium text-dark dark:text-darklink opacity-70 mb-2 text-wrap">
