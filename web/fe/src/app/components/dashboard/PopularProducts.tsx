@@ -137,7 +137,10 @@ const PopularProducts = () => {
     };
   }, []);
 
-  const productRows = useMemo(() => products.slice(0, MAX_PRODUCTS), [products]);
+  const productRows = useMemo(
+    () => products.slice(0, MAX_PRODUCTS),
+    [products],
+  );
 
   const tableActionData = [
     { icon: "solar:add-circle-outline", listtitle: "Add" },
@@ -150,7 +153,9 @@ const PopularProducts = () => {
       <div className="px-6">
         <h5 className="card-title">Popular Products</h5>
         <p className="card-subtitle">
-          {isLoading ? "Loading live products" : `Total ${products.length} Products`}
+          {isLoading
+            ? "Loading live products"
+            : `Total ${products.length} Products`}
         </p>
       </div>
 
@@ -188,7 +193,8 @@ const PopularProducts = () => {
                     <h5 className="text-base text-wrap">
                       {item.payment}
                       <span className="text-dark dark:text-darklink opacity-70">
-                        <span className="mx-1">/</span>{item.paymentstatus}
+                        <span className="mx-1">/</span>
+                        {item.paymentstatus}
                       </span>
                     </h5>
                     <div className="text-sm font-medium text-dark dark:text-darklink opacity-70 mb-2 text-wrap">
