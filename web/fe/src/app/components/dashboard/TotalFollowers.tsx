@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import type { ApexOptions } from "apexcharts";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 import { Icon } from "@iconify/react";
@@ -10,6 +11,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { userAPI } from "@/lib/users";
+
+type UserStats = {
+  total: number;
+  admins: number;
+  customers: number;
+};
 
 const TotalFollowers = () => {
   const Action = [
@@ -27,14 +35,69 @@ const TotalFollowers = () => {
     },
   ];
 
+  const [stats, setStats] = useState<UserStats>({
+    total: 0,
+    admins: 0,
+    customers: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUsers = async () => {
+      try {
+        setIsLoading(true);
+        const users = await userAPI.list();
+
+        if (!isMounted) {
+          return;
+        }
+
+        const admins = users.filter((user) => user.role === "admin").length;
+        const customers = users.filter(
+          (user) => user.role === "customer",
+        ).length;
+
+        setStats({
+          total: users.length,
+          admins,
+          customers,
+        });
+        setError(null);
+      } catch (loadError) {
+        if (!isMounted) {
+          return;
+        }
+
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "Failed to load users",
+        );
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadUsers();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const chartSeries = [
     {
-      name: "1",
-      data: [29, 52, 38, 47, 56],
+      name: "Admins",
+      data: [stats.admins],
     },
     {
-      name: "2",
-      data: [71, 71, 71, 71, 71],
+      name: "Customers",
+      data: [stats.customers],
     },
   ];
 
@@ -72,11 +135,11 @@ const TotalFollowers = () => {
         left: 0,
       },
     },
-    colors: ["var(--color-error)", "var(--color-graymuted)"],
+    colors: ["var(--color-secondary)", "var(--color-error)"],
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "30%",
+        columnWidth: "45%",
         borderRadius: 3,
         borderRadiusApplication: "end",
         borderRadiusWhenStacked: "all",
@@ -85,7 +148,13 @@ const TotalFollowers = () => {
     dataLabels: {
       enabled: false,
     },
+    yaxis: {
+      labels: {
+        show: false,
+      },
+    },
     xaxis: {
+      categories: ["Users"],
       labels: {
         show: false,
       },
@@ -93,11 +162,6 @@ const TotalFollowers = () => {
         show: false,
       },
       axisTicks: {
-        show: false,
-      },
-    },
-    yaxis: {
-      labels: {
         show: false,
       },
     },
@@ -116,7 +180,7 @@ const TotalFollowers = () => {
             <span className="w-14 h-10 rounded-full flex items-center justify-center  bg-error text-white">
               <Icon icon="solar:users-group-rounded-bold-duotone" height={24} />
             </span>
-            <h5 className="text-base opacity-70">Total followers</h5>
+            <h5 className="text-base opacity-70">Total users</h5>
           </div>
           <div>
             <DropdownMenu>
@@ -143,9 +207,17 @@ const TotalFollowers = () => {
 
         <div className="grid grid-cols-12 gap-[24px] items-end mt-3">
           <div className="xl:col-span-6 col-span-7">
-            <h2 className="text-3xl mb-3">4,562</h2>
+            <h2 className="text-3xl mb-3">
+              {isLoading ? "..." : stats.total.toLocaleString()}
+            </h2>
             <span className="font-semibold border rounded-full border-black/5 dark:border-white/10 py-0.5 px-[10px] leading-[normal] text-xs text-dark dark:text-darklink">
-              <span className="opacity-70">+23% last month</span>
+              <span className="opacity-70">
+                {isLoading
+                  ? "Loading live data"
+                  : error
+                    ? "Backend data unavailable"
+                    : `${stats.admins} admins / ${stats.customers} customers`}
+              </span>
             </span>
           </div>
           <div className="xl:col-span-6  col-span-5 ">
@@ -160,6 +232,9 @@ const TotalFollowers = () => {
             </div>
           </div>
         </div>
+        {/* {error ? (
+          <p className="mt-3 text-xs text-red-600 dark:text-red-400">{error}</p>
+        ) : null} */}
       </div>
     </>
   );
