@@ -246,7 +246,10 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
                     {/* Product Image */}
                     <div className="h-[120px] w-[90px] shrink-0 bg-gray-100 overflow-hidden">
                       <img
-                        src="/images/products/product-01.jpg" // Fallback placeholder
+                        src={
+                          item.product?.image_url ||
+                          "/images/products/product-placeholder.jpg"
+                        }
                         alt={item.product?.name || "Product"}
                         className="h-full w-full object-cover mix-blend-multiply"
                       />

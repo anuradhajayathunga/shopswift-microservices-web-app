@@ -10,6 +10,9 @@ export type Product = {
   price: number;
   stock: number;
   is_active: boolean;
+  image_url?: string | null;
+  tag?: string | null;
+  offer_percentage?: number | null;
 };
 
 export type ProductPayload = {
@@ -19,6 +22,9 @@ export type ProductPayload = {
   price: number;
   stock: number;
   is_active?: boolean;
+  image_url?: string | null;
+  tag?: string | null;
+  offer_percentage?: number | null;
 };
 
 const buildHeaders = () => {

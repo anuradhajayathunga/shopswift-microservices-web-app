@@ -66,84 +66,106 @@ export function ProductGrid({ products, isLoading = false }: ProductGridProps) {
         ) : (
           /* Product Grid */
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {newestArrivals.map((product) => (
-              <Link
-                key={product.id}
-                href={`/store/product/${product.id}`}
-                className="group flex flex-col h-full"
-              >
-                {/* Image Container */}
-                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
-                  {/* Status Badge */}
-                  {!product.is_active && (
-                    <span className="absolute top-3 left-3 z-10 bg-black text-white text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 shadow-sm">
-                      Sold Out
-                    </span>
-                  )}
-                  {/* New Badge */}
-                  {product.is_active && (
-                    <span className="absolute top-3 right-3 z-10 bg-white text-gray-900 text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 shadow-sm">
-                      New
-                    </span>
-                  )}
+            {newestArrivals.map((product) => {
+              const offerPercentage = product.offer_percentage ?? 0;
+              const hasOffer = offerPercentage > 0;
+              const originalPrice = hasOffer
+                ? product.price / (1 - offerPercentage / 100)
+                : null;
 
-                  <img
-                    src="/api/placeholder/400/500" // Replace with product.image
-                    alt={product.name}
-                    className="object-cover w-full h-full transition-transform duration-700 ease-out group-hover:scale-105 mix-blend-multiply"
-                  />
+              return (
+                <Link
+                  key={product.id}
+                  href={`/store/product/${product.id}`}
+                  className="group flex flex-col h-full"
+                >
+                  {/* Image Container */}
+                  <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 mb-4">
+                    {/* Status Badge */}
+                    {!product.is_active && (
+                      <span className="absolute top-3 left-3 z-10 bg-black text-white text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 shadow-sm">
+                        Sold Out
+                      </span>
+                    )}
+                    {/* Tag badge from backend (optional) */}
+                    {product.tag && (
+                      <span className="absolute top-3 left-3 z-10 bg-[#4A8E9A] text-white text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 shadow-sm">
+                        {product.tag}
+                      </span>
+                    )}
+                    {/* Offer / fallback badge */}
+                    {hasOffer ? (
+                      <span className="absolute top-3 right-3 z-10 bg-[#E11D48] text-white text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 shadow-sm">
+                        -{Math.round(offerPercentage)}%
+                      </span>
+                    ) : product.is_active ? (
+                      <span className="absolute top-3 right-3 z-10 bg-white text-gray-900 text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 shadow-sm">
+                        New
+                      </span>
+                    ) : null}
 
-                  {/* Quick Add Hover Overlay (Optional touch of premium UX) */}
+                    <img
+                      src={
+                        product.image_url ||
+                        "/images/products/product-placeholder.jpg"
+                      }
+                      alt={product.name}
+                      className="object-cover w-full h-full transition-transform duration-700 ease-out group-hover:scale-105 mix-blend-multiply"
+                    />
+
+                    {/* Quick Add Hover Overlay (Optional touch of premium UX) */}
                     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out translate-y-4 group-hover:translate-y-0">
-                    <button className="w-10 h-10 bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors shadow-lg">
-                      <Heart className="w-4 h-4" strokeWidth={2} />
-                    </button>
-                    <button className="w-10 h-10 bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors shadow-lg">
-                      <Eye className="w-4 h-4" strokeWidth={2} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Product Info */}
-                <div className="flex flex-col flex-1 space-y-1.5">
-                  <h3 className="text-sm font-medium text-gray-900 hover:text-primary uppercase tracking-wide truncate">
-                    {product.name}
-                  </h3>
-
-                  {/* Price */}
-                  <div className="flex items-center gap-2 pt-0.5">
-                    {/* Mock original price logic - assuming standard markdown for display */}
-                    <span className="text-xs text-gray-400 line-through">
-                      Rs{" "}
-                      {(product.price * 1.2).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
-                    <span className="text-sm font-medium text-gray-900">
-                      Rs{" "}
-                      {product.price.toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>
+                      <button className="w-10 h-10 bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors shadow-lg">
+                        <Heart className="w-4 h-4" strokeWidth={2} />
+                      </button>
+                      <button className="w-10 h-10 bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors shadow-lg">
+                        <Eye className="w-4 h-4" strokeWidth={2} />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Installment Info */}
-                  <p className="text-[11px] text-gray-500 mt-auto pt-2 leading-relaxed">
-                    3 X{" "}
-                    <span className="font-semibold text-gray-900">
-                      Rs{" "}
-                      {(product.price / 3).toLocaleString("en-US", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </span>{" "}
-                    or 6% Cashback with{" "}
-                    <span className="inline-flex items-center font-bold text-slate-800 italic tracking-tighter">
-                      mintpay
-                    </span>
-                  </p>
-                </div>
-              </Link>
-            ))}
+                  {/* Product Info */}
+                  <div className="flex flex-col flex-1 space-y-1.5">
+                    <h3 className="text-sm font-medium text-gray-900 hover:text-primary uppercase tracking-wide truncate">
+                      {product.name}
+                    </h3>
+
+                    {/* Price */}
+                    <div className="flex items-center gap-2 pt-0.5">
+                      {hasOffer && originalPrice && (
+                        <span className="text-xs text-gray-400 line-through">
+                          Rs{" "}
+                          {originalPrice.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </span>
+                      )}
+                      <span className="text-sm font-medium text-gray-900">
+                        Rs{" "}
+                        {product.price.toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>
+                    </div>
+
+                    {/* Installment Info */}
+                    <p className="text-[11px] text-gray-500 mt-auto pt-2 leading-relaxed">
+                      3 X{" "}
+                      <span className="font-semibold text-gray-900">
+                        Rs{" "}
+                        {(product.price / 3).toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </span>{" "}
+                      or 6% Cashback with{" "}
+                      <span className="inline-flex items-center font-bold text-slate-800 italic tracking-tighter">
+                        mintpay
+                      </span>
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
 

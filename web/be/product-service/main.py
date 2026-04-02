@@ -23,16 +23,34 @@ def ensure_product_schema() -> None:
         return
 
     columns = {column["name"] for column in inspector.get_columns("products")}
-    if "is_active" in columns:
+    alter_statements = []
+
+    if "is_active" not in columns:
+        alter_statements.append(
+            "ALTER TABLE products ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"
+        )
+
+    if "image_url" not in columns:
+        alter_statements.append(
+            "ALTER TABLE products ADD COLUMN image_url TEXT"
+        )
+
+    if "tag" not in columns:
+        alter_statements.append(
+            "ALTER TABLE products ADD COLUMN tag TEXT"
+        )
+
+    if "offer_percentage" not in columns:
+        alter_statements.append(
+            "ALTER TABLE products ADD COLUMN offer_percentage REAL"
+        )
+
+    if not alter_statements:
         return
 
     with engine.begin() as connection:
-        connection.execute(
-            text(
-                "ALTER TABLE products "
-                "ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"
-            )
-        )
+        for statement in alter_statements:
+            connection.execute(text(statement))
 
 
 ensure_product_schema()

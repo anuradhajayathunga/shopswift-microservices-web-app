@@ -89,13 +89,13 @@ export function CollectionGrid({
           /* Product Grid */
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 lg:gap-x-6 lg:gap-y-12">
             {products.map((product) => {
-              // Mock discount logic for UI demonstration
-              const isDiscounted = product.id % 2 !== 0;
+              const offerPercentage = product.offer_percentage ?? 0;
+              const isDiscounted = offerPercentage > 0;
               const originalPrice = isDiscounted
-                ? product.price * 1.2
+                ? product.price / (1 - offerPercentage / 100)
                 : product.price;
               const discountPercentage = isDiscounted
-                ? Math.round((1 - product.price / originalPrice) * 100)
+                ? Math.round(offerPercentage)
                 : 0;
 
               return (
@@ -115,7 +115,12 @@ export function CollectionGrid({
                           -{discountPercentage}%
                         </span>
                       )}
-                      {product.is_active && !isDiscounted && (
+                      {product.tag && (
+                        <span className="bg-[#4A8E9A] text-white text-[10px] font-bold tracking-[0.1em] px-2 py-1 shadow-sm uppercase">
+                          {product.tag}
+                        </span>
+                      )}
+                      {product.is_active && !isDiscounted && !product.tag && (
                         <span className="bg-[#4A8E9A] text-white text-[10px] font-bold tracking-[0.1em] px-2 py-1 shadow-sm uppercase">
                           New
                         </span>
@@ -123,7 +128,10 @@ export function CollectionGrid({
                     </div>
 
                     <img
-                      src="/api/placeholder/500/667" // Replace with actual product image
+                      src={
+                        product.image_url ||
+                        "/images/products/product-placeholder.jpg"
+                      }
                       alt={product.name}
                       className="object-cover w-full h-full transition-transform duration-700 ease-out group-hover:scale-105 mix-blend-multiply"
                     />

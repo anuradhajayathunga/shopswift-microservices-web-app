@@ -11,8 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { publicProductAPI, type PublicProduct } from "@/lib/public-products";
 
 // Mock Data for the Inspiration Section
@@ -217,13 +215,17 @@ export function SearchOverlay({ children }: { children: React.ReactNode }) {
                       <span
                         className={`absolute top-3 right-3 z-10 text-[9px] font-bold tracking-[0.15em] uppercase px-2 py-1 shadow-sm ${product.is_active ? "bg-white text-gray-900" : "bg-black text-white"}`}
                       >
-                        {product.is_active
-                          ? `QTY ${product.stock}`
-                          : "Sold Out"}
+                        {product.tag ||
+                          (product.is_active
+                            ? `QTY ${product.stock}`
+                            : "Sold Out")}
                       </span>
 
                       <img
-                        src="/api/placeholder/400/500" // Replace with product.image
+                        src={
+                          product.image_url ||
+                          "/images/products/product-placeholder.jpg"
+                        }
                         alt={product.name}
                         className="object-cover w-full h-full transition-transform duration-700 ease-out group-hover:scale-105 mix-blend-multiply"
                       />

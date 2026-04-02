@@ -8,6 +8,9 @@ export type PublicProduct = {
   price: number;
   stock: number;
   is_active: boolean;
+  image_url?: string | null;
+  tag?: string | null;
+  offer_percentage?: number | null;
 };
 
 const getErrorMessage = async (response: Response, fallback: string) => {
