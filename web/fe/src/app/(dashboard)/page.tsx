@@ -361,9 +361,9 @@ const page = () => {
         <div className="lg:col-span-4 col-span-12">
           <EarningReports />
         </div>
-        <div className="col-span-12">
+        {/* <div className="col-span-12">
           <BlogCards />
-        </div>
+        </div> */}
       </div>
     </>
   );
