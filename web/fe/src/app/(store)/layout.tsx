@@ -13,10 +13,6 @@ export default function StoreLayout({
 
   useEffect(() => {
     const initializeStore = async () => {
-      // In a real application, you would await your auth token validation here.
-      // e.g., await authAPI.validateCurrentSession();
-
-      // Store is available for guests, customers, and admins.
       setIsRoleChecking(false);
     };
 

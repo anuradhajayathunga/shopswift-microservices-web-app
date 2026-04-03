@@ -33,8 +33,16 @@ import { toast } from "sonner";
 
 // Mock data based on the screenshot
 const PRODUCT_COLORS = [
-  { name: "Grey Green", hex: "#8F9E93", image: "/images/products/product-01.jpg" },
-  { name: "Light Blue", hex: "#A8DADC", image: "/images/products/product-02.jpg" }
+  {
+    name: "Grey Green",
+    hex: "#8F9E93",
+    image: "/images/products/product-01.jpg",
+  },
+  {
+    name: "Light Blue",
+    hex: "#A8DADC",
+    image: "/images/products/product-02.jpg",
+  },
 ];
 const PRODUCT_SIZES = ["2XL", "XL", "L", "M", "S"];
 const PRODUCT_IMAGES = [
@@ -60,7 +68,13 @@ const SIZE_GUIDE = [
   { size: "S", chest: "22", length: "26", sleeve: "9.5", shoulder: "17.5" },
   { size: "M", chest: "23.5", length: "26.5", sleeve: "9.5", shoulder: "18.5" },
   { size: "L", chest: "24", length: "28", sleeve: "10.5", shoulder: "19.5" },
-  { size: "XL", chest: "25.5", length: "28.5", sleeve: "10.5", shoulder: "20.5" },
+  {
+    size: "XL",
+    chest: "25.5",
+    length: "28.5",
+    sleeve: "10.5",
+    shoulder: "20.5",
+  },
   { size: "2XL", chest: "26", length: "30", sleeve: "11", shoulder: "22" },
 ];
 
@@ -107,7 +121,8 @@ export default function ProductDetailsPage() {
 
   const handleQuantityChange = (type: "inc" | "dec") => {
     if (type === "dec" && quantity > 1) setQuantity(quantity - 1);
-    if (type === "inc" && quantity < productView.stock) setQuantity(quantity + 1);
+    if (type === "inc" && quantity < productView.stock)
+      setQuantity(quantity + 1);
   };
 
   const handleAddToCart = async () => {
@@ -136,7 +151,9 @@ export default function ProductDetailsPage() {
       notifyCartUpdated({ delta: quantity });
       toast.success("Added to cart successfully");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to add to cart");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add to cart",
+      );
     } finally {
       setIsAddingToCart(false);
     }
@@ -146,12 +163,14 @@ export default function ProductDetailsPage() {
     <div className="min-h-screen bg-white pb-20 font-sans text-slate-900">
       <Header />
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        
         {/* Breadcrumb Navigation */}
         <Breadcrumb className="mb-6 text-xs uppercase tracking-wider">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink asChild className="text-muted-foreground hover:text-foreground transition-colors">
+              <BreadcrumbLink
+                asChild
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
                 <Link href="/">Home</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -165,7 +184,6 @@ export default function ProductDetailsPage() {
         </Breadcrumb>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-12 xl:gap-16 items-start">
-          
           {/* Left Column: Image Gallery */}
           <div className="flex flex-col-reverse md:flex-row gap-4 sticky top-6">
             {/* Thumbnails */}
@@ -175,10 +193,16 @@ export default function ProductDetailsPage() {
                   key={idx}
                   onClick={() => setActiveImage(img)}
                   className={`relative aspect-[3/4] w-20 md:w-full overflow-hidden border transition-all ${
-                    activeImage === img ? "border-slate-900 opacity-100" : "border-transparent opacity-60 hover:opacity-100"
+                    activeImage === img
+                      ? "border-slate-900 opacity-100"
+                      : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt={`Thumbnail ${idx + 1}`} className="object-cover w-full h-full bg-slate-100" />
+                  <img
+                    src={img}
+                    alt={`Thumbnail ${idx + 1}`}
+                    className="object-cover w-full h-full bg-slate-100"
+                  />
                 </button>
               ))}
             </div>
@@ -194,7 +218,6 @@ export default function ProductDetailsPage() {
 
           {/* Right Column: Product Info */}
           <div className="flex flex-col space-y-6">
-            
             {/* Title & Price */}
             <div className="space-y-4">
               <h1 className="text-2xl sm:text-3xl font-medium tracking-tight uppercase">
@@ -202,13 +225,25 @@ export default function ProductDetailsPage() {
               </h1>
               <div className="space-y-1">
                 <span className="text-2xl font-normal">
-                  Rs {productView.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  Rs{" "}
+                  {productView.price.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                  })}
                 </span>
                 <p className="text-sm text-muted-foreground">
-                  3 installments of Rs {(productView.price / 3).toLocaleString("en-US", { minimumFractionDigits: 2 })} or 6% Cashback with <span className="font-bold text-slate-800">mintpay</span>
+                  3 installments of Rs{" "}
+                  {(productView.price / 3).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                  })}{" "}
+                  or 6% Cashback with{" "}
+                  <span className="font-bold text-slate-800">mintpay</span>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  or pay in 3 x Rs {(productView.price / 3).toLocaleString("en-US", { minimumFractionDigits: 2 })} with <span className="font-bold text-[#8c67f6]">KOKO</span>
+                  or pay in 3 x Rs{" "}
+                  {(productView.price / 3).toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                  })}{" "}
+                  with <span className="font-bold text-[#8c67f6]">KOKO</span>
                 </p>
               </div>
             </div>
@@ -230,7 +265,11 @@ export default function ProductDetailsPage() {
                     }`}
                     title={color.name}
                   >
-                    <img src={color.image} alt={color.name} className="w-full h-full object-cover" />
+                    <img
+                      src={color.image}
+                      alt={color.name}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -257,12 +296,24 @@ export default function ProductDetailsPage() {
                 ))}
               </div>
               <div className="flex gap-2 pt-2">
-                <Badge variant="outline" className="rounded-sm font-normal text-xs uppercase tracking-wider py-1 px-3">New</Badge>
-                <Badge variant="outline" className="rounded-sm font-normal text-xs uppercase tracking-wider py-1 px-3">Online</Badge>
-                <Badge variant="secondary" className="bg-slate-100 hover:bg-slate-100 rounded-sm font-normal text-xs py-1 px-3 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                  Instock, ready to ship
+                <Badge
+                  variant="outline"
+                  className="rounded-[3px] font-normal text-xs uppercase tracking-wider py-2 px-3"
+                >
+                  New
                 </Badge>
+                <Badge
+                  variant="outline"
+                  className="rounded-[3px] font-normal text-xs uppercase tracking-wider py-2 px-3"
+                >
+                  Online
+                </Badge>
+                <div
+                  className="font-semibold text-xs flex items-center gap-2"
+                >
+                  <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
+                  Instock, ready to ship
+                </div>
               </div>
             </div>
 
@@ -273,8 +324,13 @@ export default function ProductDetailsPage() {
               </h3>
               <div className="border border-slate-200 divide-y divide-slate-200 text-sm">
                 {PRODUCT_DETAILS_TABLE.map((row, idx) => (
-                  <div key={idx} className="grid grid-cols-2 divide-x divide-slate-200">
-                    <div className="p-3 text-muted-foreground bg-slate-50/50">{row.label}</div>
+                  <div
+                    key={idx}
+                    className="grid grid-cols-2 divide-x divide-slate-200"
+                  >
+                    <div className="p-3 text-muted-foreground bg-slate-50/50">
+                      {row.label}
+                    </div>
                     <div className="p-3 font-medium">{row.value}</div>
                   </div>
                 ))}
@@ -306,15 +362,29 @@ export default function ProductDetailsPage() {
 
               <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2">
                 <Box className="w-4 h-4 text-green-600" />
-                <span className="text-slate-900 text-xs">Pickup available at <span className="font-semibold">No. 282, Park Road, Colombo 05</span> Usually ready in 1 hour</span>
+                <span className="text-slate-900 text-xs">
+                  Pickup available at{" "}
+                  <span className="font-semibold">
+                    No. 282, Park Road, Colombo 05
+                  </span>{" "}
+                  Usually ready in 1 hour
+                </span>
               </div>
 
               {/* Action Links */}
               <div className="flex flex-wrap items-center gap-6 py-2 text-xs font-medium text-slate-600">
-                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors"><Droplets className="w-4 h-4"/> Compare color</button>
-                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors"><MessageCircleQuestion className="w-4 h-4"/> Ask a question</button>
-                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors"><Truck className="w-4 h-4"/> Delivery & Return</button>
-                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors"><Share2 className="w-4 h-4"/> Share</button>
+                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors">
+                  <Droplets className="w-4 h-4" /> Compare color
+                </button>
+                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors">
+                  <MessageCircleQuestion className="w-4 h-4" /> Ask a question
+                </button>
+                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors">
+                  <Truck className="w-4 h-4" /> Delivery & Return
+                </button>
+                <button className="flex items-center gap-2 hover:text-slate-900 transition-colors">
+                  <Share2 className="w-4 h-4" /> Share
+                </button>
               </div>
 
               {/* Add to Cart / Buy Now Buttons */}
@@ -326,16 +396,17 @@ export default function ProductDetailsPage() {
                   disabled={isAddingToCart || productView.stock <= 0}
                 >
                   {isAddingToCart ? (
-                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Adding...</>
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                      Adding...
+                    </>
                   ) : (
                     `Add to cart - Rs ${(productView.price * quantity).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
                   )}
                 </Button>
-                
+
                 {/* Custom Teal Button matching screenshot */}
-                <Button
-                  className="w-full h-12 rounded-none bg-[#4A8E9A] hover:bg-[#3d7781] text-white font-medium tracking-widest uppercase shadow-none"
-                >
+                <Button className="w-full h-12 rounded-none bg-primary hover:bg-blend-darken text-white font-medium tracking-widest uppercase shadow-none">
                   Buy It Now
                 </Button>
               </div>
@@ -343,7 +414,9 @@ export default function ProductDetailsPage() {
 
             {/* Size Guide Section */}
             <div className="pt-10 space-y-6 flex flex-col items-center border-t border-slate-100 mt-6">
-              <h2 className="text-2xl tracking-widest uppercase font-medium">Size Guide</h2>
+              <h2 className="text-2xl tracking-widest uppercase font-medium">
+                Size Guide
+              </h2>
               <div className="w-full max-w-md border border-slate-200 rounded-sm overflow-hidden text-sm">
                 <div className="grid grid-cols-5 bg-black text-white text-center font-medium">
                   <div className="p-3 border-r border-slate-700">SIZE</div>
@@ -353,18 +426,33 @@ export default function ProductDetailsPage() {
                   <div className="p-3">SHOULDER</div>
                 </div>
                 {SIZE_GUIDE.map((row, idx) => (
-                  <div key={idx} className={`grid grid-cols-5 text-center ${idx % 2 !== 0 ? 'bg-slate-50' : 'bg-white'} border-t border-slate-200`}>
-                    <div className="p-3 bg-black text-white font-medium border-r border-slate-700">{row.size}</div>
-                    <div className="p-3 border-r border-slate-200">{row.chest}</div>
-                    <div className="p-3 border-r border-slate-200">{row.length}</div>
-                    <div className="p-3 border-r border-slate-200">{row.sleeve}</div>
+                  <div
+                    key={idx}
+                    className={`grid grid-cols-5 text-center ${idx % 2 !== 0 ? "bg-slate-50" : "bg-white"} border-t border-slate-200`}
+                  >
+                    <div className="p-3 bg-black text-white font-medium border-r border-slate-700">
+                      {row.size}
+                    </div>
+                    <div className="p-3 border-r border-slate-200">
+                      {row.chest}
+                    </div>
+                    <div className="p-3 border-r border-slate-200">
+                      {row.length}
+                    </div>
+                    <div className="p-3 border-r border-slate-200">
+                      {row.sleeve}
+                    </div>
                     <div className="p-3">{row.shoulder}</div>
                   </div>
                 ))}
               </div>
               <p className="text-xs text-center text-muted-foreground max-w-sm leading-relaxed">
-                *** All measurements are in inches.<br/>
-                Please note that these measurements are approximate and may vary slightly. The oversized fit of these t-shirts is designed for a relaxed and comfortable fit. If you're between sizes or prefer a looser fit, we recommend going up a size.
+                *** All measurements are in inches.
+                <br />
+                Please note that these measurements are approximate and may vary
+                slightly. The oversized fit of these t-shirts is designed for a
+                relaxed and comfortable fit. If you're between sizes or prefer a
+                looser fit, we recommend going up a size.
               </p>
             </div>
 
@@ -373,30 +461,47 @@ export default function ProductDetailsPage() {
               <div className="flex flex-col items-center text-center p-6 border border-slate-200 bg-slate-50/50 space-y-3">
                 <Truck className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
                 <span className="text-xs text-slate-600">
-                  Island-wide Cash-on-Delivery <span className="font-bold text-slate-900">350 LKR</span><br/>(within 1-3 working days)
+                  Island-wide Cash-on-Delivery{" "}
+                  <span className="font-bold text-slate-900">350 LKR</span>
+                  <br />
+                  (within 1-3 working days)
                 </span>
               </div>
               <div className="flex flex-col items-center text-center p-6 border border-slate-200 bg-slate-50/50 space-y-3">
-                <RefreshCw className="w-6 h-6 text-slate-700" strokeWidth={1.5} />
+                <RefreshCw
+                  className="w-6 h-6 text-slate-700"
+                  strokeWidth={1.5}
+                />
                 <span className="text-xs text-slate-600">
-                  Exchange within <span className="font-bold text-slate-900">7 days</span> of purchase.
+                  Exchange within{" "}
+                  <span className="font-bold text-slate-900">7 days</span> of
+                  purchase.
                 </span>
               </div>
             </div>
 
             <div className="flex items-center justify-center gap-3 p-4 border border-slate-200 mt-4 bg-slate-50/50">
-               <ShieldCheck className="w-4 h-4 text-slate-600" />
-               <span className="text-xs font-medium uppercase tracking-wide mr-2">Guarantee Safe Checkout</span>
-               {/* Placeholders for payment icons */}
-               <div className="flex gap-2">
-                 <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center text-[8px] text-white font-bold italic">VISA</div>
-                 <div className="w-8 h-5 bg-slate-800 rounded flex items-center justify-center text-[8px] text-white font-bold relative overflow-hidden">
-                    <div className="w-3 h-3 bg-red-500 rounded-full absolute -left-0.5"></div>
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full absolute -right-0.5"></div>
-                 </div>
-               </div>
+              <ShieldCheck className="w-4 h-4 text-slate-600" />
+              <span className="text-xs font-medium uppercase tracking-wide mr-2">
+                Guarantee Safe Checkout
+              </span>
+              {/* Placeholders for payment icons */}
+              <div className="flex gap-2">
+                {/* Minimalist Payment Icons */}
+                <div className="h-7 w-11 border border-gray-200 rounded-sm flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity">
+                  <span className="text-[#1A1F71] font-bold italic text-[9px] tracking-wider">
+                    VISA
+                  </span>
+                </div>
+                <div className="h-7 w-11 border border-gray-200 rounded-sm flex items-center justify-center relative overflow-hidden opacity-70 hover:opacity-100 transition-opacity">
+                  <div className="w-3.5 h-3.5 bg-[#EB001B] rounded-full absolute left-2 mix-blend-multiply"></div>
+                  <div className="w-3.5 h-3.5 bg-[#F79E1B] rounded-full absolute right-2 mix-blend-multiply"></div>
+                </div>
+                <div className="h-7 px-2 border border-gray-200 rounded-sm flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity text-[9px] font-bold tracking-tighter italic text-slate-800">
+                  mintpay
+                </div>
+              </div>
             </div>
-
           </div>
         </div>
       </div>

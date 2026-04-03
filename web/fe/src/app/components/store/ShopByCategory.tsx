@@ -9,13 +9,13 @@ const categories = [
     id: 1,
     title: "Tops",
     href: "/category/tops",
-    image: "/images/products/top/top-1.png", // Replace with your actual image path
+    image: "https://calistaclothing.com/cdn/shop/files/IMG_5065-Edit_1.jpg?v=1761122287&width=1346", // Replace with your actual image path
   },
   {
     id: 2,
     title: "Bottoms",
     href: "/category/bottoms",
-    image: "/images/products/bottom/bottom-1.png", // Replace with your actual image path
+    image: "https://calistaclothing.com/cdn/shop/files/IMG_0938.jpg?v=1735121374&width=1346", // Replace with your actual image path
   },
 ];
 

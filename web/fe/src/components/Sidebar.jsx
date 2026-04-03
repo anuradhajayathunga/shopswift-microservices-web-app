@@ -182,13 +182,13 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
                   Get Pro
                 </Button>
               </div>
-              <div className="w-1/2 absolute -right-5 bottom-7 translate-x-4 scale-[1.5] shrink-0">
+              <div className="w-1/2 absolute right-1 bottom-3 translate-x-4 scale-[1.5] shrink-0">
                 <Image
-                  src="/images/backgrounds/rocket.png"
+                  src="/images/dashboard/offers.svg"
                   alt="rocket"
                   loading="eager"
-                  width={100}
-                  height={100}
+                  width={50}
+                  height={50}
                   className="w-auto h-auto object-contain drop-shadow-lg opacity-90"
                   style={{ width: "auto", height: "auto" }}
                 />

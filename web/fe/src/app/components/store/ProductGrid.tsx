@@ -28,7 +28,7 @@ export function ProductGrid({ products, isLoading = false }: ProductGridProps) {
           </div>
 
           <Link
-            href="/new"
+            href="/store/categories"
             className="group hidden sm:flex items-center gap-2 text-sm font-medium text-gray-900 border-b border-gray-900 pb-1 hover:text-gray-500 hover:border-gray-500 transition-colors shrink-0"
           >
             View all
@@ -114,11 +114,11 @@ export function ProductGrid({ products, isLoading = false }: ProductGridProps) {
                     />
 
                     {/* Quick Add Hover Overlay (Optional touch of premium UX) */}
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out translate-y-4 group-hover:translate-y-0">
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out translate-y-4 group-hover:translate-y-0">
                       <button className="w-10 h-10 bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors shadow-lg">
                         <Heart className="w-4 h-4" strokeWidth={2} />
                       </button>
-                      <button className="w-10 h-10 bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors shadow-lg">
+                      <button className="w-10 h-10 bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors shadow-lg delay-75">
                         <Eye className="w-4 h-4" strokeWidth={2} />
                       </button>
                     </div>
@@ -133,7 +133,7 @@ export function ProductGrid({ products, isLoading = false }: ProductGridProps) {
                     {/* Price */}
                     <div className="flex items-center gap-2 pt-0.5">
                       {hasOffer && originalPrice && (
-                        <span className="text-xs text-gray-400 line-through">
+                        <span className="text-xs text-[#E11D48] line-through">
                           Rs{" "}
                           {originalPrice.toLocaleString("en-US", {
                             minimumFractionDigits: 2,
