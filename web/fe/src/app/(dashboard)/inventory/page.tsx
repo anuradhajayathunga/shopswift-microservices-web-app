@@ -306,7 +306,7 @@ export default function InventoryPage() {
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         <Card className="border-border/60 shadow-sm bg-background overflow-hidden">
-          <CardHeader className="border-b border-border/60 bg-muted/20">
+          <CardHeader className="border-b border-border/60 bg-muted/20 dark:bg-muted/0">
             <CardTitle className="text-lg font-semibold text-foreground">
               Out-of-stock items
             </CardTitle>
@@ -368,7 +368,7 @@ export default function InventoryPage() {
         </Card>
 
         <Card className="border-border/60 shadow-sm bg-background overflow-hidden">
-          <CardHeader className="border-b border-border/60 bg-muted/20">
+          <CardHeader className="border-b border-border/60 bg-muted/20 dark:bg-muted/0">
             <CardTitle className="text-lg font-semibold text-foreground">
               Low-stock items
             </CardTitle>
@@ -435,7 +435,7 @@ export default function InventoryPage() {
       </div>
 
       <Card className="border-border/60 shadow-sm bg-background overflow-hidden">
-        <CardHeader className="border-b border-border/60 bg-muted/20 space-y-4">
+        <CardHeader className="border-b border-border/60 bg-muted/20 dark:bg-muted/0 space-y-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <CardTitle className="text-lg font-semibold text-foreground">
