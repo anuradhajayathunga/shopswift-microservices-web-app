@@ -101,7 +101,7 @@ export function SearchOverlay({ children }: { children: React.ReactNode }) {
       {/* The Trigger (Will wrap your Search Icon/Button in the Header) */}
       <DialogTrigger asChild>{children}</DialogTrigger>
       {/* Full Screen Dialog Content */}
-      <DialogContent className="max-w-none w-screen h-dvh p-0 m-0 border-none bg-white/90 font-sans sm:rounded-none !rounded-none overflow-y-auto flex flex-col [&>button]:hidden">
+      <DialogContent className="max-w-none w-screen h-dvh p-0 m-0 border-none bg-white/90 dark:bg-white/90 font-sans sm:rounded-none !rounded-none overflow-y-auto flex flex-col [&>button]:hidden">
         <DialogHeader className="sr-only">
           <DialogTitle>Search products</DialogTitle>
         </DialogHeader>
