@@ -55,6 +55,8 @@ import {
   type OrderCreate,
   type OrderUpdate,
 } from "@/lib/orders";
+import { userAPI, type UserSummary } from "@/lib/users";
+import { productAPI, type Product } from "@/lib/products";
 
 // --- Types & Validation ---
 type OrderFormState = {
@@ -140,6 +142,8 @@ const statusOptions = [
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState<OrderFormState>(initialFormState);
+  const [users, setUsers] = useState<UserSummary[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   // UI States
   const [isLoading, setIsLoading] = useState(true);
@@ -153,14 +157,45 @@ export default function OrdersPage() {
 
   const isEditing = useMemo(() => editingOrderId !== null, [editingOrderId]);
 
+  // Create lookup maps
+  const userMap = useMemo(
+    () =>
+      users.reduce(
+        (map, user) => {
+          map[user.id] = user.name;
+          return map;
+        },
+        {} as Record<number, string>,
+      ),
+    [users],
+  );
+
+  const productMap = useMemo(
+    () =>
+      products.reduce(
+        (map, product) => {
+          map[product.id] = product.name;
+          return map;
+        },
+        {} as Record<number, string>,
+      ),
+    [products],
+  );
+
   const filteredOrders = useMemo(() => {
     return orders.filter(
       (order) =>
         `${order.id}`.includes(searchTerm) ||
         `${order.user_id}`.includes(searchTerm) ||
-        `${order.product_id}`.includes(searchTerm),
+        (userMap[order.user_id] || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        `${order.product_id}`.includes(searchTerm) ||
+        (productMap[order.product_id] || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()),
     );
-  }, [orders, searchTerm]);
+  }, [orders, searchTerm, userMap, productMap]);
 
   const loadOrders = useCallback(async () => {
     try {
@@ -175,9 +210,23 @@ export default function OrdersPage() {
     }
   }, []);
 
+  const loadUsersAndProducts = useCallback(async () => {
+    try {
+      const [usersData, productsData] = await Promise.all([
+        userAPI.list(),
+        productAPI.list(),
+      ]);
+      setUsers(usersData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error("Failed to load users and products:", error);
+    }
+  }, []);
+
   useEffect(() => {
     void loadOrders();
-  }, [loadOrders]);
+    void loadUsersAndProducts();
+  }, [loadOrders, loadUsersAndProducts]);
 
   const resetForm = () => {
     setForm(initialFormState);
@@ -500,7 +549,7 @@ export default function OrdersPage() {
           <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
-              placeholder="Search by Order, User, or Product ID..."
+              placeholder="Search by Order, User, Product..."
               className="pl-9 h-9 bg-background shadow-sm border-border/60 transition-colors focus-visible:ring-1 w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -568,10 +617,10 @@ export default function OrdersPage() {
                       Order
                     </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      User ID
+                      User
                     </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Product ID
+                      Product
                     </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">
                       Qty
@@ -600,14 +649,24 @@ export default function OrdersPage() {
                         #{order.id}
                       </TableCell>
                       <TableCell className="px-5">
-                        <span className="font-mono text-[11px] font-medium text-muted-foreground bg-muted/60 dark:bg-muted/30 px-2 py-1 rounded-md border border-border/40">
-                          {order.user_id}
-                        </span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-sm text-foreground">
+                            {userMap[order.user_id] || "Unknown"}
+                          </span>
+                          <span className="font-mono text-[11px] text-muted-foreground">
+                            ID: {order.user_id}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="px-5">
-                        <span className="font-mono text-[11px] font-medium text-muted-foreground bg-muted/60 dark:bg-muted/30 px-2 py-1 rounded-md border border-border/40">
-                          {order.product_id}
-                        </span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-sm text-foreground">
+                            {productMap[order.product_id] || "Unknown"}
+                          </span>
+                          <span className="font-mono text-[11px] text-muted-foreground">
+                            ID: {order.product_id}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="px-5 text-right font-medium">
                         {order.quantity}
