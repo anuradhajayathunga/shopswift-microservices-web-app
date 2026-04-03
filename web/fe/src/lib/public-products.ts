@@ -1,5 +1,11 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export type PublicProductVariant = {
+  color: string;
+  size: string;
+  images: string[];
+};
+
 export type PublicProduct = {
   id: number;
   name: string;
@@ -11,6 +17,8 @@ export type PublicProduct = {
   image_url?: string | null;
   tag?: string | null;
   offer_percentage?: number | null;
+  sizes?: string[];
+  variants?: PublicProductVariant[];
 };
 
 const getErrorMessage = async (response: Response, fallback: string) => {

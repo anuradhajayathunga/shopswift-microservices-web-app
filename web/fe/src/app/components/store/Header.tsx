@@ -282,7 +282,7 @@ export default function Header() {
               </LoginModal>
             )}
 
-            <button className="hover:text-slate-500 transition-colors hidden sm:block">
+            <button className="hover:text-destructive transition-colors hidden sm:block">
               <Heart className="w-5 h-5" strokeWidth={1.5} />
             </button>
 

@@ -2,6 +2,12 @@ import { authAPI } from "@/lib/auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+export type ProductVariant = {
+  color: string;
+  size: string;
+  images: string[];
+};
+
 export type Product = {
   id: number;
   name: string;
@@ -13,6 +19,8 @@ export type Product = {
   image_url?: string | null;
   tag?: string | null;
   offer_percentage?: number | null;
+  sizes?: string[];
+  variants?: ProductVariant[];
 };
 
 export type ProductPayload = {
@@ -25,6 +33,8 @@ export type ProductPayload = {
   image_url?: string | null;
   tag?: string | null;
   offer_percentage?: number | null;
+  sizes?: string[];
+  variants?: ProductVariant[];
 };
 
 const buildHeaders = () => {

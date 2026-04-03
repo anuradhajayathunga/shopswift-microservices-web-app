@@ -45,6 +45,16 @@ def ensure_product_schema() -> None:
             "ALTER TABLE products ADD COLUMN offer_percentage REAL"
         )
 
+    if "sizes_json" not in columns:
+        alter_statements.append(
+            "ALTER TABLE products ADD COLUMN sizes_json TEXT"
+        )
+
+    if "variants_json" not in columns:
+        alter_statements.append(
+            "ALTER TABLE products ADD COLUMN variants_json TEXT"
+        )
+
     if not alter_statements:
         return
 

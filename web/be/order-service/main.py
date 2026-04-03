@@ -10,6 +10,43 @@ from crud import get_all_orders, get_order, create_order, update_order, delete_o
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Order Service", version="1.0")
+PRODUCT_SERVICE_URL = "http://localhost:8002"
+
+
+def normalize_status(status: Optional[str]) -> str:
+    if not isinstance(status, str):
+        return ""
+    return status.strip().lower()
+
+
+def is_completed_status(status: Optional[str]) -> bool:
+    return normalize_status(status) == "completed"
+
+
+def is_cancelled_status(status: Optional[str]) -> bool:
+    normalized = normalize_status(status)
+    return normalized in {"cancelled", "canceled"}
+
+
+def fetch_product(product_id: int):
+    with httpx.Client() as client:
+        response = client.get(f"{PRODUCT_SERVICE_URL}/api/products/{product_id}")
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return response.json()
+
+
+def update_product_stock(product_id: int, payload: dict):
+    with httpx.Client() as client:
+        response = client.put(f"{PRODUCT_SERVICE_URL}/api/products/{product_id}", json=payload)
+
+    if response.status_code != 200:
+        error_detail = response.json().get("detail", "Failed to update product stock")
+        raise HTTPException(status_code=response.status_code, detail=error_detail)
+
+    return response.json()
 
 
 def get_db():
@@ -83,6 +120,45 @@ def create_order_endpoint(order: OrderCreate, db: Session = Depends(get_db)):
 
 @app.put("/api/orders/{order_id}", response_model=Order)
 def update_order_endpoint(order_id: int, order: OrderUpdate, db: Session = Depends(get_db)):
+    existing_order = get_order(db, order_id)
+    if not existing_order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    next_status = order.status if order.status is not None else existing_order.status
+    next_quantity = order.quantity if order.quantity is not None else existing_order.quantity
+
+    stock_delta = 0
+    if is_completed_status(next_status) and not is_completed_status(existing_order.status):
+        stock_delta = -next_quantity
+    elif is_cancelled_status(next_status) and is_completed_status(existing_order.status):
+        stock_delta = next_quantity
+
+    if stock_delta != 0:
+        product = fetch_product(existing_order.product_id)
+        current_stock = product.get("stock")
+
+        if not isinstance(current_stock, int):
+            raise HTTPException(status_code=500, detail="Invalid product stock data")
+
+        next_stock = current_stock + stock_delta
+        if next_stock < 0:
+            raise HTTPException(status_code=400, detail="Insufficient product stock")
+
+        update_product_stock(existing_order.product_id, {"stock": next_stock})
+
+        try:
+            updated_order = update_order(db, order_id, order)
+            if not updated_order:
+                raise HTTPException(status_code=404, detail="Order not found")
+        except Exception:
+            try:
+                update_product_stock(existing_order.product_id, {"stock": current_stock})
+            except Exception:
+                pass
+            raise
+
+        return updated_order
+
     updated = update_order(db, order_id, order)
     if not updated:
         raise HTTPException(status_code=404, detail="Order not found")

@@ -183,7 +183,7 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
         <div className="hover:text-slate-500 transition-colors relative">
           <ShoppingBag className="h-5 w-5" strokeWidth={1.5} />
           {cartCount > 0 && (
-            <span className="absolute -right-2 -top-2 min-w-5 rounded-full bg-foreground p-1.5 text-center text-[10px] font-medium leading-none text-background">
+            <span className="absolute -right-2 -top-2 min-w-5 rounded-full bg-foreground dark:bg-background p-1.5 text-center text-[10px] font-medium leading-none text-background dark:text-foreground">
               {cartCount > 99 ? "99+" : cartCount}
             </span>
           )}
@@ -231,7 +231,7 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
               <SheetClose asChild>
                 <Button
                   variant="outline"
-                  className="mt-4 rounded-none border-gray-300 hover:bg-gray-50 h-12 px-8"
+                  className="mt-4 rounded-none border-gray-300 hover:bg-gray-800 h-12 px-8 fade-in animate-in duration-300"
                 >
                   Continue Shopping
                 </Button>
