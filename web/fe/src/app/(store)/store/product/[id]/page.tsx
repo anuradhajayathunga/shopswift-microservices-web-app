@@ -15,6 +15,7 @@ import {
   Box,
   Droplets,
 } from "lucide-react";
+import { IoFlash } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -53,6 +54,41 @@ const PRODUCT_IMAGES = [
   "/images/products/product-05.jpg",
 ];
 
+const parseProductImages = (imageUrl?: string | null): string[] => {
+  if (!imageUrl || !imageUrl.trim()) {
+    return PRODUCT_IMAGES;
+  }
+
+  const raw = imageUrl.trim();
+
+  // Support JSON array payloads, e.g. ["/img/a.jpg", "/img/b.jpg"]
+  if (raw.startsWith("[") && raw.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      if (Array.isArray(parsed)) {
+        const urls = parsed
+          .filter((item): item is string => typeof item === "string")
+          .map((item) => item.trim())
+          .filter(Boolean);
+
+        if (urls.length > 0) {
+          return urls;
+        }
+      }
+    } catch {
+      // Fall back to delimiter parsing below.
+    }
+  }
+
+  // Support comma, pipe, and newline separated values.
+  const urls = raw
+    .split(/[,|\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return urls.length > 0 ? urls : [raw];
+};
+
 const PRODUCT_DETAILS_TABLE = [
   { label: "Material", value: "Single Jersey Material" },
   { label: "Fabric Composition", value: "230 GSM/ Cotton 100%" },
@@ -90,6 +126,11 @@ export default function ProductDetailsPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(PRODUCT_IMAGES[0]);
 
+  const productImages = useMemo(
+    () => parseProductImages(product?.image_url),
+    [product?.image_url],
+  );
+
   useEffect(() => {
     const loadProduct = async () => {
       if (!Number.isInteger(productId) || productId <= 0) {
@@ -110,11 +151,17 @@ export default function ProductDetailsPage() {
     void loadProduct();
   }, [productId]);
 
+  useEffect(() => {
+    if (!productImages.includes(activeImage)) {
+      setActiveImage(productImages[0]);
+    }
+  }, [productImages, activeImage]);
+
   const productView = {
     id: product?.id ?? productId,
     name: product?.name ?? "BACKYARD GRAPHIC T",
     price: product?.price ?? 4650,
-    images: PRODUCT_IMAGES,
+    images: productImages,
     stock: product?.stock ?? 10,
     sku: product?.sku ?? "DTE",
   };
@@ -308,10 +355,8 @@ export default function ProductDetailsPage() {
                 >
                   Online
                 </Badge>
-                <div
-                  className="font-semibold text-xs flex items-center gap-2"
-                >
-                  <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
+                <div className="font-semibold text-xs flex items-center gap-1">
+                  <IoFlash className="w-4 h-4 text-primary animate-pulse" />
                   Instock, ready to ship
                 </div>
               </div>
@@ -451,8 +496,8 @@ export default function ProductDetailsPage() {
                 <br />
                 Please note that these measurements are approximate and may vary
                 slightly. The oversized fit of these t-shirts is designed for a
-                relaxed and comfortable fit. If you're between sizes or prefer a
-                looser fit, we recommend going up a size.
+                relaxed and comfortable fit. If you&apos;re between sizes or
+                prefer a looser fit, we recommend going up a size.
               </p>
             </div>
 

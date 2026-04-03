@@ -10,8 +10,8 @@ type ProductGridProps = {
 };
 
 export function ProductGrid({ products, isLoading = false }: ProductGridProps) {
-  // Take only the first 4 products for the newest arrivals row
-  const newestArrivals = products.slice(0, 4);
+  // Show a maximum of 8 products for a 4x2 layout on large screens.
+  const newestArrivals = products.slice(0, 8);
 
   return (
     <section className="w-full bg-white py-16 md:py-24 font-sans border-t border-gray-200">
@@ -39,7 +39,7 @@ export function ProductGrid({ products, isLoading = false }: ProductGridProps) {
         {/* Loading State */}
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {Array.from({ length: 4 }).map((_, index) => (
+            {Array.from({ length: 8 }).map((_, index) => (
               <div key={index} className="flex flex-col gap-4 animate-pulse">
                 <div className="aspect-[3/4] bg-gray-100" />
                 <div className="space-y-3">
