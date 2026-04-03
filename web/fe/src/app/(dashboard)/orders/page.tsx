@@ -11,6 +11,8 @@ import {
   Search,
   RefreshCw,
   ListFilter,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -154,6 +156,9 @@ export default function OrdersPage() {
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
   const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ROWS_PER_PAGE = 8;
 
   const isEditing = useMemo(() => editingOrderId !== null, [editingOrderId]);
 
@@ -197,10 +202,26 @@ export default function OrdersPage() {
     );
   }, [orders, searchTerm, userMap, productMap]);
 
+  const totalPages = Math.ceil(filteredOrders.length / ROWS_PER_PAGE);
+  const paginatedOrders = useMemo(() => {
+    const startIdx = (currentPage - 1) * ROWS_PER_PAGE;
+    const endIdx = startIdx + ROWS_PER_PAGE;
+    return filteredOrders.slice(startIdx, endIdx);
+  }, [filteredOrders, currentPage]);
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
+
   const loadOrders = useCallback(async () => {
     try {
       const data = await orderAPI.list();
       setOrders(data);
+      setCurrentPage(1);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to load orders",
@@ -560,14 +581,31 @@ export default function OrdersPage() {
               {filteredOrders.length}{" "}
               {filteredOrders.length === 1 ? "Order" : "Orders"}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-2 bg-background shadow-sm text-muted-foreground border-border/60 ml-auto sm:ml-0"
-            >
-              <ListFilter className="size-4" />
-              <span className="hidden sm:inline">Filter</span>
-            </Button>
+            <div className="flex items-center gap-2 ml-auto sm:ml-0">
+              <span className="text-xs text-muted-foreground font-medium">
+                Page {currentPage} of {totalPages || 1}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 p-0 bg-background shadow-sm text-muted-foreground border-border/60"
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1 || totalPages === 0}
+                title="Previous page"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 p-0 bg-background shadow-sm text-muted-foreground border-border/60"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages || totalPages === 0}
+                title="Next page"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -640,7 +678,7 @@ export default function OrdersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((order) => (
+                  {paginatedOrders.map((order) => (
                     <TableRow
                       key={order.id}
                       className="group hover:bg-muted/40 hover:dark:bg-muted/10 transition-colors border-b-border/50"
