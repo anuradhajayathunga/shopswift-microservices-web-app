@@ -76,6 +76,9 @@ const parseProductImages = (imageUrl?: string | null): string[] => {
   return urls.length > 0 ? urls : [raw];
 };
 
+const uniqueImages = (images: string[]) =>
+  Array.from(new Set(images.map((image) => image.trim()).filter(Boolean)));
+
 const PRODUCT_DETAILS_TABLE = [
   { label: "Material", value: "Single Jersey Material" },
   { label: "Fabric Composition", value: "230 GSM/ Cotton 100%" },
@@ -113,10 +116,20 @@ export default function ProductDetailsPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(PRODUCT_IMAGES[0]);
 
-  const fallbackProductImages = useMemo(
+  const productGalleryImages = useMemo(
     () => parseProductImages(product?.image_url),
     [product?.image_url],
   );
+
+  const allProductImages = useMemo(() => {
+    const variantImages = (product?.variants ?? []).flatMap(
+      (variant) => variant.images ?? [],
+    );
+
+    const images = uniqueImages([...productGalleryImages, ...variantImages]);
+
+    return images.length > 0 ? images : PRODUCT_IMAGES;
+  }, [product?.variants, productGalleryImages]);
 
   const availableSizes = useMemo(() => {
     const sizes = product?.sizes?.filter(Boolean) ?? [];
@@ -147,7 +160,7 @@ export default function ProductDetailsPage() {
         continue;
       }
 
-      const firstImage = variant.images?.[0] || fallbackProductImages[0];
+      const firstImage = variant.images?.[0] || allProductImages[0];
       byColor.set(variant.color, firstImage);
     }
 
@@ -155,12 +168,12 @@ export default function ProductDetailsPage() {
       name,
       image,
     }));
-  }, [product?.variants, fallbackProductImages]);
+  }, [allProductImages, product?.variants]);
 
   const productImages = useMemo(() => {
     const variants = product?.variants ?? [];
     if (variants.length === 0) {
-      return fallbackProductImages;
+      return allProductImages;
     }
 
     const normalizedColor = selectedColor.trim().toLowerCase();
@@ -190,12 +203,12 @@ export default function ProductDetailsPage() {
             : variants;
 
     const images = targetVariants.flatMap((variant) => variant.images ?? []);
-    const uniqueImages = Array.from(
-      new Set(images.map((image) => image.trim()).filter(Boolean)),
-    );
+    const variantGalleryImages = uniqueImages(images);
 
-    return uniqueImages.length > 0 ? uniqueImages : fallbackProductImages;
-  }, [fallbackProductImages, product?.variants, selectedColor, selectedSize]);
+    return variantGalleryImages.length > 0
+      ? variantGalleryImages
+      : allProductImages;
+  }, [allProductImages, product?.variants, selectedColor, selectedSize]);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -218,10 +231,10 @@ export default function ProductDetailsPage() {
   }, [productId]);
 
   useEffect(() => {
-    if (!productImages.includes(activeImage)) {
-      setActiveImage(productImages[0]);
+    if (!allProductImages.includes(activeImage)) {
+      setActiveImage(allProductImages[0]);
     }
-  }, [productImages, activeImage]);
+  }, [allProductImages, activeImage]);
 
   useEffect(() => {
     if (!selectedSize || !availableSizes.includes(selectedSize)) {
@@ -247,7 +260,7 @@ export default function ProductDetailsPage() {
     id: product?.id ?? productId,
     name: product?.name ?? "BACKYARD GRAPHIC T",
     price: product?.price ?? 4650,
-    images: productImages,
+    images: allProductImages,
     stock: product?.stock ?? 10,
     sku: product?.sku ?? "DTE",
   };
