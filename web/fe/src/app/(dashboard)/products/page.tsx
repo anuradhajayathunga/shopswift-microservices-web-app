@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -46,6 +47,12 @@ import { Switch } from "@/components/ui/switch";
 import { productAPI, type Product, type ProductPayload } from "@/lib/products";
 
 // --- Types & Validation ---
+type ProductVariantFormState = {
+  color: string;
+  size: string;
+  images: string;
+};
+
 type ProductFormState = {
   name: string;
   description: string;
@@ -56,8 +63,14 @@ type ProductFormState = {
   tag: string;
   offer_percentage: string;
   sizes: string;
-  variants_json: string;
+  variants: ProductVariantFormState[];
 };
+
+const emptyVariant = (): ProductVariantFormState => ({
+  color: "",
+  size: "",
+  images: "",
+});
 
 const initialFormState: ProductFormState = {
   name: "",
@@ -68,9 +81,33 @@ const initialFormState: ProductFormState = {
   image_url: "",
   tag: "",
   offer_percentage: "",
-  sizes: "",
-  variants_json: "",
+  sizes: "M",
+  variants: [emptyVariant()],
 };
+
+const parseDelimitedList = (value: string) =>
+  value
+    .split(/[,|\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+const PRODUCT_SIZE_OPTIONS = ["XS", "S", "M", "L", "XL", "2XL", "3XL"];
+
+const serializeVariant = (variant: ProductVariantFormState) => ({
+  color: variant.color.trim(),
+  size: variant.size.trim(),
+  images: parseDelimitedList(variant.images).slice(0, 3),
+});
+
+const getActiveVariants = (form: ProductFormState) =>
+  form.variants
+    .map(serializeVariant)
+    .filter(
+      (variant) =>
+        variant.color.length > 0 ||
+        variant.size.length > 0 ||
+        variant.images.length > 0,
+    );
 
 const toPayload = (form: ProductFormState): ProductPayload => ({
   name: form.name.trim(),
@@ -84,17 +121,22 @@ const toPayload = (form: ProductFormState): ProductPayload => ({
     form.offer_percentage.trim() === ""
       ? undefined
       : Number(form.offer_percentage),
-  sizes:
-    form.sizes.trim() === ""
-      ? undefined
-      : form.sizes
-          .split(",")
-          .map((item) => item.trim())
-          .filter(Boolean),
-  variants:
-    form.variants_json.trim() === ""
-      ? undefined
-      : (JSON.parse(form.variants_json) as ProductPayload["variants"]),
+  sizes: (() => {
+    const manualSizes = parseDelimitedList(form.sizes);
+    if (manualSizes.length > 0) {
+      return manualSizes;
+    }
+
+    const variantSizes = Array.from(
+      new Set(getActiveVariants(form).map((variant) => variant.size)),
+    );
+
+    return variantSizes.length > 0 ? variantSizes : undefined;
+  })(),
+  variants: (() => {
+    const activeVariants = getActiveVariants(form);
+    return activeVariants.length > 0 ? activeVariants : undefined;
+  })(),
 });
 
 const validateForm = (form: ProductFormState) => {
@@ -116,14 +158,33 @@ const validateForm = (form: ProductFormState) => {
     }
   }
 
-  if (form.variants_json.trim() !== "") {
-    try {
-      const parsed = JSON.parse(form.variants_json) as unknown;
-      if (!Array.isArray(parsed)) {
-        return "Variants must be a JSON array";
+  const activeVariants = getActiveVariants(form);
+
+  const variantKeys = new Set<string>();
+  for (const variant of activeVariants) {
+    if (!variant.color) return "Variant color is required";
+    if (!variant.size) return "Variant size is required";
+    if (variant.images.length === 0) {
+      return `Add at least 1 image for ${variant.color} / ${variant.size}`;
+    }
+    if (variant.images.length > 3) {
+      return `Maximum 3 images are allowed for ${variant.color} / ${variant.size}`;
+    }
+
+    const key = `${variant.color.toLowerCase()}::${variant.size.toLowerCase()}`;
+    if (variantKeys.has(key)) {
+      return "Duplicate color and size combination is not allowed";
+    }
+    variantKeys.add(key);
+  }
+
+  const sizes = parseDelimitedList(form.sizes);
+  if (activeVariants.length > 0 && sizes.length > 0) {
+    const availableSizes = new Set(sizes.map((size) => size.toLowerCase()));
+    for (const variant of activeVariants) {
+      if (!availableSizes.has(variant.size.toLowerCase())) {
+        return `Variant size ${variant.size} must exist in the product sizes list`;
       }
-    } catch {
-      return "Variants must be valid JSON";
     }
   }
 
@@ -133,6 +194,11 @@ const validateForm = (form: ProductFormState) => {
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [form, setForm] = useState<ProductFormState>(initialFormState);
+
+  const selectedSizes = useMemo(
+    () => parseDelimitedList(form.sizes),
+    [form.sizes],
+  );
 
   // UI States
   const [isLoading, setIsLoading] = useState(true);
@@ -204,12 +270,67 @@ export default function ProductsPage() {
           ? ""
           : String(product.offer_percentage),
       sizes: product.sizes?.join(", ") ?? "",
-      variants_json:
+      variants:
         product.variants && product.variants.length > 0
-          ? JSON.stringify(product.variants, null, 2)
-          : "",
+          ? product.variants.map((variant) => ({
+              color: variant.color,
+              size: variant.size,
+              images: (variant.images ?? []).join(", "),
+            }))
+          : [emptyVariant()],
     });
     setShowForm(true);
+  };
+
+  const addVariantRow = () => {
+    setForm((prev) => ({
+      ...prev,
+      variants: [...prev.variants, emptyVariant()],
+    }));
+  };
+
+  const removeVariantRow = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      variants:
+        prev.variants.length > 1
+          ? prev.variants.filter((_, variantIndex) => variantIndex !== index)
+          : [emptyVariant()],
+    }));
+  };
+
+  const handleVariantChange =
+    (index: number, key: keyof ProductVariantFormState) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({
+        ...prev,
+        variants: prev.variants.map((variant, variantIndex) =>
+          variantIndex === index
+            ? { ...variant, [key]: event.target.value }
+            : variant,
+        ),
+      }));
+    };
+
+  const handleSizeToggle = (size: string, checked: boolean) => {
+    setForm((prev) => {
+      const currentSizes = parseDelimitedList(prev.sizes);
+
+      const withoutToggled = currentSizes.filter(
+        (currentSize) => currentSize.toLowerCase() !== size.toLowerCase(),
+      );
+
+      const nextSizes = checked ? [...withoutToggled, size] : withoutToggled;
+
+      const uniqueOrderedSizes = Array.from(
+        new Set(nextSizes.map((item) => item.trim()).filter(Boolean)),
+      );
+
+      return {
+        ...prev,
+        sizes: uniqueOrderedSizes.join(", "),
+      };
+    });
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -359,7 +480,7 @@ export default function ProductsPage() {
           else setShowForm(true);
         }}
       >
-        <DialogContent className="sm:max-w-[550px] p-0 border-border/60 shadow-xl overflow-hidden">
+        <DialogContent className="sm:max-w-[700px] p-0 border-border/60 shadow-xl overflow-hidden">
           <div className="px-6 pt-6 pb-4 bg-muted/30 dark:bg-muted/5 border-b border-border/60">
             <DialogHeader>
               <DialogTitle className="text-xl">
@@ -373,7 +494,10 @@ export default function ProductsPage() {
             </DialogHeader>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={handleSubmit}
+            className="overflow-y-auto max-h-[70vh] bg-gray-50/50 dark:bg-transparent"
+          >
             <div className="px-6 space-y-5 pb-6">
               <div className="space-y-1.5">
                 <Label
@@ -524,38 +648,127 @@ export default function ProductsPage() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="sizes"
-                  className="text-xs font-semibold uppercase text-muted-foreground"
-                >
+              <div className="space-y-3">
+                <Label className="text-xs font-semibold uppercase text-muted-foreground">
                   Sizes (Optional)
                 </Label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 rounded-lg border border-border/60 bg-background p-3">
+                  {PRODUCT_SIZE_OPTIONS.map((size) => {
+                    const isChecked = selectedSizes.some(
+                      (selectedSize) =>
+                        selectedSize.toLowerCase() === size.toLowerCase(),
+                    );
+
+                    return (
+                      <label
+                        key={size}
+                        className="flex items-center gap-2 rounded-md border border-transparent px-2.5 py-2 hover:bg-muted/60 cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={isChecked}
+                          onCheckedChange={(checked) =>
+                            handleSizeToggle(size, checked === true)
+                          }
+                          disabled={isSubmitting}
+                        />
+                        <span className="text-sm font-medium">{size}</span>
+                      </label>
+                    );
+                  })}
+                </div>
                 <Input
                   id="sizes"
                   value={form.sizes}
                   onChange={handleChange("sizes")}
-                  placeholder="e.g. S, M, L, XL"
+                  placeholder="Need custom sizes? Add comma separated values"
                   disabled={isSubmitting}
                   className="shadow-none"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="variants_json"
-                  className="text-xs font-semibold uppercase text-muted-foreground"
-                >
-                  Variants JSON (Optional)
-                </Label>
-                <Textarea
-                  id="variants_json"
-                  value={form.variants_json}
-                  onChange={handleChange("variants_json")}
-                  placeholder='[{"color":"Black","size":"M","images":["/img1.jpg"]}]'
-                  disabled={isSubmitting}
-                  className="min-h-[120px] shadow-none resize-y bg-transparent font-mono text-xs"
-                />
+              <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 dark:bg-muted/5 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-sm font-semibold">Variants</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Add colors, sizes, and up to 3 images for each variant.
+                    </p>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addVariantRow}
+                    disabled={isSubmitting}
+                    className="gap-2"
+                  >
+                    <Plus className="size-4" />
+                    Add Variant
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  {form.variants.map((variant, index) => (
+                    <div key={index} className="p-3 space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Variant {index + 1}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeVariantRow(index)}
+                          disabled={isSubmitting}
+                          className="h-8 px-2 text-muted-foreground hover:text-destructive"
+                        >
+                          <Trash2 className="size-4 mr-1" />
+                          Remove
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                            Color
+                          </Label>
+                          <Input
+                            value={variant.color}
+                            onChange={handleVariantChange(index, "color")}
+                            placeholder="Black"
+                            disabled={isSubmitting}
+                            className="shadow-none"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                            Size
+                          </Label>
+                          <Input
+                            value={variant.size}
+                            onChange={handleVariantChange(index, "size")}
+                            placeholder="M"
+                            disabled={isSubmitting}
+                            className="shadow-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                          Images (up to 3, comma separated)
+                        </Label>
+                        <Input
+                          value={variant.images}
+                          onChange={handleVariantChange(index, "images")}
+                          placeholder="/images/black-m-1.jpg, /images/black-m-2.jpg"
+                          disabled={isSubmitting}
+                          className="shadow-none"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -653,6 +866,9 @@ export default function ProductsPage() {
                       Price
                     </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Inventory
+                    </TableHead>
+                    <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       Status
                     </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right w-[100px]">
@@ -720,28 +936,30 @@ export default function ProductsPage() {
                         }).format(product.price)}
                       </TableCell>
                       <TableCell className="px-5">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <div className="inline-flex items-center gap-2 rounded-md border border-border/60 px-2 py-1 bg-background">
-                            <Switch
-                              checked={product.is_active}
-                              onCheckedChange={(checked) =>
-                                void handleToggleActive(product, checked)
-                              }
-                              disabled={
-                                isSubmitting ||
-                                deletingProductId === product.id ||
-                                togglingProductId === product.id
-                              }
-                              aria-label={`Toggle ${product.name} active state`}
-                            />
-                            <span className="text-xs font-medium text-muted-foreground min-w-[58px]">
-                              {product.is_active ? "Active" : "Inactive"}
-                            </span>
-                            {togglingProductId === product.id && (
-                              <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
-                            )}
-                          </div>
+                        <div className="flex flex-wrap items-center gap-4">
                           {getStockBadge(product.stock)}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-5">
+                        <div className="inline-flex items-center gap-2 ">
+                          <Switch
+                            checked={product.is_active}
+                            onCheckedChange={(checked) =>
+                              void handleToggleActive(product, checked)
+                            }
+                            disabled={
+                              isSubmitting ||
+                              deletingProductId === product.id ||
+                              togglingProductId === product.id
+                            }
+                            aria-label={`Toggle ${product.name} active state`}
+                          />
+                          <span className="text-xs font-medium text-muted-foreground min-w-[58px]">
+                            {product.is_active ? "Active" : "Inactive"}
+                          </span>
+                          {togglingProductId === product.id && (
+                            <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="px-5 text-right">
