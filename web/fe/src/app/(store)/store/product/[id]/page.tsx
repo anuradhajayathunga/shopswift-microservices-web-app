@@ -125,7 +125,11 @@ export default function ProductDetailsPage() {
     }
 
     const variantSizes = Array.from(
-      new Set((product?.variants ?? []).map((variant) => variant.size).filter(Boolean)),
+      new Set(
+        (product?.variants ?? [])
+          .map((variant) => variant.size)
+          .filter(Boolean),
+      ),
     );
 
     return variantSizes.length > 0 ? variantSizes : PRODUCT_SIZES;
@@ -394,7 +398,10 @@ export default function ProductDetailsPage() {
             {/* Color Selection */}
             <div className="space-y-3">
               <div className="text-sm">
-                Color: <span className="font-medium">{selectedColor || "Default"}</span>
+                Color:{" "}
+                <span className="font-medium">
+                  {selectedColor || "Default"}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 {availableColors.length > 0 ? (
@@ -417,7 +424,9 @@ export default function ProductDetailsPage() {
                     </button>
                   ))
                 ) : (
-                  <span className="text-xs text-muted-foreground">No color variants</span>
+                  <span className="text-xs text-muted-foreground">
+                    No color variants
+                  </span>
                 )}
               </div>
             </div>
