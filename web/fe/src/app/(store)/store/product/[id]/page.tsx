@@ -32,19 +32,6 @@ import { cartAPI, notifyCartUpdated } from "@/lib/cart";
 import { publicProductAPI, type PublicProduct } from "@/lib/public-products";
 import { toast } from "sonner";
 
-// Mock data based on the screenshot
-const PRODUCT_COLORS = [
-  {
-    name: "Grey Green",
-    hex: "#8F9E93",
-    image: "/images/products/product-01.jpg",
-  },
-  {
-    name: "Light Blue",
-    hex: "#A8DADC",
-    image: "/images/products/product-02.jpg",
-  },
-];
 const PRODUCT_SIZES = ["2XL", "XL", "L", "M", "S"];
 const PRODUCT_IMAGES = [
   "/images/products/product-01.jpg",
@@ -121,15 +108,90 @@ export default function ProductDetailsPage() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const productId = useMemo(() => Number(params.id), [params.id]);
 
-  const [selectedColor, setSelectedColor] = useState(PRODUCT_COLORS[0]);
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState("2XL");
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(PRODUCT_IMAGES[0]);
 
-  const productImages = useMemo(
+  const fallbackProductImages = useMemo(
     () => parseProductImages(product?.image_url),
     [product?.image_url],
   );
+
+  const availableSizes = useMemo(() => {
+    const sizes = product?.sizes?.filter(Boolean) ?? [];
+    if (sizes.length > 0) {
+      return sizes;
+    }
+
+    const variantSizes = Array.from(
+      new Set((product?.variants ?? []).map((variant) => variant.size).filter(Boolean)),
+    );
+
+    return variantSizes.length > 0 ? variantSizes : PRODUCT_SIZES;
+  }, [product?.sizes, product?.variants]);
+
+  const availableColors = useMemo(() => {
+    const variants = product?.variants ?? [];
+    if (variants.length === 0) {
+      return [] as { name: string; image: string }[];
+    }
+
+    const byColor = new Map<string, string>();
+    for (const variant of variants) {
+      if (!variant.color || byColor.has(variant.color)) {
+        continue;
+      }
+
+      const firstImage = variant.images?.[0] || fallbackProductImages[0];
+      byColor.set(variant.color, firstImage);
+    }
+
+    return Array.from(byColor.entries()).map(([name, image]) => ({
+      name,
+      image,
+    }));
+  }, [product?.variants, fallbackProductImages]);
+
+  const productImages = useMemo(() => {
+    const variants = product?.variants ?? [];
+    if (variants.length === 0) {
+      return fallbackProductImages;
+    }
+
+    const normalizedColor = selectedColor.trim().toLowerCase();
+    const normalizedSize = selectedSize.trim().toLowerCase();
+
+    const exactMatches = variants.filter(
+      (variant) =>
+        variant.color?.trim().toLowerCase() === normalizedColor &&
+        variant.size?.trim().toLowerCase() === normalizedSize,
+    );
+
+    const colorMatches = variants.filter(
+      (variant) => variant.color?.trim().toLowerCase() === normalizedColor,
+    );
+
+    const sizeMatches = variants.filter(
+      (variant) => variant.size?.trim().toLowerCase() === normalizedSize,
+    );
+
+    const targetVariants =
+      exactMatches.length > 0
+        ? exactMatches
+        : colorMatches.length > 0
+          ? colorMatches
+          : sizeMatches.length > 0
+            ? sizeMatches
+            : variants;
+
+    const images = targetVariants.flatMap((variant) => variant.images ?? []);
+    const uniqueImages = Array.from(
+      new Set(images.map((image) => image.trim()).filter(Boolean)),
+    );
+
+    return uniqueImages.length > 0 ? uniqueImages : fallbackProductImages;
+  }, [fallbackProductImages, product?.variants, selectedColor, selectedSize]);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -156,6 +218,26 @@ export default function ProductDetailsPage() {
       setActiveImage(productImages[0]);
     }
   }, [productImages, activeImage]);
+
+  useEffect(() => {
+    if (!selectedSize || !availableSizes.includes(selectedSize)) {
+      setSelectedSize(availableSizes[0] ?? "2XL");
+    }
+  }, [availableSizes, selectedSize]);
+
+  useEffect(() => {
+    if (availableColors.length === 0) {
+      setSelectedColor("");
+      return;
+    }
+
+    const hasSelectedColor = availableColors.some(
+      (color) => color.name === selectedColor,
+    );
+    if (!hasSelectedColor) {
+      setSelectedColor(availableColors[0].name);
+    }
+  }, [availableColors, selectedColor]);
 
   const productView = {
     id: product?.id ?? productId,
@@ -205,6 +287,20 @@ export default function ProductDetailsPage() {
       setIsAddingToCart(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white font-sans text-slate-900">
+        <Header />
+        <div className="container mx-auto px-4 py-16 max-w-7xl flex items-center justify-center">
+          <div className="flex items-center gap-3 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span className="text-sm">Loading product details...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white pb-20 font-sans text-slate-900">
@@ -298,27 +394,31 @@ export default function ProductDetailsPage() {
             {/* Color Selection */}
             <div className="space-y-3">
               <div className="text-sm">
-                Color: <span className="font-medium">{selectedColor.name}</span>
+                Color: <span className="font-medium">{selectedColor || "Default"}</span>
               </div>
               <div className="flex items-center gap-3">
-                {PRODUCT_COLORS.map((color) => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color)}
-                    className={`relative w-14 h-16 border overflow-hidden transition-all ${
-                      selectedColor.name === color.name
-                        ? "border-slate-900 p-0.5"
-                        : "border-border hover:border-slate-400"
-                    }`}
-                    title={color.name}
-                  >
-                    <img
-                      src={color.image}
-                      alt={color.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                {availableColors.length > 0 ? (
+                  availableColors.map((color) => (
+                    <button
+                      key={color.name}
+                      onClick={() => setSelectedColor(color.name)}
+                      className={`relative w-14 h-16 border overflow-hidden transition-all ${
+                        selectedColor === color.name
+                          ? "border-slate-900 p-0.5"
+                          : "border-border hover:border-slate-400"
+                      }`}
+                      title={color.name}
+                    >
+                      <img
+                        src={color.image}
+                        alt={color.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground">No color variants</span>
+                )}
               </div>
             </div>
 
@@ -328,7 +428,7 @@ export default function ProductDetailsPage() {
                 Size: <span className="font-medium">{selectedSize}</span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {PRODUCT_SIZES.map((size) => (
+                {availableSizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}

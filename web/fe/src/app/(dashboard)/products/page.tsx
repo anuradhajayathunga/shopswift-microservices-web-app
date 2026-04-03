@@ -55,6 +55,8 @@ type ProductFormState = {
   image_url: string;
   tag: string;
   offer_percentage: string;
+  sizes: string;
+  variants_json: string;
 };
 
 const initialFormState: ProductFormState = {
@@ -66,6 +68,8 @@ const initialFormState: ProductFormState = {
   image_url: "",
   tag: "",
   offer_percentage: "",
+  sizes: "",
+  variants_json: "",
 };
 
 const toPayload = (form: ProductFormState): ProductPayload => ({
@@ -80,6 +84,17 @@ const toPayload = (form: ProductFormState): ProductPayload => ({
     form.offer_percentage.trim() === ""
       ? undefined
       : Number(form.offer_percentage),
+  sizes:
+    form.sizes.trim() === ""
+      ? undefined
+      : form.sizes
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean),
+  variants:
+    form.variants_json.trim() === ""
+      ? undefined
+      : (JSON.parse(form.variants_json) as ProductPayload["variants"]),
 });
 
 const validateForm = (form: ProductFormState) => {
@@ -98,6 +113,17 @@ const validateForm = (form: ProductFormState) => {
     const offer = Number(form.offer_percentage);
     if (Number.isNaN(offer) || offer < 0 || offer > 100) {
       return "Offer percentage must be between 0 and 100";
+    }
+  }
+
+  if (form.variants_json.trim() !== "") {
+    try {
+      const parsed = JSON.parse(form.variants_json) as unknown;
+      if (!Array.isArray(parsed)) {
+        return "Variants must be a JSON array";
+      }
+    } catch {
+      return "Variants must be valid JSON";
     }
   }
 
@@ -177,6 +203,11 @@ export default function ProductsPage() {
         product.offer_percentage === undefined
           ? ""
           : String(product.offer_percentage),
+      sizes: product.sizes?.join(", ") ?? "",
+      variants_json:
+        product.variants && product.variants.length > 0
+          ? JSON.stringify(product.variants, null, 2)
+          : "",
     });
     setShowForm(true);
   };
@@ -490,6 +521,40 @@ export default function ProductsPage() {
                   placeholder="https://example.com/product.jpg"
                   disabled={isSubmitting}
                   className="shadow-none"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="sizes"
+                  className="text-xs font-semibold uppercase text-muted-foreground"
+                >
+                  Sizes (Optional)
+                </Label>
+                <Input
+                  id="sizes"
+                  value={form.sizes}
+                  onChange={handleChange("sizes")}
+                  placeholder="e.g. S, M, L, XL"
+                  disabled={isSubmitting}
+                  className="shadow-none"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="variants_json"
+                  className="text-xs font-semibold uppercase text-muted-foreground"
+                >
+                  Variants JSON (Optional)
+                </Label>
+                <Textarea
+                  id="variants_json"
+                  value={form.variants_json}
+                  onChange={handleChange("variants_json")}
+                  placeholder='[{"color":"Black","size":"M","images":["/img1.jpg"]}]'
+                  disabled={isSubmitting}
+                  className="min-h-[120px] shadow-none resize-y bg-transparent font-mono text-xs"
                 />
               </div>
             </div>
