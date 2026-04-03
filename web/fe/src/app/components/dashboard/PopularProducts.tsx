@@ -86,10 +86,8 @@ const PopularProducts = () => {
     const hasOffer = typeof product.offer_percentage === "number";
     const progress = deriveProgress(product.stock, product.offer_percentage);
     const fallbackImage = fallbackImages[index % fallbackImages.length];
-    const imageSrc =
-      typeof product.image_url === "string" && product.image_url.startsWith("/")
-        ? product.image_url
-        : fallbackImage;
+    // Use real product image if it exists (any URL format), otherwise fallback
+    const imageSrc = product.image_url ? product.image_url : fallbackImage;
 
     return {
       img: imageSrc,
@@ -179,7 +177,7 @@ const PopularProducts = () => {
                       <Image
                         src={item.img}
                         alt="icon"
-                        className="h-[60px] w-[60px] rounded-md"
+                        className="h-[60px] w-[60px] rounded-md object-top object-cover"
                         height={60}
                         width={60}
                       />

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -19,9 +19,31 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import FullLogo from "./shared/logo/FullLogo";
+import { orderAPI } from "@/lib/orders";
 
 export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
   const pathname = usePathname();
+  const [pendingOrderCount, setPendingOrderCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingOrders = async () => {
+      try {
+        const orders = await orderAPI.list();
+        const pendingCount = orders.filter(
+          (order) => order.status === "pending",
+        ).length;
+        setPendingOrderCount(pendingCount);
+      } catch (error) {
+        console.error("Failed to fetch pending orders:", error);
+      }
+    };
+
+    fetchPendingOrders();
+    // Refresh pending orders count every 30 seconds for live updates
+    const interval = setInterval(fetchPendingOrders, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const mainNavItems = [
     { name: "Dashboard", path: "/", icon: <LayoutDashboard size={21} /> },
@@ -29,7 +51,7 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
       name: "Live Orders",
       path: "/orders",
       icon: <ShoppingCart size={21} />,
-      badge: "12",
+      badge: pendingOrderCount > 0 ? String(pendingOrderCount) : null,
       badgeVariant: "destructive",
     },
     {
@@ -90,10 +112,10 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
         {item.badge && (
           <span
             className={cn(
-              "text-[10px] px-2 py-0.5 rounded-full font-medium",
+              "text-[10px] px-2 py-0.5 rounded-full font-medium animate-pulse",
               item.badgeVariant === "secondary"
                 ? "bg-lightsecondary text-secondary"
-                : "bg-destructive/10 text-destructive", // Fallback for other badges
+                : " bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-900/50",
             )}
           >
             {item.badge}

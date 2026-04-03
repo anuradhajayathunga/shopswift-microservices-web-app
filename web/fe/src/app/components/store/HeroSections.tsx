@@ -44,9 +44,10 @@ export function PromoSplit() {
     <section className="w-full border-y border-gray-200 bg-white font-sans">
       <div className="grid grid-cols-1 lg:grid-cols-2">
         {/* Image Side */}
-        <div className="relative aspect-square lg:aspect-auto lg:h-[700px] bg-gray-100 overflow-hidden">
+        <div className="relative aspect-square lg:aspect-auto lg:h-[800px] bg-gray-100 overflow-hidden">
+          <div className="w-1/4"/>
           <img
-            src="https://calistaclothing.com/cdn/shop/files/TRADITION_MEETS_STREET_2.jpg?v=1774861988&width=1600"
+            src="/images/products/promotion/offers.png"
             alt="Avurudu Promotion"
             className="w-full h-full object-contain object-center transition-transform duration-1000 hover:scale-105"
           />

@@ -11,6 +11,8 @@ import {
   Search,
   RefreshCw,
   ListFilter,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -55,6 +57,8 @@ import {
   type OrderCreate,
   type OrderUpdate,
 } from "@/lib/orders";
+import { userAPI, type UserSummary } from "@/lib/users";
+import { productAPI, type Product } from "@/lib/products";
 
 // --- Types & Validation ---
 type OrderFormState = {
@@ -140,6 +144,8 @@ const statusOptions = [
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState<OrderFormState>(initialFormState);
+  const [users, setUsers] = useState<UserSummary[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   // UI States
   const [isLoading, setIsLoading] = useState(true);
@@ -150,22 +156,72 @@ export default function OrdersPage() {
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
   const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const ROWS_PER_PAGE = 8;
 
   const isEditing = useMemo(() => editingOrderId !== null, [editingOrderId]);
+
+  // Create lookup maps
+  const userMap = useMemo(
+    () =>
+      users.reduce(
+        (map, user) => {
+          map[user.id] = user.name;
+          return map;
+        },
+        {} as Record<number, string>,
+      ),
+    [users],
+  );
+
+  const productMap = useMemo(
+    () =>
+      products.reduce(
+        (map, product) => {
+          map[product.id] = product.name;
+          return map;
+        },
+        {} as Record<number, string>,
+      ),
+    [products],
+  );
 
   const filteredOrders = useMemo(() => {
     return orders.filter(
       (order) =>
         `${order.id}`.includes(searchTerm) ||
         `${order.user_id}`.includes(searchTerm) ||
-        `${order.product_id}`.includes(searchTerm),
+        (userMap[order.user_id] || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        `${order.product_id}`.includes(searchTerm) ||
+        (productMap[order.product_id] || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()),
     );
-  }, [orders, searchTerm]);
+  }, [orders, searchTerm, userMap, productMap]);
+
+  const totalPages = Math.ceil(filteredOrders.length / ROWS_PER_PAGE);
+  const paginatedOrders = useMemo(() => {
+    const startIdx = (currentPage - 1) * ROWS_PER_PAGE;
+    const endIdx = startIdx + ROWS_PER_PAGE;
+    return filteredOrders.slice(startIdx, endIdx);
+  }, [filteredOrders, currentPage]);
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(1, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+  };
 
   const loadOrders = useCallback(async () => {
     try {
       const data = await orderAPI.list();
       setOrders(data);
+      setCurrentPage(1);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to load orders",
@@ -175,9 +231,23 @@ export default function OrdersPage() {
     }
   }, []);
 
+  const loadUsersAndProducts = useCallback(async () => {
+    try {
+      const [usersData, productsData] = await Promise.all([
+        userAPI.list(),
+        productAPI.list(),
+      ]);
+      setUsers(usersData);
+      setProducts(productsData);
+    } catch (error) {
+      console.error("Failed to load users and products:", error);
+    }
+  }, []);
+
   useEffect(() => {
     void loadOrders();
-  }, [loadOrders]);
+    void loadUsersAndProducts();
+  }, [loadOrders, loadUsersAndProducts]);
 
   const resetForm = () => {
     setForm(initialFormState);
@@ -500,7 +570,7 @@ export default function OrdersPage() {
           <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
-              placeholder="Search by Order, User, or Product ID..."
+              placeholder="Search by Order, User, Product..."
               className="pl-9 h-9 bg-background shadow-sm border-border/60 transition-colors focus-visible:ring-1 w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -511,14 +581,31 @@ export default function OrdersPage() {
               {filteredOrders.length}{" "}
               {filteredOrders.length === 1 ? "Order" : "Orders"}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-2 bg-background shadow-sm text-muted-foreground border-border/60 ml-auto sm:ml-0"
-            >
-              <ListFilter className="size-4" />
-              <span className="hidden sm:inline">Filter</span>
-            </Button>
+            <div className="flex items-center gap-2 ml-auto sm:ml-0">
+              <span className="text-xs text-muted-foreground font-medium">
+                Page {currentPage} of {totalPages || 1}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 p-0 bg-background shadow-sm text-muted-foreground border-border/60"
+                onClick={handlePreviousPage}
+                disabled={currentPage === 1 || totalPages === 0}
+                title="Previous page"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 p-0 bg-background shadow-sm text-muted-foreground border-border/60"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages || totalPages === 0}
+                title="Next page"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -568,10 +655,10 @@ export default function OrdersPage() {
                       Order
                     </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      User ID
+                      User
                     </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Product ID
+                      Product
                     </TableHead>
                     <TableHead className="h-11 px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider text-right">
                       Qty
@@ -591,7 +678,7 @@ export default function OrdersPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((order) => (
+                  {paginatedOrders.map((order) => (
                     <TableRow
                       key={order.id}
                       className="group hover:bg-muted/40 hover:dark:bg-muted/10 transition-colors border-b-border/50"
@@ -600,14 +687,24 @@ export default function OrdersPage() {
                         #{order.id}
                       </TableCell>
                       <TableCell className="px-5">
-                        <span className="font-mono text-[11px] font-medium text-muted-foreground bg-muted/60 dark:bg-muted/30 px-2 py-1 rounded-md border border-border/40">
-                          {order.user_id}
-                        </span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-sm text-foreground">
+                            {userMap[order.user_id] || "Unknown"}
+                          </span>
+                          <span className="font-mono text-[11px] text-muted-foreground">
+                            ID: {order.user_id}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="px-5">
-                        <span className="font-mono text-[11px] font-medium text-muted-foreground bg-muted/60 dark:bg-muted/30 px-2 py-1 rounded-md border border-border/40">
-                          {order.product_id}
-                        </span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium text-sm text-foreground">
+                            {productMap[order.product_id] || "Unknown"}
+                          </span>
+                          <span className="font-mono text-[11px] text-muted-foreground">
+                            ID: {order.product_id}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="px-5 text-right font-medium">
                         {order.quantity}
