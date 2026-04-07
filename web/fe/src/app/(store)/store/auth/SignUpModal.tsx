@@ -113,8 +113,7 @@ export function SignUpModal({ children }: { children: React.ReactNode }) {
         router.refresh();
       }, 1000);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Sign up failed";
+      const message = err instanceof Error ? err.message : "Sign up failed";
       setError(message);
       toast.error(message);
     } finally {
