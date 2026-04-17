@@ -5,11 +5,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 export function HeroBanner() {
+  const heroImageUrl =
+    "https://res.cloudinary.com/dt1ykqfvr/image/upload/v1776450228/514976936_694275263589649_2848995649089914963_n_kmxzfh.jpg";
+
   return (
     <section className="relative w-full h-[85vh] min-h-[600px] bg-slate-900 overflow-hidden font-sans">
       <div className="absolute inset-0 w-full h-full">
         <img
-          src="https://scontent.fcmb12-1.fna.fbcdn.net/v/t39.30808-6/514976936_694275263589649_2848995649089914963_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=2a1932&_nc_ohc=eSQBeBEBMXgQ7kNvwHDuvk2&_nc_oc=AdoXrsvbv_ZDJpDO5AoR9Vva9SonbClGiCdSQ8xtFOw3LxO2xlhCx1blvZBNeW894zUlwUa7DEns_viiPPrCBhpn&_nc_zt=23&_nc_ht=scontent.fcmb12-1.fna&_nc_gid=-0ecaeO7XakhidMUPhX1LQ&_nc_ss=7a389&oh=00_Af2ayiAV-GJkKoPdreb6X91kvYwfq5qVxovpoiQLK0xTxg&oe=69DABC71"
+          src={heroImageUrl}
           alt="New Collection"
           className="w-full h-full object-cover object-center opacity-90"
         />
@@ -45,7 +48,7 @@ export function PromoSplit() {
       <div className="grid grid-cols-1 lg:grid-cols-2">
         {/* Image Side */}
         <div className="relative aspect-square lg:aspect-auto lg:h-[800px] bg-gray-100 overflow-hidden">
-          <div className="w-1/4"/>
+          <div className="w-1/4" />
           <img
             src="/images/products/promotion/offers.png"
             alt="Avurudu Promotion"

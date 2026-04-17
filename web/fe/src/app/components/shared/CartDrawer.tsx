@@ -214,7 +214,7 @@ export function CartDrawer({ cartCount = 0 }: CartDrawerProps) {
               <Button
                 asChild
                 variant="outline"
-                className="rounded-none border-gray-300 hover:bg-gray-50 h-12 px-8"
+                  className="mt-4 rounded-none border-gray-300 hover:bg-gray-800 h-12 px-8 fade-in animate-in duration-300"
               >
                 <Link href="/signin">Sign In</Link>
               </Button>

@@ -196,7 +196,7 @@ export default function Sidebar({ isMobileMenuOpen, toggleMobileMenu }) {
             <div className="flex w-full bg-lightprimary rounded-lg p-6 relative">
               <div className="w-1/2 relative z-10">
                 <h5 className="text-base font-bold text-charcoal dark:text-white">
-                  Get 20% off with hype. Pro!
+                  Get 20% off with hype Pro!
                   {/* Upgrade for advanced
                   analytics, AI forecasts, and priority support. */}
                 </h5>

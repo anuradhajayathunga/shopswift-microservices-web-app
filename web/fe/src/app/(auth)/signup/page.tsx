@@ -155,7 +155,7 @@ export default function SignUpPage() {
               Create an account
             </h1>
             <p className="text-muted-foreground text-sm">
-              Get started with hype. and scale your business today.
+              Get started with hypeand scale your business today.
             </p>
           </div>
 
@@ -356,7 +356,7 @@ export default function SignUpPage() {
                 Join thousands of businesses scaling globally
               </h2>
               <p className="text-primary-foreground/60 text-base leading-relaxed">
-                hype. gives you the analytics, inventory management, and AI
+                hypegives you the analytics, inventory management, and AI
                 forecasting tools to dominate your market.
               </p>
             </div>

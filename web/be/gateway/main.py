@@ -8,7 +8,7 @@ import jwt
 from jwt import ExpiredSignatureError, InvalidTokenError
 from dotenv import load_dotenv
 
-app = FastAPI(title="hype. API Gateway", version="1.0")
+app = FastAPI(title="hype API Gateway", version="1.0")
 
 DEV_ORIGINS = [
     "http://localhost:5173",
@@ -79,7 +79,7 @@ def verify_jwt_token(request: Request):
 
 @app.get("/")
 def read_root():
-    return {"message": "hype. API Gateway is running", "services": list(SERVICES.keys())}
+    return {"message": "hypeAPI Gateway is running", "services": list(SERVICES.keys())}
 
 # User Service Routes
 @app.get("/gateway/users")

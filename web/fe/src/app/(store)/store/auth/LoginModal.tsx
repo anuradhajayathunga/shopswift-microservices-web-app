@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -9,6 +7,7 @@ import { ArrowUpRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -101,11 +100,16 @@ export function LoginModal({ children }: { children: React.ReactNode }) {
         - !rounded-none forces sharp corners like the screenshot
         - Customizing the close button positioning via Tailwind arbitrary variants
       */}
-      <DialogContent className="sm:max-w-[600px] p-6 sm:p-12 !rounded-none border-border/60 shadow-2xl bg-background [&>button]:right-6 [&>button]:top-6 sm:[&>button]:right-10 sm:[&>button]:top-10 [&>button_svg]:size-6 [&>button]:opacity-60 hover:[&>button]:opacity-100">
+      <DialogContent className="sm:max-w-[700px] p-6 sm:p-12 !rounded-none border-border/60 shadow-2xl bg-background [&>button]:right-6 [&>button]:top-6 sm:[&>button]:right-10 sm:[&>button]:top-10 [&>button_svg]:size-6 [&>button]:opacity-60 hover:[&>button]:opacity-100">
         <DialogHeader className="mb-8 text-left">
           <DialogTitle className="text-3xl sm:text-4xl font-medium tracking-tight text-foreground">
-            {isSignUp ? "Create customer account" : "Log in"}
+            {isSignUp ? "Register" : "Log in"}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {isSignUp
+              ? "Create a new hype customer account."
+              : "Log in to your hype customer account."}
+          </DialogDescription>
         </DialogHeader>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
@@ -189,13 +193,13 @@ export function LoginModal({ children }: { children: React.ReactNode }) {
             <Button
               type="submit"
               variant="outline"
-              className="h-12 px-10 rounded-none border-border shadow-sm text-base font-medium hover:bg-muted/50 transition-colors w-full sm:w-auto"
+                  className="mt-4 rounded-none border-gray-300 hover:bg-gray-800 h-12 px-8 fade-in animate-in duration-300"
               disabled={loading}
             >
               {loading
                 ? "Please wait..."
                 : isSignUp
-                  ? "Create account"
+                  ? "Register"
                   : "Log in"}
             </Button>
 

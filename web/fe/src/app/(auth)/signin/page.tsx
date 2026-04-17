@@ -274,7 +274,7 @@ export default function SignInPage() {
                 The simplest way to manage your e-commerce
               </h2>
               <p className="text-primary-foreground/60 text-base leading-relaxed">
-                Enter your credentials to access your secure hype. dashboard and
+                Enter your credentials to access your secure hype dashboard and
                 monitor your global sales in real-time.
               </p>
             </div>

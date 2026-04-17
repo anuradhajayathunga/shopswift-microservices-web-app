@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "hype.",
-  description: "hype. microservices e-commerce platform for modern shopping",
+  description: "hype microservices e-commerce platform for modern shopping",
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
-# hype. Microservices
+# hypeMicroservices
 
-hype. is a simple microservices-based backend built with FastAPI.
+hypeis a simple microservices-based backend built with FastAPI.
 
 ## Services
 
