@@ -35,7 +35,7 @@ export function HeroBanner() {
           asChild
           className="h-14 px-10 rounded-none bg-white text-slate-900 hover:bg-gray-100 font-bold tracking-widest uppercase transition-colors shadow-xl"
         >
-          <Link href="/store">Shop Now</Link>
+          <Link href="/store/categories">Shop Now</Link>
         </Button>
       </div>
     </section>

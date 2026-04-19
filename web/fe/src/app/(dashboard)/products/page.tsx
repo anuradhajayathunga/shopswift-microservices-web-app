@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  AlertTriangle,
   Loader2,
   Pencil,
   Plus,
@@ -204,6 +205,8 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   // Action States
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
@@ -364,14 +367,30 @@ export default function ProductsPage() {
     }
   };
 
-  const handleDelete = async (product: Product) => {
-    if (!window.confirm(`Are you sure you want to delete "${product.name}"?`))
-      return;
+  const openDeleteDialog = (product: Product) => {
+    setProductToDelete(product);
+    setShowDeleteDialog(true);
+  };
 
-    setDeletingProductId(product.id);
+  const closeDeleteDialog = () => {
+    if (deletingProductId !== null) {
+      return;
+    }
+    setShowDeleteDialog(false);
+    setProductToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!productToDelete) {
+      return;
+    }
+
+    setDeletingProductId(productToDelete.id);
     try {
-      await productAPI.remove(product.id);
+      await productAPI.remove(productToDelete.id);
       toast.success("Product deleted successfully");
+      setShowDeleteDialog(false);
+      setProductToDelete(null);
       await loadProducts();
     } catch (error) {
       toast.error(
@@ -800,6 +819,79 @@ export default function ProductsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Modal */}
+      <Dialog
+        open={showDeleteDialog}
+        onOpenChange={(open) => {
+          if (!open) closeDeleteDialog();
+          else setShowDeleteDialog(true);
+        }}
+      >
+        <DialogContent className="sm:max-w-[520px] p-0 border-border/60 shadow-xl overflow-hidden">
+          <div className="px-6 pt-6 pb-4 bg-muted/30 dark:bg-muted/5 border-b border-border/60">
+            <DialogHeader>
+              <DialogTitle className="text-xl">Delete Product</DialogTitle>
+              <DialogDescription>
+                This action is permanent and cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="px-6 py-5 bg-gray-50/50 dark:bg-transparent">
+            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 rounded-full bg-destructive/10 p-2 text-destructive">
+                  <AlertTriangle className="size-4" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-foreground">
+                    Are you sure you want to delete this product?
+                  </p>
+                  <div className="rounded-lg border border-border/60 bg-background px-3 py-2">
+                    <p className="text-sm font-semibold text-foreground">
+                      {productToDelete?.name ?? "Selected product"}
+                    </p>
+                    {productToDelete?.sku ? (
+                      <p className="mt-1 text-xs text-muted-foreground font-mono">
+                        SKU: {productToDelete.sku}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="px-6 py-4 border-t border-border/60">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={closeDeleteDialog}
+              disabled={deletingProductId !== null}
+              className="bg-background shadow-sm"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => void confirmDelete()}
+              disabled={deletingProductId !== null}
+              className="min-w-[130px] shadow-sm"
+            >
+              {deletingProductId !== null ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete Product"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Data Table */}
       <Card className="border-border/60 shadow-sm dark:shadow-dark-md bg-background overflow-hidden rounded-2xl">
         {/* Table Toolbar */}
@@ -984,7 +1076,7 @@ export default function ProductsPage() {
                             size="icon"
                             variant="ghost"
                             className="size-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                            onClick={() => handleDelete(product)}
+                            onClick={() => openDeleteDialog(product)}
                             disabled={
                               isSubmitting ||
                               deletingProductId === product.id ||
